@@ -1,0 +1,1753 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCHA Wordmark Generator</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* OCHA Common Design System Variables */
+      :root {
+        --cd-ocha-blue: #1f69b3;
+        --cd-blue--dark: #144372;
+        --cd-blue--bright: #82b5e9;
+        --cd-white: #fff;
+        --cd-grey--light: #f2f2f2;
+        --cd-grey--mid: #595959;
+        --cd-grey--dark: #4a4a4a;
+        --cd-blue-grey: #e6ecf1;
+        --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
+        --cd-max-width: 1220px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--cd-font--roboto);
+        background: var(--cd-white);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        border-top: 12px solid #009edb;
+      }
+
+      .container {
+        max-width: var(--cd-max-width);
+        margin: 0 auto;
+        background: var(--cd-white);
+        border-radius: 0;
+        box-shadow: none;
+        padding: 2.5rem;
+      }
+
+      h1 {
+        color: var(--cd-ocha-blue);
+        margin-bottom: 0.5rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        color: var(--cd-grey--mid);
+        margin-bottom: 2rem;
+        font-weight: 400;
+        font-size: 1.125rem;
+      }
+
+      .cd-footer {
+        background: var(--cd-ocha-blue);
+        color: var(--cd-white);
+        font-weight: 300;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        padding: 3.5rem 2.5rem;
+        margin: 2rem -1rem -2rem;
+        border-top: 8px solid #009edb;
+      }
+
+      .cd-footer a {
+        color: var(--cd-white);
+        text-decoration: none;
+      }
+
+      .cd-footer a:hover,
+      .cd-footer a:focus-visible {
+        text-decoration: underline;
+      }
+
+      /* 3-column layout: OCHA | tagline | CC */
+      .cd-footer__inner {
+        max-width: var(--cd-max-width);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+
+      /* Left: OCHA branding */
+      .cd-footer__col--ocha {
+        flex-shrink: 0;
+        padding-inline-end: 1.5rem;
+        border-inline-end: 1px solid rgba(255, 255, 255, 0.35);
+      }
+
+      .cd-footer__mandate-heading {
+        display: block;
+        font-size: 0.6875rem;
+        font-weight: 300;
+        margin-bottom: 0.375rem;
+      }
+
+      .cd-footer__logo {
+        width: 149px;
+        height: 37px;
+        filter: brightness(0) invert(1);
+      }
+
+      /* Middle: tagline */
+      .cd-footer__col--tagline {
+        flex: 1;
+        padding-inline: 1.5rem;
+      }
+
+      .cd-footer__col--tagline p {
+        margin: 0;
+      }
+
+      /* Right: CC */
+      .cd-footer__col--cc {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-inline-start: 1.5rem;
+        border-inline-start: 1px solid rgba(255, 255, 255, 0.35);
+        text-align: end;
+        max-width: 340px;
+      }
+
+      .cd-footer__col--cc svg {
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        fill: var(--cd-white);
+      }
+
+      .cd-footer__col--cc a.cd-footer__cc-link {
+        line-height: 0;
+      }
+
+      .cd-footer__col--cc a.cd-footer__cc-link:hover {
+        transition: opacity 0.1666s ease-in-out;
+        opacity: 0.8;
+        text-decoration: none;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--cd-blue--dark);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"] {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--cd-grey--light);
+        border-radius: 0;
+        font-size: 1rem;
+        font-family: var(--cd-font--roboto);
+        transition: border-color 0.2s ease;
+        background: var(--cd-white);
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--cd-ocha-blue);
+        box-shadow: none;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+      }
+
+      .search-box input {
+        width: 100%;
+      }
+
+      .icon-selector {
+        border: 1px solid var(--cd-grey--light);
+        border-radius: 0;
+        padding: 1rem;
+        max-height: 450px;
+        overflow-y: auto;
+        background: var(--cd-white);
+        scrollbar-width: thin;
+        scrollbar-color: var(--cd-ocha-blue) var(--cd-grey--light);
+      }
+
+      .icon-selector::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .icon-selector::-webkit-scrollbar-track {
+        background: var(--cd-grey--light);
+      }
+
+      .icon-selector::-webkit-scrollbar-thumb {
+        background: var(--cd-ocha-blue);
+      }
+
+      .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .icon-item {
+        border: 2px solid var(--cd-grey--light);
+        border-radius: 0;
+        padding: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        background: var(--cd-white);
+      }
+
+      .icon-item:hover {
+        background: var(--cd-blue-grey);
+        border-color: var(--cd-blue--bright);
+      }
+
+      .icon-item.selected {
+        background: var(--cd-ocha-blue);
+        border-color: var(--cd-blue--dark);
+      }
+
+      .icon-item svg {
+        width: 56px;
+        height: 56px;
+        display: block;
+        margin: 0 auto 0.5rem;
+      }
+
+      .icon-item.selected svg path,
+      .icon-item.selected svg circle,
+      .icon-item.selected svg rect,
+      .icon-item.selected svg polygon,
+      .icon-item.selected svg ellipse {
+        fill: white !important;
+      }
+
+      .icon-name {
+        font-size: 0.625rem;
+        color: var(--cd-grey--mid);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 400;
+      }
+
+      .icon-item.selected .icon-name {
+        color: var(--cd-white);
+        font-weight: 500;
+      }
+
+      /* Text input rows */
+      .text-inputs-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .line-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .line-row-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+
+      .line-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--cd-blue--dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .char-count {
+        font-size: 0.7rem;
+        font-weight: 400;
+        color: var(--cd-grey--mid);
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .char-count.at-limit {
+        color: #e53935;
+        font-weight: 700;
+      }
+
+      .line-row input[type="text"] {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--cd-grey--light);
+        border-radius: 0;
+        font-size: 1rem;
+        font-family: var(--cd-font--roboto);
+        transition: border-color 0.2s ease;
+        background: var(--cd-white);
+      }
+
+      .line-row input[type="text"]:focus {
+        outline: none;
+        border-color: var(--cd-ocha-blue);
+        box-shadow: none;
+      }
+
+      .line-row input.at-limit {
+        border-color: #e53935;
+      }
+
+      .add-line-btn {
+        align-self: flex-start;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        font-family: var(--cd-font--roboto);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px dashed var(--cd-grey--mid);
+        background: var(--cd-white);
+        color: var(--cd-grey--mid);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .add-line-btn:hover {
+        border-color: var(--cd-ocha-blue);
+        color: var(--cd-ocha-blue);
+      }
+
+      .remove-line-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        font-family: var(--cd-font--roboto);
+        border: none;
+        background: none;
+        color: var(--cd-grey--mid);
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .remove-line-btn:hover {
+        color: #e53935;
+      }
+
+      .preview-section {
+        margin: 2rem 0;
+        padding: 2rem;
+        background: var(--cd-grey--light);
+        border-radius: 0;
+        text-align: center;
+        border: 1px solid var(--cd-grey--light);
+      }
+
+      .preview-section h2 {
+        color: var(--cd-blue--dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      #preview {
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: var(--cd-white);
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid var(--cd-grey--light);
+      }
+
+      .buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+
+      button {
+        padding: 0.75rem 2rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        border: 2px solid transparent;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: var(--cd-font--roboto);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: none;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-svg {
+        background: var(--cd-ocha-blue);
+        color: var(--cd-white);
+        border-color: var(--cd-ocha-blue);
+      }
+
+      .btn-svg:hover:not(:disabled) {
+        background: var(--cd-blue--dark);
+        border-color: var(--cd-blue--dark);
+      }
+
+      .btn-png {
+        background: var(--cd-grey--dark);
+        color: var(--cd-white);
+        border-color: var(--cd-grey--dark);
+      }
+
+      .btn-png:hover:not(:disabled) {
+        background: var(--cd-grey--mid);
+        border-color: var(--cd-grey--mid);
+      }
+
+      .btn-request {
+        background: #e56a54;
+        color: var(--cd-white);
+        border-color: #e56a54;
+      }
+
+      .btn-request:hover:not(:disabled) {
+        background: #c9533e;
+        border-color: #c9533e;
+      }
+
+      .btn-check {
+        background: var(--cd-white);
+        color: var(--cd-ocha-blue);
+        border-color: var(--cd-ocha-blue);
+      }
+
+      .btn-check:hover:not(:disabled) {
+        background: var(--cd-blue-grey);
+      }
+
+      /* Approval workflow sections */
+      .approval-section {
+        margin-top: 2rem;
+        padding: 1.5rem 2rem;
+        background: var(--cd-grey--light);
+        border: 1px solid var(--cd-grey--light);
+      }
+
+      .approval-section h3 {
+        color: var(--cd-blue--dark);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .approval-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .approval-field {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .approval-field label {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .approval-field input {
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--cd-grey--light);
+        font-size: 0.9rem;
+        font-family: var(--cd-font--roboto);
+        background: var(--cd-white);
+      }
+
+      .approval-field input:focus {
+        outline: none;
+        border-color: var(--cd-ocha-blue);
+      }
+
+      .approval-message {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        border-left: 3px solid;
+      }
+
+      .approval-message.success {
+        background: #e8f5e9;
+        border-color: #4caf50;
+        color: #2e7d32;
+      }
+
+      .approval-message.error {
+        background: #fce4ec;
+        border-color: #e53935;
+        color: #c62828;
+      }
+
+      .approval-message.info {
+        background: #e3f2fd;
+        border-color: var(--cd-ocha-blue);
+        color: var(--cd-blue--dark);
+      }
+
+      .approval-message.pending {
+        background: #fff8e1;
+        border-color: #ffa000;
+        color: #e65100;
+      }
+
+      .watermark-note {
+        text-align: center;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--cd-grey--mid);
+        font-style: italic;
+      }
+
+      .step-divider {
+        margin: 2rem 0 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--cd-grey--light);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--cd-grey--mid);
+        font-size: 1rem;
+        font-weight: 400;
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--cd-grey--mid);
+        font-size: 1rem;
+        font-weight: 400;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1.5rem;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .buttons {
+          flex-direction: column;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>UN OCHA Wordmark Generator</h1>
+      <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>1. Select Icon</label>
+          <div class="search-box">
+            <input type="text" id="iconSearch" placeholder="Search icons..." />
+          </div>
+          <div class="icon-selector" id="iconSelector">
+            <div class="loading">Loading icons...</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>2. Enter Text</label>
+          <div class="text-inputs-container" id="textInputs">
+            <!-- Lines are built dynamically by setLineCount() -->
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <h2>Preview</h2>
+        <div id="preview">
+          <p style="color: #999">
+            Select an icon and enter text to see preview
+          </p>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn-png" id="downloadPreviewPNG" disabled>Download Preview PNG</button>
+      </div>
+      <p class="watermark-note" id="watermarkNote" style="display: none;">Preview files include a DRAFT watermark. Request approval below to download the final version.</p>
+
+      <!-- Step 3: Request Approval -->
+      <div class="approval-section" id="requestSection">
+        <h3>3. Request Approval</h3>
+        <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
+          Wordmarks must be approved by the OCHA Visual team before use.
+          Submit your request and you will receive a Request ID by email.
+        </p>
+        <div class="approval-row">
+          <div class="approval-field">
+            <label for="requestEmail">Your email</label>
+            <input type="text" id="requestEmail" placeholder="your.name@un.org" />
+          </div>
+          <button class="btn-request" id="submitRequest" disabled>Request Approval</button>
+        </div>
+        <div id="requestMessage"></div>
+      </div>
+
+      <!-- Step 4: Download Approved Wordmark -->
+      <div class="approval-section step-divider" id="downloadSection">
+        <h3>4. Download Approved Wordmark</h3>
+        <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
+          Already have an approved Request ID? Enter it below to download the final wordmark.
+        </p>
+        <div class="approval-row">
+          <div class="approval-field">
+            <label for="downloadEmail">Your email</label>
+            <input type="text" id="downloadEmail" placeholder="your.name@un.org" />
+          </div>
+          <div class="approval-field">
+            <label for="downloadCode">Request ID</label>
+            <input type="text" id="downloadCode" placeholder="e.g., WM-A3K7P2" style="text-transform: uppercase;" />
+          </div>
+          <button class="btn-check" id="checkStatus">Check Status</button>
+        </div>
+        <div id="downloadMessage"></div>
+        <div class="buttons" id="approvedButtons" style="display: none;">
+          <button class="btn-svg" id="downloadPackage">Download Wordmark (SVG + PNG)</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let icons = [];
+      let selectedIcon = null;
+      let lineCount = 1;
+      const UN_BLUE = "#009edb";
+
+      // ── Approval API ──────────────────────────────────
+      // Replace this URL with your deployed Google Apps Script Web App URL
+      const APPROVAL_API_URL = "https://script.google.com/macros/s/AKfycbzpfHd0kMPT1UF-rifWzxFA8Te8E3QFPpDStuln2EXZp3xzJ1sFejZRqwYEedCqia9Vhw/exec";
+
+      function normalizeIconName(value) {
+        return (value || "")
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[\s\-_,.()\/]+/g, "")
+          .trim();
+      }
+
+      function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let field = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const next = text[i + 1];
+
+          if (char === '"') {
+            if (inQuotes && next === '"') {
+              field += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === "," && !inQuotes) {
+            row.push(field);
+            field = "";
+          } else if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && next === "\n") i++;
+            row.push(field);
+            const trimmed = row.map((v) => v.trim());
+            if (trimmed.some((v) => v.length > 0)) rows.push(trimmed);
+            row = [];
+            field = "";
+          } else {
+            field += char;
+          }
+        }
+
+        if (field.length > 0 || row.length > 0) {
+          row.push(field);
+          const trimmed = row.map((v) => v.trim());
+          if (trimmed.some((v) => v.length > 0)) rows.push(trimmed);
+        }
+
+        return rows;
+      }
+
+      function humanizeIconNameFromPath(path) {
+        const filename = path
+          .split("/")
+          .pop()
+          .replace(/\.svg$/i, "");
+        return filename
+          .replace(/[_-]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      function isIconSvgPath(path) {
+        const lower = path.toLowerCase();
+        return (
+          lower.endsWith(".svg") &&
+          lower.startsWith("svg/") &&
+          !lower.includes("/.")
+        );
+      }
+
+      function isLocalDev() {
+        const h = location.hostname;
+        return h === 'localhost' || h === '127.0.0.1' || location.protocol === 'file:';
+      }
+
+      function repoPathToCdnUrl(path) {
+        if (isLocalDev()) {
+          // On local dev, load SVGs from relative path (word-mark-generator/ -> svg/)
+          const filename = path.split("/").pop();
+          return "../svg/" + filename;
+        }
+        const encodedPath = path
+          .split("/")
+          .map((part) => encodeURIComponent(part))
+          .join("/");
+        return `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/${encodedPath}`;
+      }
+
+      async function loadIconsFromRepo() {
+        const apiCandidates = [
+          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026/git/trees/main?recursive=1",
+          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026/git/trees/master?recursive=1",
+        ];
+
+        let treeData = null;
+        let lastError = null;
+
+        for (const url of apiCandidates) {
+          try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            treeData = await response.json();
+            if (treeData && Array.isArray(treeData.tree)) break;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+
+        if (!treeData || !Array.isArray(treeData.tree)) {
+          throw lastError || new Error("Could not read repository tree.");
+        }
+
+        const iconMap = new Map();
+        treeData.tree
+          .filter(
+            (item) =>
+              item && item.type === "blob" && isIconSvgPath(item.path || ""),
+          )
+          .forEach((item) => {
+            const name = humanizeIconNameFromPath(item.path);
+            iconMap.set(name, repoPathToCdnUrl(item.path));
+          });
+
+        return iconMap;
+      }
+
+      function parseUrlMappingsFromCSV(csvText) {
+        const iconMap = new Map();
+        const rows = parseCSV(csvText);
+        const header = (rows[0] || []).map((h) => h.toLowerCase());
+        const nameIdx = header.indexOf("name");
+        const variantIdx = header.indexOf("variant");
+        const urlIdx = header.indexOf("url");
+
+        if (nameIdx === -1 || variantIdx === -1 || urlIdx === -1) {
+          throw new Error("URL CSV is missing Name/Variant/URL columns.");
+        }
+
+        rows.slice(1).forEach((r) => {
+          const name = (r[nameIdx] || "").trim();
+          const variant = (r[variantIdx] || "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "-");
+          const url = (r[urlIdx] || "").trim();
+          if ((variant === "un-blue" || variant === "unblue") && name && url) {
+            iconMap.set(name, url);
+          }
+        });
+
+        return iconMap;
+      }
+
+      // Load icons from curated JSON file (or fallback to humanitarian-icons repo)
+      async function loadIcons() {
+        try {
+          // Try to load curated icons first
+          try {
+            console.log("Attempting to load curated-icons.json...");
+            const response = await fetch("./curated-icons.json");
+            console.log("Fetch response:", response.status, response.ok);
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Loaded curated data:", {
+                isArray: Array.isArray(data),
+                hasIcons: !!data.icons,
+                iconsCount: data.icons ? data.icons.length : 0,
+                firstIcon: data.icons ? data.icons[0] : null,
+              });
+              // Handle both old array format and new object format with icons array
+              if (Array.isArray(data)) {
+                icons = data;
+              } else if (data.icons && Array.isArray(data.icons)) {
+                icons = data.icons;
+              } else {
+                throw new Error("Invalid curated-icons.json format");
+              }
+              // On local dev, rewrite CDN URLs to local paths
+              if (isLocalDev()) {
+                icons.forEach(icon => {
+                  if (icon.url && icon.url.includes('cdn.jsdelivr.net')) {
+                    const filename = icon.url.split("/").pop();
+                    icon.url = "../svg/" + decodeURIComponent(filename);
+                  }
+                });
+              }
+              console.log("Final icons array length:", icons.length);
+              renderIcons(icons);
+              return;
+            }
+          } catch (e) {
+            console.log(
+              "No curated-icons.json found, loading from humanitarian-icons repository",
+              e,
+            );
+          }
+
+          const iconMap = new Map();
+          try {
+            const repoMap = await loadIconsFromRepo();
+            repoMap.forEach((url, name) => iconMap.set(name, url));
+          } catch (repoErr) {
+            console.warn(
+              "Repo tree fetch failed; trying URL CSV fallback.",
+              repoErr,
+            );
+            const csvSources = [
+              "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/OCHA_Humanitarian_Icons_URLs.csv",
+              "https://raw.githubusercontent.com/UN-OCHA/humanitarian-icons-2026/main/OCHA_Humanitarian_Icons_URLs.csv",
+            ];
+
+            let loaded = false;
+            for (const url of csvSources) {
+              try {
+                const response = await fetch(url);
+                if (!response.ok) continue;
+                const csvText = await response.text();
+                const csvMap = parseUrlMappingsFromCSV(csvText);
+                csvMap.forEach((iconUrl, name) => iconMap.set(name, iconUrl));
+                loaded = iconMap.size > 0;
+                if (loaded) break;
+              } catch (csvErr) {
+                console.warn("CSV source failed:", url, csvErr);
+              }
+            }
+
+            if (!loaded) {
+              throw new Error(
+                "Could not load icons from the UN-OCHA humanitarian-icons repository.",
+              );
+            }
+          }
+
+          icons = Array.from(iconMap.entries())
+            .map(([name, url]) => ({
+              name,
+              url,
+              verticalAdjustment: 0,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+          renderIcons(icons);
+        } catch (error) {
+          document.getElementById("iconSelector").innerHTML =
+            '<div class="loading" style="color: red;">Error loading icons. Please refresh the page.</div>';
+          console.error("Error loading icons:", error);
+        }
+      }
+
+      function renderIcons(iconsToRender) {
+        const container = document.getElementById("iconSelector");
+
+        // Filter out icons with empty or invalid URLs
+        const validIcons = iconsToRender.filter(
+          (icon) =>
+            icon.url && icon.url.trim() !== "" && icon.url.endsWith(".svg"),
+        );
+
+        if (validIcons.length === 0) {
+          container.innerHTML = '<div class="no-results">No icons found</div>';
+          return;
+        }
+
+        const grid = document.createElement("div");
+        grid.className = "icon-grid";
+
+        validIcons.forEach((icon) => {
+          const item = document.createElement("div");
+          item.className = "icon-item";
+          item.innerHTML = `
+                    <div class="icon-placeholder" data-url="${icon.url}">
+                        <div style="width: 48px; height: 48px; background: #ddd; margin: 0 auto 5px;"></div>
+                    </div>
+                    <div class="icon-name" title="${icon.name}">${icon.name}</div>
+                `;
+
+          item.addEventListener("click", () => selectIcon(icon, item));
+          grid.appendChild(item);
+
+          // Load SVG asynchronously, cleaning CSS classes to prevent conflicts
+          fetch(icon.url)
+            .then((r) => r.text())
+            .then((svgText) => {
+              const placeholder = item.querySelector(".icon-placeholder");
+              // Strip <defs>...</defs> and <style>...</style> blocks
+              let cleaned = svgText.replace(/<defs>[\s\S]*?<\/defs>/gi, '');
+              cleaned = cleaned.replace(/<defs\s[^>]*>[\s\S]*?<\/defs>/gi, '');
+              cleaned = cleaned.replace(/<style[\s\S]*?<\/style>/gi, '');
+              cleaned = cleaned.replace(/<title>[\s\S]*?<\/title>/gi, '');
+              // Remove class attributes and add direct fill
+              cleaned = cleaned.replace(/\s+class="[^"]*"/g, '');
+              // Add fill to shape elements that don't have one
+              const shapes = ['path', 'circle', 'rect', 'polygon', 'ellipse', 'polyline'];
+              shapes.forEach(tag => {
+                const re = new RegExp('<' + tag + '(?![^>]*\\bfill\\s*=)', 'g');
+                cleaned = cleaned.replace(re, '<' + tag + ' fill="#009edb"');
+              });
+              // Remove inline style attributes (which may contain fill via CSS class)
+              cleaned = cleaned.replace(/\s+style="[^"]*"/g, '');
+              placeholder.innerHTML = cleaned;
+            })
+            .catch((err) => console.error("Error loading icon:", err));
+        });
+
+        container.innerHTML = "";
+        container.appendChild(grid);
+      }
+
+      function selectIcon(icon, element) {
+        // Remove previous selection
+        document.querySelectorAll(".icon-item").forEach((item) => {
+          item.classList.remove("selected");
+        });
+
+        // Add selection
+        element.classList.add("selected");
+        selectedIcon = icon;
+
+        updatePreview();
+      }
+
+      function getTextLines() {
+        const lines = [];
+        for (let i = 1; i <= lineCount; i++) {
+          const input = document.getElementById(`line${i}`);
+          if (input) lines.push(input.value.trim());
+        }
+        return lines;
+      }
+
+      function hasText() {
+        return getTextLines().some(line => line.length > 0);
+      }
+
+      async function updatePreview() {
+        const preview = document.getElementById("preview");
+        const downloadPreviewPNG = document.getElementById("downloadPreviewPNG");
+        const submitRequest = document.getElementById("submitRequest");
+        const watermarkNote = document.getElementById("watermarkNote");
+
+        if (!selectedIcon || !hasText()) {
+          preview.innerHTML =
+            '<p style="color: #999;">Select an icon and enter text to see preview</p>';
+          downloadPreviewPNG.disabled = true;
+          submitRequest.disabled = true;
+          watermarkNote.style.display = "none";
+          return;
+        }
+
+        const svg = await generateWordmark();
+        // Scale preview so multi-line wordmarks don't look tiny
+        const lines = getTextLines().filter(l => l.length > 0);
+        const numLines = lines.length;
+        const scale = numLines === 1 ? 1 : numLines === 2 ? 1.6 : 2;
+        svg.style.width = `${parseFloat(svg.getAttribute("width")) * scale}px`;
+        svg.style.height = "auto";
+        preview.innerHTML = "";
+        preview.appendChild(svg);
+
+        downloadPreviewPNG.disabled = false;
+        submitRequest.disabled = false;
+        watermarkNote.style.display = "block";
+      }
+
+      async function generateWordmark() {
+        const lines = getTextLines().filter(l => l.length > 0);
+        const numLines = lines.length;
+
+        // Font sizes: 1-line = 30px, 2-line = 18px, 3-line = 14px
+        const fontSize = numLines === 1 ? 30 : numLines === 2 ? 18 : 14;
+        const lineHeight = fontSize * 1.3;
+        const spacing = 12;
+        const iconBoxSize = 48; // Icon is always 48×48, never cropped
+
+        // Fetch the icon SVG
+        const response = await fetch(selectedIcon.url);
+        const iconSVGText = await response.text();
+
+        // Parse the icon SVG to extract the paths
+        const parser = new DOMParser();
+        const iconDoc = parser.parseFromString(iconSVGText, "image/svg+xml");
+        const iconPaths = iconDoc.querySelectorAll(
+          "path, circle, rect, polygon, polyline, line, ellipse",
+        );
+
+        // Get the actual bounding box of the icon content
+        const tempSvg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg",
+        );
+        tempSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        tempSvg.setAttribute("viewBox", "0 0 48 48");
+        tempSvg.setAttribute("width", "48");
+        tempSvg.setAttribute("height", "48");
+        tempSvg.style.position = "absolute";
+        tempSvg.style.visibility = "hidden";
+        document.body.appendChild(tempSvg);
+
+        const tempGroup = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "g",
+        );
+        iconPaths.forEach((path) => {
+          const clonedPath = path.cloneNode(true);
+          clonedPath.setAttribute("fill", "#009edb");
+          tempGroup.appendChild(clonedPath);
+        });
+        tempSvg.appendChild(tempGroup);
+
+        const bbox = tempGroup.getBBox();
+        document.body.removeChild(tempSvg);
+
+        // Measure text metrics for each line
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        ctx.font = `700 ${fontSize}px Roboto`;
+        const lineWidths = lines.map(line => ctx.measureText(line).width);
+        const maxTextWidth = Math.max(...lineWidths);
+
+        // Cap height (uppercase letter height) ≈ 0.7 of font size
+        const capHeight = fontSize * 0.7;
+
+        // Text block height: from top of first line to baseline of last line
+        const textBlockHeight = numLines === 1
+          ? capHeight
+          : (numLines - 1) * lineHeight + capHeight;
+
+        // Scale icon to fit the 48×48 box with padding
+        const iconMaxDim = iconBoxSize * 0.9;
+        const iconScale = Math.min(
+          iconMaxDim / bbox.width,
+          iconMaxDim / bbox.height,
+        );
+        const scaledIconWidth = bbox.width * iconScale;
+        const scaledIconHeight = bbox.height * iconScale;
+
+        // Vertical adjustment from curated data
+        const boxAdjustment = selectedIcon.verticalAdjustment || 0;
+
+        // Total height: icon box is always fully visible, text block may be taller
+        const totalHeight = Math.max(iconBoxSize, textBlockHeight + 8);
+
+        // Position text block centered vertically in totalHeight
+        // textStartY = baseline of line 1
+        const textStartY = (totalHeight - textBlockHeight) / 2 + capHeight;
+
+        // Icon vertical center:
+        // 1-line: centered with text
+        // 2-line: midpoint between line 1 top and line 2 baseline
+        // 3-line: centered across all 3 lines
+        let iconCenterY;
+
+        if (numLines === 1) {
+          iconCenterY = textStartY - capHeight / 2;
+        } else if (numLines === 2) {
+          const line1Top = textStartY - capHeight;
+          const line2Bottom = textStartY + lineHeight;
+          iconCenterY = (line1Top + line2Bottom) / 2 - 3;
+        } else {
+          // 3-line: center between lines 1 and 2 (icon sits higher)
+          const line1Top = textStartY - capHeight;
+          const line2Bottom = textStartY + lineHeight;
+          iconCenterY = (line1Top + line2Bottom) / 2 + 2;
+        }
+
+        // Text X position
+        const textX = iconBoxSize + spacing;
+
+        // Total width
+        const totalWidth = textX + maxTextWidth;
+
+        // Position icon: right-aligned in icon box, vertically at iconCenterY
+        const iconX = iconBoxSize - scaledIconWidth - bbox.x * iconScale;
+        let iconY =
+          iconCenterY - scaledIconHeight / 2 -
+          bbox.y * iconScale -
+          boxAdjustment;
+
+        // Ensure icon is never cropped: if iconY is negative, add top padding
+        let topPadding = 0;
+        if (iconY < 0) {
+          topPadding = -iconY;
+          iconY = 0;
+        }
+        // Also check bottom: icon must not exceed totalHeight
+        const iconBottom = iconY + scaledIconHeight + (bbox.y * iconScale);
+        const finalHeight = Math.max(totalHeight, iconBottom) + topPadding;
+
+        // Create the combined SVG
+        const svg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg",
+        );
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svg.setAttribute("viewBox", `0 0 ${totalWidth} ${finalHeight}`);
+        svg.setAttribute("width", totalWidth);
+        svg.setAttribute("height", finalHeight);
+
+        // Add icon group with scaling and positioning
+        const iconGroup = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "g",
+        );
+        iconGroup.setAttribute(
+          "transform",
+          `translate(${iconX}, ${iconY}) scale(${iconScale})`,
+        );
+
+        iconPaths.forEach((path) => {
+          const clonedPath = path.cloneNode(true);
+          clonedPath.setAttribute("fill", UN_BLUE);
+          clonedPath.removeAttribute("class");
+          iconGroup.appendChild(clonedPath);
+        });
+
+        svg.appendChild(iconGroup);
+
+        // Add text lines
+        lines.forEach((line, index) => {
+          const textElement = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text",
+          );
+          textElement.setAttribute("x", textX);
+          textElement.setAttribute("y", textStartY + topPadding + index * lineHeight);
+          textElement.setAttribute("font-family", "Roboto");
+          textElement.setAttribute("font-weight", "700");
+          textElement.setAttribute("font-size", fontSize);
+          textElement.setAttribute("fill", "#000000");
+          textElement.textContent = line;
+          svg.appendChild(textElement);
+        });
+
+        return svg;
+      }
+
+      function getDownloadFilename() {
+        const lines = getTextLines().filter(l => l.length > 0);
+        return sanitizeFilename(lines.join("-"));
+      }
+
+      // Add repeating DRAFT watermark pattern to an SVG element
+      function addWatermark(svg) {
+        const viewBox = svg.getAttribute("viewBox").split(" ").map(Number);
+        const w = viewBox[2];
+        const h = viewBox[3];
+        const fontSize = Math.max(h * 0.22, 12);
+        const stepX = fontSize * 4;
+        const stepY = fontSize * 2;
+
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `rotate(-20 ${w / 2} ${h / 2})`);
+
+        // Cover area generously (rotation expands needed area)
+        for (let y = -h; y < h * 2; y += stepY) {
+          for (let x = -w; x < w * 2; x += stepX) {
+            const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            t.setAttribute("x", x);
+            t.setAttribute("y", y);
+            t.setAttribute("font-family", "Roboto, Arial, sans-serif");
+            t.setAttribute("font-weight", "900");
+            t.setAttribute("font-size", fontSize);
+            t.setAttribute("fill", "rgba(200, 0, 0, 0.10)");
+            t.textContent = "DRAFT";
+            g.appendChild(t);
+          }
+        }
+
+        svg.appendChild(g);
+      }
+
+      // Target PNG width
+      const PNG_TARGET_WIDTH = 1200;
+
+      // Download preview PNG (with watermark)
+      function downloadPreviewPNG() {
+        generateWordmark().then((svg) => {
+          addWatermark(svg);
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          const img = new Image();
+          const blob = new Blob([svgData], { type: "image/svg+xml" });
+          const url = URL.createObjectURL(blob);
+
+          img.onload = function () {
+            const scale = PNG_TARGET_WIDTH / img.width;
+            canvas.width = PNG_TARGET_WIDTH;
+            canvas.height = Math.round(img.height * scale);
+            ctx.scale(scale, scale);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, img.width, img.height);
+            ctx.drawImage(img, 0, 0);
+
+            canvas.toBlob(function (pngBlob) {
+              const pngUrl = URL.createObjectURL(pngBlob);
+              const a = document.createElement("a");
+              a.href = pngUrl;
+              a.download = `${getDownloadFilename()}-DRAFT-wordmark.png`;
+              a.click();
+              URL.revokeObjectURL(url);
+              URL.revokeObjectURL(pngUrl);
+            });
+          };
+          img.src = url;
+        });
+      }
+
+      // Download final package (SVG + PNG in a zip)
+      async function downloadFinalPackage() {
+        const svg = await generateWordmark();
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const baseName = getDownloadFilename() + "-wordmark";
+
+        // Generate PNG from SVG
+        const pngBlob = await new Promise((resolve) => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const img = new Image();
+          const blob = new Blob([svgData], { type: "image/svg+xml" });
+          const url = URL.createObjectURL(blob);
+
+          img.onload = function () {
+            const scale = PNG_TARGET_WIDTH / img.width;
+            canvas.width = PNG_TARGET_WIDTH;
+            canvas.height = Math.round(img.height * scale);
+            ctx.scale(scale, scale);
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(function (pngBlob) {
+              URL.revokeObjectURL(url);
+              resolve(pngBlob);
+            });
+          };
+          img.src = url;
+        });
+
+        // Build zip using minimal inline zip creator (no library needed)
+        const svgBytes = new TextEncoder().encode(svgData);
+        const pngBytes = new Uint8Array(await pngBlob.arrayBuffer());
+        const zipBlob = createZip([
+          { name: baseName + ".svg", data: svgBytes },
+          { name: baseName + ".png", data: pngBytes },
+        ]);
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(zipBlob);
+        a.download = baseName + ".zip";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      // Minimal ZIP file creator (store-only, no compression — keeps it simple)
+      function createZip(files) {
+        const localHeaders = [];
+        const centralHeaders = [];
+        let offset = 0;
+
+        for (const file of files) {
+          const nameBytes = new TextEncoder().encode(file.name);
+          const crc = crc32(file.data);
+          const size = file.data.length;
+
+          // Local file header (30 bytes + name + data)
+          const local = new Uint8Array(30 + nameBytes.length + size);
+          const lv = new DataView(local.buffer);
+          lv.setUint32(0, 0x04034b50, true);   // signature
+          lv.setUint16(4, 20, true);            // version needed
+          lv.setUint16(6, 0, true);             // flags
+          lv.setUint16(8, 0, true);             // compression: store
+          lv.setUint16(10, 0, true);            // mod time
+          lv.setUint16(12, 0, true);            // mod date
+          lv.setUint32(14, crc, true);          // crc32
+          lv.setUint32(18, size, true);         // compressed size
+          lv.setUint32(22, size, true);         // uncompressed size
+          lv.setUint16(26, nameBytes.length, true); // name length
+          lv.setUint16(28, 0, true);            // extra length
+          local.set(nameBytes, 30);
+          local.set(file.data, 30 + nameBytes.length);
+          localHeaders.push(local);
+
+          // Central directory header (46 bytes + name)
+          const central = new Uint8Array(46 + nameBytes.length);
+          const cv = new DataView(central.buffer);
+          cv.setUint32(0, 0x02014b50, true);   // signature
+          cv.setUint16(4, 20, true);            // version made by
+          cv.setUint16(6, 20, true);            // version needed
+          cv.setUint16(8, 0, true);             // flags
+          cv.setUint16(10, 0, true);            // compression
+          cv.setUint16(12, 0, true);            // mod time
+          cv.setUint16(14, 0, true);            // mod date
+          cv.setUint32(16, crc, true);          // crc32
+          cv.setUint32(20, size, true);         // compressed size
+          cv.setUint32(24, size, true);         // uncompressed size
+          cv.setUint16(28, nameBytes.length, true);
+          cv.setUint16(30, 0, true);            // extra length
+          cv.setUint16(32, 0, true);            // comment length
+          cv.setUint16(34, 0, true);            // disk start
+          cv.setUint16(36, 0, true);            // internal attrs
+          cv.setUint32(38, 0, true);            // external attrs
+          cv.setUint32(42, offset, true);       // local header offset
+          central.set(nameBytes, 46);
+          centralHeaders.push(central);
+
+          offset += local.length;
+        }
+
+        const centralOffset = offset;
+        let centralSize = 0;
+        centralHeaders.forEach(c => centralSize += c.length);
+
+        // End of central directory (22 bytes)
+        const eocd = new Uint8Array(22);
+        const ev = new DataView(eocd.buffer);
+        ev.setUint32(0, 0x06054b50, true);
+        ev.setUint16(4, 0, true);
+        ev.setUint16(6, 0, true);
+        ev.setUint16(8, files.length, true);
+        ev.setUint16(10, files.length, true);
+        ev.setUint32(12, centralSize, true);
+        ev.setUint32(16, centralOffset, true);
+        ev.setUint16(20, 0, true);
+
+        return new Blob([...localHeaders, ...centralHeaders, eocd], { type: "application/zip" });
+      }
+
+      // CRC-32 calculation
+      function crc32(data) {
+        let crc = 0xFFFFFFFF;
+        if (!crc32.table) {
+          crc32.table = new Uint32Array(256);
+          for (let i = 0; i < 256; i++) {
+            let c = i;
+            for (let j = 0; j < 8; j++) {
+              c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            }
+            crc32.table[i] = c;
+          }
+        }
+        for (let i = 0; i < data.length; i++) {
+          crc = crc32.table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+        }
+        return (crc ^ 0xFFFFFFFF) >>> 0;
+      }
+
+      function sanitizeFilename(text) {
+        return text
+          .replace(/[^a-z0-9]/gi, "-")
+          .toLowerCase()
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+          .substring(0, 50);
+      }
+
+      // ── Approval workflow ─────────────────────────────
+      function showMessage(containerId, text, type) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `<div class="approval-message ${type}">${text}</div>`;
+      }
+
+      async function callApprovalAPI(params) {
+        const response = await fetch(APPROVAL_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(params),
+        });
+        return response.json();
+      }
+
+      async function submitApprovalRequest() {
+        const email = document.getElementById("requestEmail").value.trim();
+        if (!email) {
+          showMessage("requestMessage", "Please enter your email address.", "error");
+          return;
+        }
+
+        if (!selectedIcon || !hasText()) {
+          showMessage("requestMessage", "Please select an icon and enter text first.", "error");
+          return;
+        }
+
+        const lines = getTextLines();
+        const btn = document.getElementById("submitRequest");
+        btn.disabled = true;
+        btn.textContent = "SUBMITTING...";
+
+        try {
+          // Generate watermarked preview PNG as base64
+          const svg = await generateWordmark();
+          addWatermark(svg);
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const previewBase64 = await new Promise((resolve) => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            const blob = new Blob([svgData], { type: "image/svg+xml" });
+            const url = URL.createObjectURL(blob);
+            img.onload = function () {
+              const scale = PNG_TARGET_WIDTH / img.width;
+              canvas.width = PNG_TARGET_WIDTH;
+              canvas.height = Math.round(img.height * scale);
+              ctx.scale(scale, scale);
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, img.width, img.height);
+              ctx.drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
+              resolve(canvas.toDataURL("image/png").split(",")[1]);
+            };
+            img.src = url;
+          });
+
+          const result = await callApprovalAPI({
+            action: "submit",
+            email: email,
+            icon: selectedIcon.name,
+            line1: lines[0] || "",
+            line2: lines[1] || "",
+            line3: lines[2] || "",
+            layout: String(lineCount),
+            previewImage: previewBase64,
+          });
+
+          if (result.success) {
+            showMessage(
+              "requestMessage",
+              `Request submitted! Your Request ID is <strong>${result.requestId}</strong>.<br><br>` +
+              `OCHA Brand and Design Unit will review your request and get back to you as soon as possible. ` +
+              `If urgent, please contact Javier Cueto via Teams.<br><br>` +
+              `Once approved, use your Request ID in step 4 below to download the final wordmark.`,
+              "success"
+            );
+          } else {
+            showMessage("requestMessage", result.error || "Request failed. Please try again.", "error");
+          }
+        } catch (err) {
+          showMessage("requestMessage", "Could not reach the approval service. Please try again later.", "error");
+          console.error("Submit error:", err);
+        }
+
+        btn.disabled = false;
+        btn.textContent = "REQUEST APPROVAL";
+      }
+
+      async function checkApprovalStatus() {
+        const email = document.getElementById("downloadEmail").value.trim();
+        const code = document.getElementById("downloadCode").value.trim().toUpperCase();
+
+        if (!email || !code) {
+          showMessage("downloadMessage", "Please enter both your email and Request ID.", "error");
+          return;
+        }
+
+        const btn = document.getElementById("checkStatus");
+        btn.disabled = true;
+        btn.textContent = "CHECKING...";
+
+        try {
+          const result = await callApprovalAPI({
+            action: "check",
+            email: email,
+            requestId: code,
+          });
+
+          if (result.success) {
+            if (result.canDownload) {
+              showMessage(
+                "downloadMessage",
+                "Your request is <strong>approved</strong>! Click a download button below.",
+                "success"
+              );
+              document.getElementById("approvedButtons").style.display = "flex";
+            } else if (result.status === "Pending") {
+              showMessage(
+                "downloadMessage",
+                "Your request is still <strong>pending review</strong>. Please check back later.",
+                "pending"
+              );
+              document.getElementById("approvedButtons").style.display = "none";
+            } else {
+              showMessage(
+                "downloadMessage",
+                `Request status: <strong>${result.status}</strong>.`,
+                "info"
+              );
+              document.getElementById("approvedButtons").style.display = "none";
+            }
+          } else {
+            showMessage("downloadMessage", result.error || "Could not verify request.", "error");
+            document.getElementById("approvedButtons").style.display = "none";
+          }
+        } catch (err) {
+          showMessage("downloadMessage", "Could not reach the approval service. Please try again later.", "error");
+          console.error("Check error:", err);
+        }
+
+        btn.disabled = false;
+        btn.textContent = "CHECK STATUS";
+      }
+
+      // Mark as downloaded and trigger final package download
+      async function approvedDownload() {
+        const email = document.getElementById("downloadEmail").value.trim();
+        const code = document.getElementById("downloadCode").value.trim().toUpperCase();
+        const btn = document.getElementById("downloadPackage");
+        btn.disabled = true;
+        btn.textContent = "PREPARING...";
+
+        try {
+          const result = await callApprovalAPI({
+            action: "download",
+            email: email,
+            requestId: code,
+          });
+
+          if (result.success && result.canDownload) {
+            await downloadFinalPackage();
+            document.getElementById("approvedButtons").style.display = "none";
+            showMessage(
+              "downloadMessage",
+              "Download complete! Your package includes both SVG and PNG. This request has been marked as used.",
+              "info"
+            );
+          } else {
+            showMessage("downloadMessage", result.error || "Download not authorized.", "error");
+            document.getElementById("approvedButtons").style.display = "none";
+          }
+        } catch (err) {
+          showMessage("downloadMessage", "Could not reach the approval service.", "error");
+          console.error("Download error:", err);
+        }
+
+        btn.disabled = false;
+        btn.textContent = "DOWNLOAD WORDMARK (SVG + PNG)";
+      }
+
+      // --- Line layout management ---
+      const MAX_CHARS = 16;
+
+      function setLineCount(count) {
+        lineCount = count;
+
+        const container = document.getElementById("textInputs");
+
+        // Save existing values
+        const existingValues = [];
+        for (let i = 1; i <= 3; i++) {
+          const input = document.getElementById(`line${i}`);
+          if (input) existingValues.push(input.value);
+        }
+
+        const placeholders = [
+          "e.g., Country Team",
+          "e.g., Mozambique",
+          "e.g., 2026",
+        ];
+
+        let html = "";
+        for (let i = 0; i < count; i++) {
+          const value = existingValues[i] || "";
+          const charLen = value.length;
+          const atLimit = charLen >= MAX_CHARS;
+          html += `<div class="line-row">
+            <div class="line-row-header">
+              <span class="line-label">Line ${i + 1}</span>
+              <span class="char-count ${atLimit ? 'at-limit' : ''}" id="count${i + 1}">${charLen}/${MAX_CHARS}</span>
+            </div>
+            <input type="text" id="line${i + 1}" maxlength="${MAX_CHARS}" placeholder="${placeholders[i]}" value="${value}" class="${atLimit ? 'at-limit' : ''}" />
+          </div>`;
+        }
+
+        // Add line button (if under 3)
+        if (count < 3) {
+          html += `<button type="button" class="add-line-btn" id="addLineBtn">+ Add line ${count + 1}</button>`;
+        }
+
+        container.innerHTML = html;
+
+        // Bind input events with char counting
+        for (let i = 1; i <= count; i++) {
+          const input = document.getElementById(`line${i}`);
+          const counter = document.getElementById(`count${i}`);
+          input.addEventListener("input", () => {
+            const len = input.value.length;
+            counter.textContent = `${len}/${MAX_CHARS}`;
+            const atLimit = len >= MAX_CHARS;
+            counter.classList.toggle("at-limit", atLimit);
+            input.classList.toggle("at-limit", atLimit);
+            updatePreview();
+          });
+        }
+
+        // Add line button
+        const addBtn = document.getElementById("addLineBtn");
+        if (addBtn) {
+          addBtn.addEventListener("click", () => setLineCount(count + 1));
+        }
+
+        // Remove line buttons — add to line 2 and 3 headers
+        if (count >= 2) {
+          for (let i = count; i >= 2; i--) {
+            const header = document.getElementById(`line${i}`).parentElement.querySelector('.line-row-header');
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "remove-line-btn";
+            removeBtn.textContent = "Remove";
+            removeBtn.addEventListener("click", () => setLineCount(i - 1));
+            header.appendChild(removeBtn);
+            break; // Only add remove to the last line
+          }
+        }
+
+        updatePreview();
+      }
+
+      // Initialize line inputs
+      setLineCount(1);
+
+      // Preview download (PNG with watermark only — no SVG to prevent editing)
+      document.getElementById("downloadPreviewPNG").addEventListener("click", downloadPreviewPNG);
+
+      // Approval workflow
+      document.getElementById("submitRequest").addEventListener("click", submitApprovalRequest);
+      document.getElementById("checkStatus").addEventListener("click", checkApprovalStatus);
+
+      // Final download (approved package: SVG + PNG zip)
+      document.getElementById("downloadPackage").addEventListener("click", approvedDownload);
+
+      // Search functionality
+      document.getElementById("iconSearch").addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = icons.filter((icon) =>
+          icon.name.toLowerCase().includes(searchTerm),
+        );
+        renderIcons(filtered);
+      });
+
+      // Initialize
+      loadIcons();
+    </script>
+
+    <footer class="cd-footer">
+      <div class="cd-footer__inner">
+        <div class="cd-footer__col--ocha">
+          <span class="cd-footer__mandate-heading">Service provided by</span>
+          <img src="../assets/OCHA_logo_horizontal_blue.svg" alt="OCHA" class="cd-footer__logo" />
+        </div>
+        <div class="cd-footer__col--tagline">
+          <p>OCHA coordinates the global emergency response to save lives and protect people in humanitarian crises. We advocate for effective and principled humanitarian action by all, for all.</p>
+        </div>
+        <div class="cd-footer__col--cc">
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" class="cd-footer__cc-link" aria-label="Creative Commons BY 4.0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" aria-hidden="true"><path d="M245.8 214.9l-33.2 17.3c-9.4-19.6-25.7-20-27.4-20-36.5 0-40.6 33-40.6 47.4 0 33.9 18.4 49 42.5 49 18.9 0 33-11.5 37.6-22.4l30.8 15.8c-6.6 11.7-25.5 36.3-71.2 36.3-42.1 0-80-25.8-80-79.3 0-44.5 30.3-81.4 80.5-81.4 30.2 0 55.6 12.8 61 37.3zM371 214.9l-33.2 17.3c-9.4-19.6-25.7-20-27.4-20-36.5 0-40.6 33-40.6 47.4 0 33.9 18.4 49 42.5 49 18.9 0 33-11.5 37.6-22.4l30.8 15.8c-6.6 11.7-25.5 36.3-71.2 36.3-42.1 0-80-25.8-80-79.3 0-44.5 30.3-81.4 80.5-81.4 30.2 0 55.6 12.8 61 37.3zM248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 449.3C137.4 457.3 46.7 366.6 46.7 256S137.4 54.7 248 54.7 449.3 145.4 449.3 256 358.6 457.3 248 457.3z"/></svg>
+          </a>
+          <span>Except where otherwise noted, content on this site is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons BY 4.0 International license</a>.</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
