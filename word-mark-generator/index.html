@@ -1546,25 +1546,36 @@
         container.innerHTML = `<div class="approval-message ${type}">${text}</div>`;
       }
 
-      async function callApprovalAPI(params) {
-        // Use GET for lightweight actions, POST for submit (large payload)
-        let response;
-        if (params.action === "submit") {
-          response = await fetch(APPROVAL_API_URL, {
-            method: "POST",
-            body: JSON.stringify(params),
-          });
-        } else {
-          const qs = new URLSearchParams(params).toString();
-          response = await fetch(APPROVAL_API_URL + "?" + qs);
-        }
-        const text = await response.text();
-        try {
-          return JSON.parse(text);
-        } catch (e) {
-          console.error("API returned non-JSON:", text.substring(0, 200));
-          throw new Error("Invalid response from server");
-        }
+      function callApprovalAPI(params) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          if (params.action === "submit") {
+            xhr.open("POST", APPROVAL_API_URL);
+          } else {
+            const qs = new URLSearchParams(params).toString();
+            xhr.open("GET", APPROVAL_API_URL + "?" + qs);
+          }
+          xhr.onload = function () {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch (e) {
+              console.error("API returned non-JSON:", xhr.responseText.substring(0, 200));
+              reject(new Error("Invalid response from server"));
+            }
+          };
+          xhr.onerror = function () {
+            reject(new Error("Network error"));
+          };
+          xhr.ontimeout = function () {
+            reject(new Error("Request timed out"));
+          };
+          xhr.timeout = 30000;
+          if (params.action === "submit") {
+            xhr.send(JSON.stringify(params));
+          } else {
+            xhr.send();
+          }
+        });
       }
 
       async function submitApprovalRequest() {
@@ -1690,7 +1701,7 @@
             document.getElementById("approvedButtons").style.display = "none";
           }
         } catch (err) {
-          showMessage("downloadMessage", "Could not reach the approval service. Please try again later.", "error");
+          showMessage("downloadMessage", `Could not reach the approval service (${err.message}).`, "error");
           console.error("Check error:", err);
         }
 
@@ -1726,7 +1737,7 @@
             document.getElementById("approvedButtons").style.display = "none";
           }
         } catch (err) {
-          showMessage("downloadMessage", "Could not reach the approval service.", "error");
+          showMessage("downloadMessage", `Could not reach the approval service (${err.message}).`, "error");
           console.error("Download error:", err);
         }
 
