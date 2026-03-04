@@ -845,46 +845,42 @@
         return iconMap;
       }
 
-      // Load icons from curated JSON file (or fallback to humanitarian-icons repo)
+      // Load icons from metadata.json (or fallback to humanitarian-icons repo)
       async function loadIcons() {
         try {
-          // Try to load curated icons first
+          // Try to load from metadata.json first
           try {
-            console.log("Attempting to load curated-icons.json...");
-            const response = await fetch("./curated-icons.json");
-            console.log("Fetch response:", response.status, response.ok);
+            console.log("Attempting to load metadata.json...");
+            const response = await fetch("../metadata.json");
             if (response.ok) {
               const data = await response.json();
-              console.log("Loaded curated data:", {
-                isArray: Array.isArray(data),
-                hasIcons: !!data.icons,
-                iconsCount: data.icons ? data.icons.length : 0,
-                firstIcon: data.icons ? data.icons[0] : null,
-              });
-              // Handle both old array format and new object format with icons array
-              if (Array.isArray(data)) {
-                icons = data;
-              } else if (data.icons && Array.isArray(data.icons)) {
-                icons = data.icons;
+              if (data.icons && typeof data.icons === "object") {
+                // Filter for wordmark-approved icons and build icon array
+                icons = Object.entries(data.icons)
+                  .filter(([key, meta]) => meta.wordmark)
+                  .map(([key, meta]) => {
+                    const svgFile = key + ".svg";
+                    const url = isLocalDev()
+                      ? "../svg/" + svgFile
+                      : `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/svg/${encodeURIComponent(svgFile)}`;
+                    return {
+                      name: meta.name,
+                      url,
+                      verticalAdjustment: meta.wordmark_valign || 0,
+                      category: meta.family || "Uncategorized",
+                    };
+                  })
+                  .sort((a, b) => a.name.localeCompare(b.name));
+                console.log("Loaded from metadata.json:", icons.length, "wordmark icons");
+                renderIcons(icons);
+                return;
               } else {
-                throw new Error("Invalid curated-icons.json format");
+                throw new Error("Invalid metadata.json format");
               }
-              // On local dev, rewrite CDN URLs to local paths
-              if (isLocalDev()) {
-                icons.forEach(icon => {
-                  if (icon.url && icon.url.includes('cdn.jsdelivr.net')) {
-                    const filename = icon.url.split("/").pop();
-                    icon.url = "../svg/" + decodeURIComponent(filename);
-                  }
-                });
-              }
-              console.log("Final icons array length:", icons.length);
-              renderIcons(icons);
-              return;
             }
           } catch (e) {
             console.log(
-              "No curated-icons.json found, loading from humanitarian-icons repository",
+              "No metadata.json found, loading from humanitarian-icons repository",
               e,
             );
           }
