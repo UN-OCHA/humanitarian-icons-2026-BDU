@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "2.0",
-    "last_updated": "2026-02-13",
+    "last_updated": "2026-03-04",
     "next_font_codepoint": "U+E186"
   },
   "families": [
@@ -85,7 +85,7 @@
     "Agriculture": {
       "name": "Agriculture",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E008",
       "date_added": "2026-02-13"
@@ -205,7 +205,7 @@
     "Assembly-point": {
       "name": "Assembly point",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E017",
       "date_added": "2026-02-13"
@@ -349,7 +349,7 @@
     "Buddhist-temple": {
       "name": "Buddhist temple",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E029",
       "date_added": "2026-02-13"
@@ -357,7 +357,7 @@
     "Building": {
       "name": "Building",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E02A",
       "date_added": "2026-02-13"
@@ -414,7 +414,7 @@
       "name": "Camp coordination and camp management",
       "family": "Clusters",
       "wordmark": true,
-      "wordmark_valign": -2,
+      "wordmark_valign": 0,
       "font_codepoint": "U+E031",
       "date_added": "2026-02-13"
     },
@@ -493,7 +493,7 @@
     "Child-care-child-friendly": {
       "name": "Child care child friendly",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E03B",
       "date_added": "2026-02-13"
@@ -509,7 +509,7 @@
     "Child-protection": {
       "name": "Child protection",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E03D",
       "date_added": "2026-02-13"
@@ -525,7 +525,7 @@
     "Church": {
       "name": "Church",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E03F",
       "date_added": "2026-02-13"
@@ -541,7 +541,7 @@
     "Clinic": {
       "name": "Clinic",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E041",
       "date_added": "2026-02-13"
@@ -573,7 +573,7 @@
     "Community-building": {
       "name": "Community building",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E045",
       "date_added": "2026-02-13"
@@ -621,7 +621,7 @@
     "Coordination": {
       "name": "Coordination",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E04B",
       "date_added": "2026-02-13"
@@ -637,7 +637,7 @@
     "Country": {
       "name": "Country",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E04D",
       "date_added": "2026-02-13"
@@ -701,7 +701,7 @@
     "Debris-management": {
       "name": "Debris management",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E055",
       "date_added": "2026-02-13"
@@ -741,7 +741,7 @@
     "Diplomatic-mission": {
       "name": "Diplomatic mission",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E05A",
       "date_added": "2026-02-13"
@@ -749,7 +749,7 @@
     "Distribution-site": {
       "name": "Distribution site",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E05B",
       "date_added": "2026-02-13"
@@ -877,7 +877,7 @@
     "Environment": {
       "name": "Environment",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E06B",
       "date_added": "2026-02-13"
@@ -997,7 +997,7 @@
     "Fishery": {
       "name": "Fishery",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E07A",
       "date_added": "2026-02-13"
@@ -1053,7 +1053,7 @@
     "Food-warehouse": {
       "name": "Food warehouse",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E081",
       "date_added": "2026-02-13"
@@ -1125,7 +1125,7 @@
     "Government-office": {
       "name": "Government office",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E08A",
       "date_added": "2026-02-13"
@@ -1165,7 +1165,7 @@
     "Health-facility": {
       "name": "Health facility",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E08F",
       "date_added": "2026-02-13"
@@ -1197,7 +1197,7 @@
     "Health-post": {
       "name": "Health post",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E093",
       "date_added": "2026-02-13"
@@ -1261,7 +1261,7 @@
     "Hindu-temple": {
       "name": "Hindu temple",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E09B",
       "date_added": "2026-02-13"
@@ -1269,7 +1269,7 @@
     "Hospital": {
       "name": "Hospital",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E09C",
       "date_added": "2026-02-13"
@@ -1285,7 +1285,7 @@
     "Hotel": {
       "name": "Hotel",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E09E",
       "date_added": "2026-02-13"
@@ -1293,7 +1293,7 @@
     "House": {
       "name": "House",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E09F",
       "date_added": "2026-02-13"
@@ -1342,7 +1342,7 @@
       "name": "Humanitarian access",
       "family": "Disasters, hazards and crises",
       "wordmark": true,
-      "wordmark_valign": 0,
+      "wordmark_valign": 3,
       "font_codepoint": "U+E0A5",
       "date_added": "2026-02-13"
     },
@@ -1357,7 +1357,7 @@
     "IDP-refugee-camp": {
       "name": "IDP refugee camp",
       "family": "Camp",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0A7",
       "date_added": "2026-02-13"
@@ -1413,7 +1413,7 @@
     "Infrastructure": {
       "name": "Infrastructure",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0AE",
       "date_added": "2026-02-13"
@@ -1541,7 +1541,7 @@
     "Livelihood": {
       "name": "Livelihood",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0BE",
       "date_added": "2026-02-13"
@@ -1549,7 +1549,7 @@
     "Livestock": {
       "name": "Livestock",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0BF",
       "date_added": "2026-02-13"
@@ -1582,14 +1582,14 @@
       "name": "Logistics",
       "family": "Clusters",
       "wordmark": true,
-      "wordmark_valign": 0,
+      "wordmark_valign": 2,
       "font_codepoint": "U+E0C3",
       "date_added": "2026-02-13"
     },
     "Logistics-and-telecommunications": {
       "name": "Logistics and telecommunications",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0C4",
       "date_added": "2026-02-13"
@@ -1604,8 +1604,8 @@
     },
     "Market": {
       "name": "Market",
-      "family": "Health",
-      "wordmark": false,
+      "family": "General infrastructure",
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0C6",
       "date_added": "2026-02-13"
@@ -1693,7 +1693,7 @@
     "Mobile-clinic": {
       "name": "Mobile clinic",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0D1",
       "date_added": "2026-02-13"
@@ -1733,7 +1733,7 @@
     "Mosque": {
       "name": "Mosque",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0D6",
       "date_added": "2026-02-13"
@@ -1749,7 +1749,7 @@
     "Multi-cluster-sector": {
       "name": "Multi-cluster sector",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0D8",
       "date_added": "2026-02-13"
@@ -1789,7 +1789,7 @@
     "NGO-office": {
       "name": "NGO office",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0DD",
       "date_added": "2026-02-13"
@@ -1869,7 +1869,7 @@
     "Oil-facility": {
       "name": "Oil facility",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0E7",
       "date_added": "2026-02-13"
@@ -2053,7 +2053,7 @@
     "Police-station": {
       "name": "Police station",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0FE",
       "date_added": "2026-02-13"
@@ -2069,7 +2069,7 @@
     "Population-growth": {
       "name": "Population growth",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E100",
       "date_added": "2026-02-13"
@@ -2149,7 +2149,7 @@
     "Power-electricity": {
       "name": "Power electricity",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E10A",
       "date_added": "2026-02-13"
@@ -2245,7 +2245,7 @@
     "Reconstruction": {
       "name": "Reconstruction",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E116",
       "date_added": "2026-02-13"
@@ -2429,7 +2429,7 @@
     "Rule-of-law-and-justice": {
       "name": "Rule of law and justice",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E12D",
       "date_added": "2026-02-13"
@@ -2437,7 +2437,7 @@
     "Rural": {
       "name": "Rural",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E12E",
       "date_added": "2026-02-13"
@@ -2445,7 +2445,7 @@
     "Rural-exodus": {
       "name": "Rural exodus",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E12F",
       "date_added": "2026-02-13"
@@ -2453,7 +2453,7 @@
     "Safety-and-security": {
       "name": "Safety and security",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E130",
       "date_added": "2026-02-13"
@@ -2517,7 +2517,7 @@
     "School": {
       "name": "School",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E138",
       "date_added": "2026-02-13"
@@ -2661,7 +2661,7 @@
     "Shelter-land-and-site-coordination": {
       "name": "Shelter, land and site coordination",
       "family": "Other sectors",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E14A",
       "date_added": "2026-02-13"
@@ -2877,7 +2877,7 @@
     "Trade-and-market": {
       "name": "Trade and market",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E165",
       "date_added": "2026-02-13"
@@ -2941,7 +2941,7 @@
     "UN-compound-office": {
       "name": "UN compound office",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E16D",
       "date_added": "2026-02-13"
@@ -2949,7 +2949,7 @@
     "UN-vehicle": {
       "name": "UN vehicle",
       "family": "Logistics",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E16E",
       "date_added": "2026-02-13"
@@ -2957,7 +2957,7 @@
     "University": {
       "name": "University",
       "family": "General infrastructure",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E16F",
       "date_added": "2026-02-13"
@@ -2981,7 +2981,7 @@
     "Urban": {
       "name": "Urban",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E172",
       "date_added": "2026-02-13"
@@ -2989,7 +2989,7 @@
     "Urban-rural": {
       "name": "Urban rural",
       "family": "Socioeconomic and development",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E173",
       "date_added": "2026-02-13"
@@ -3086,7 +3086,7 @@
       "name": "Water sanitation and hygiene",
       "family": "Clusters",
       "wordmark": true,
-      "wordmark_valign": 0,
+      "wordmark_valign": -4,
       "font_codepoint": "U+E17F",
       "date_added": "2026-02-13"
     },
@@ -3117,7 +3117,7 @@
     "Worm-infestation": {
       "name": "Worm infestation",
       "family": "Disasters, hazards and crises",
-      "wordmark": true,
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E183",
       "date_added": "2026-02-13"

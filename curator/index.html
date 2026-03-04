@@ -312,6 +312,29 @@
             opacity: 0.8;
         }
 
+        .family-header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .family-select-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: var(--cd-white);
+            padding: 0.25rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            transition: background 0.15s ease;
+        }
+
+        .family-select-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         .family-body {
             padding: 1.25rem;
             background: var(--cd-white);
@@ -1353,6 +1376,11 @@
                 html += '<span class="family-wordmark-count">' + wmCount + ' wordmark</span>';
             }
             html += '</div>';
+            var allWm = wmCount === group.keys.length;
+            var btnLabel = allWm ? 'Deselect all WM' : 'Select all WM';
+            html += '<div class="family-header-right" onclick="event.stopPropagation()">';
+            html += '<button class="family-select-btn" onclick="toggleFamilyWordmark(\'' + escapeJS(group.family) + '\')">' + btnLabel + '</button>';
+            html += '</div>';
             html += '</div>';  // family-header
 
             html += '<div class="family-body">';
@@ -1477,6 +1505,22 @@
             }
         }
 
+        updateStats();
+    };
+
+    window.toggleFamilyWordmark = function(family) {
+        var keys = Object.keys(metadata.icons).filter(function(k) {
+            return metadata.icons[k].family === family;
+        });
+        var allWordmark = keys.every(function(k) { return metadata.icons[k].wordmark; });
+        var newValue = !allWordmark;
+
+        keys.forEach(function(k) {
+            metadata.icons[k].wordmark = newValue;
+        });
+
+        markChanged();
+        render();
         updateStats();
     };
 
