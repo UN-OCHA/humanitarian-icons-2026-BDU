@@ -350,7 +350,7 @@
       "name": "Buddhist temple",
       "family": "General infrastructure",
       "wordmark": true,
-      "wordmark_valign": 0,
+      "wordmark_valign": -2,
       "font_codepoint": "U+E029",
       "date_added": "2026-02-13"
     },
@@ -2125,7 +2125,7 @@
     "Potable-water": {
       "name": "Potable water",
       "family": "Water sanitation and hygiene",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E107",
       "date_added": "2026-02-13"
@@ -2677,7 +2677,7 @@
     "Shower": {
       "name": "Shower",
       "family": "Water sanitation and hygiene",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E14C",
       "date_added": "2026-02-13"
@@ -2853,7 +2853,7 @@
     "Toilet": {
       "name": "Toilet",
       "family": "Water sanitation and hygiene",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E162",
       "date_added": "2026-02-13"
@@ -3093,7 +3093,7 @@
     "Water-source": {
       "name": "Water source",
       "family": "Water sanitation and hygiene",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E180",
       "date_added": "2026-02-13"
@@ -3101,7 +3101,7 @@
     "Water-trucking": {
       "name": "Water trucking",
       "family": "Water sanitation and hygiene",
-      "wordmark": false,
+      "wordmark": true,
       "wordmark_valign": 0,
       "font_codepoint": "U+E181",
       "date_added": "2026-02-13"

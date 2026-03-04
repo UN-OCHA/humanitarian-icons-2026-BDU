@@ -164,7 +164,12 @@ function checkStatus(params) {
       return {
         success: true,
         status: status,
-        canDownload: status === 'Approved' || status === 'Downloaded'
+        canDownload: status === 'Approved' || status === 'Downloaded',
+        icon: (data[i][2] || '').toString().trim(),
+        line1: (data[i][3] || '').toString().trim(),
+        line2: (data[i][4] || '').toString().trim(),
+        line3: (data[i][5] || '').toString().trim(),
+        layout: (data[i][6] || '1').toString().trim()
       };
     }
   }
