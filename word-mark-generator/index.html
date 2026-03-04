@@ -71,6 +71,51 @@
         font-size: 1.125rem;
       }
 
+      /* CD Alert (from OCHA Common Design) */
+      .cd-alert {
+        --cd-alert-color: var(--cd-blue--bright);
+        --cd-alert-color-bg: var(--cd-white);
+        margin: 0 0 2rem;
+        padding: 1rem;
+        color: var(--cd-grey--dark);
+        border: 1px solid var(--cd-alert-color);
+        border-radius: 0.25rem;
+        background-color: var(--cd-alert-color-bg);
+        box-shadow: -8px 0 0 var(--cd-alert-color);
+        font-size: 0.875rem;
+        line-height: 1.7;
+      }
+
+      .cd-alert--warning {
+        --cd-alert-color: var(--cd-orange);
+        --cd-alert-color-bg: var(--cd-orange--light);
+      }
+
+      .cd-alert strong.cd-alert__title {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        color: var(--cd-orange);
+      }
+
+      .cd-alert p {
+        margin: 0 0 0.75rem;
+      }
+
+      .cd-alert p:last-child {
+        margin-bottom: 0;
+      }
+
+      .cd-alert ul {
+        margin: 0 0 0.75rem;
+        padding-left: 1.25rem;
+      }
+
+      .cd-alert a {
+        color: var(--cd-ocha-blue);
+        font-weight: 500;
+      }
+
       .cd-footer {
         background: var(--cd-ocha-blue);
         color: var(--cd-white);
@@ -617,10 +662,10 @@
       <h1>OCHA Wordmark Generator</h1>
       <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
 
-      <div class="guidelines" style="background: var(--cd-orange--light); border-left: 4px solid var(--cd-orange); padding: 1.25rem 1.5rem; margin-bottom: 2rem; font-size: 0.875rem; line-height: 1.7; color: var(--cd-grey--dark);">
-        <strong style="display: block; margin-bottom: 0.5rem; font-size: 1rem; color: var(--cd-orange);">Important guidelines</strong>
-        <p style="margin: 0 0 0.75rem;">These are wordmarks, not logos. A wordmark is a text-based identifier that may include an icon — it is not a replacement for the OCHA logo.</p>
-        <ul style="margin: 0 0 0.75rem; padding-left: 1.25rem;">
+      <div class="cd-alert cd-alert--warning">
+        <strong class="cd-alert__title">Important guidelines</strong>
+        <p>These are wordmarks, not logos. A wordmark is a text-based identifier that may include an icon — it is not a replacement for the OCHA logo.</p>
+        <ul>
           <li>All wordmarks require approval by the <strong>OCHA Brand and Design Unit</strong>.</li>
           <li>Use wordmarks only when strictly necessary to identify a specific programme, project, or initiative.</li>
           <li><strong>Always prioritise the OCHA logo</strong> to maintain organisational visibility and brand recognition.</li>
@@ -628,7 +673,7 @@
           <li>When in doubt, use the OCHA logo instead.</li>
           <li>Not all Humanitarian Icons are available as wordmarks. The selection is based on relevance and design suitability. If you need an icon that is not listed, contact us to discuss adding it.</li>
         </ul>
-        <p style="margin: 0;">For guidance on branding and visual identity, visit <a href="https://brand.unocha.org/" target="_blank" rel="noopener" style="color: var(--cd-ocha-blue); font-weight: 500;">brand.unocha.org</a> or contact <a href="mailto:ochavisual@un.org" style="color: var(--cd-ocha-blue); font-weight: 500;">ochavisual@un.org</a>.</p>
+        <p>For guidance on branding and visual identity, visit <a href="https://brand.unocha.org/" target="_blank" rel="noopener">brand.unocha.org</a> or contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.</p>
       </div>
 
       <div class="controls">
