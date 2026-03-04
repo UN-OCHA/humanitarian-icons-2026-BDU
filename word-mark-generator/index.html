@@ -750,39 +750,54 @@
       // ── Embedded font for PNG rendering ────────────────
       // When SVG is rendered via <img> + canvas, web fonts are unavailable.
       // We pre-fetch Roboto 700 and embed it as base64 inside the SVG.
-      let robotoFontBase64 = null;
+      let robotoFontData = null; // { base64, format, mime }
+      let robotoFontPromise = null;
 
       async function loadRobotoFont() {
-        if (robotoFontBase64) return;
+        if (robotoFontData) return;
         try {
           const cssResp = await fetch(
             "https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap"
           );
           const css = await cssResp.text();
-          const urlMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
-          if (!urlMatch) return;
-          const fontResp = await fetch(urlMatch[1]);
+          // Match any font URL from Google Fonts (woff2, woff, ttf, otf)
+          const urlMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.(woff2|woff|ttf|otf))\)/);
+          if (!urlMatch) {
+            console.warn("No font URL found in Google Fonts CSS");
+            return;
+          }
+          const fontUrl = urlMatch[1];
+          const ext = urlMatch[2];
+          const mimeMap = { woff2: "font/woff2", woff: "font/woff", ttf: "font/ttf", otf: "font/otf" };
+          const formatMap = { woff2: "woff2", woff: "woff", ttf: "truetype", otf: "opentype" };
+
+          const fontResp = await fetch(fontUrl);
           const buf = await fontResp.arrayBuffer();
           const bytes = new Uint8Array(buf);
           let binary = "";
           for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-          robotoFontBase64 = btoa(binary);
+          robotoFontData = {
+            base64: btoa(binary),
+            mime: mimeMap[ext] || "font/" + ext,
+            format: formatMap[ext] || ext,
+          };
+          console.log("Roboto 700 font loaded for PNG embedding (" + ext + ")");
         } catch (e) {
           console.warn("Could not pre-load Roboto font for PNG embedding:", e);
         }
       }
 
       function embedFontInSVG(svg) {
-        if (!robotoFontBase64) return;
+        if (!robotoFontData) return;
         const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
         const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
-        style.textContent = `@font-face { font-family: 'Roboto'; font-weight: 700; src: url(data:font/woff2;base64,${robotoFontBase64}) format('woff2'); }`;
+        style.textContent = `@font-face { font-family: 'Roboto'; font-weight: 700; src: url(data:${robotoFontData.mime};base64,${robotoFontData.base64}) format('${robotoFontData.format}'); }`;
         defs.appendChild(style);
         svg.insertBefore(defs, svg.firstChild);
       }
 
       // Start loading the font immediately
-      loadRobotoFont();
+      robotoFontPromise = loadRobotoFont();
 
       // ── Approval API ──────────────────────────────────
       // Replace this URL with your deployed Google Apps Script Web App URL
@@ -1359,43 +1374,44 @@
       const PNG_TARGET_WIDTH = 1200;
 
       // Download preview PNG (with watermark)
-      function downloadPreviewPNG() {
-        generateWordmark().then((svg) => {
-          addWatermark(svg);
-          embedFontInSVG(svg);
-          const svgData = new XMLSerializer().serializeToString(svg);
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
+      async function downloadPreviewPNG() {
+        await robotoFontPromise;
+        const svg = await generateWordmark();
+        addWatermark(svg);
+        embedFontInSVG(svg);
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
-          const img = new Image();
-          const blob = new Blob([svgData], { type: "image/svg+xml" });
-          const url = URL.createObjectURL(blob);
+        const img = new Image();
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
 
-          img.onload = function () {
-            const scale = PNG_TARGET_WIDTH / img.width;
-            canvas.width = PNG_TARGET_WIDTH;
-            canvas.height = Math.round(img.height * scale);
-            ctx.scale(scale, scale);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, img.width, img.height);
-            ctx.drawImage(img, 0, 0);
+        img.onload = function () {
+          const scale = PNG_TARGET_WIDTH / img.width;
+          canvas.width = PNG_TARGET_WIDTH;
+          canvas.height = Math.round(img.height * scale);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, img.width, img.height);
+          ctx.drawImage(img, 0, 0);
 
-            canvas.toBlob(function (pngBlob) {
-              const pngUrl = URL.createObjectURL(pngBlob);
-              const a = document.createElement("a");
-              a.href = pngUrl;
-              a.download = `${getDownloadFilename()}-DRAFT-wordmark.png`;
-              a.click();
-              URL.revokeObjectURL(url);
-              URL.revokeObjectURL(pngUrl);
-            });
-          };
-          img.src = url;
-        });
+          canvas.toBlob(function (pngBlob) {
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const a = document.createElement("a");
+            a.href = pngUrl;
+            a.download = `${getDownloadFilename()}-DRAFT-wordmark.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(pngUrl);
+          });
+        };
+        img.src = url;
       }
 
       // Download final package (SVG + PNG in a zip)
       async function downloadFinalPackage() {
+        await robotoFontPromise;
         const svg = await generateWordmark();
         embedFontInSVG(svg);
         const svgData = new XMLSerializer().serializeToString(svg);
@@ -1597,6 +1613,7 @@
 
         try {
           // Generate watermarked preview PNG as base64
+          await robotoFontPromise;
           const svg = await generateWordmark();
           addWatermark(svg);
           embedFontInSVG(svg);
