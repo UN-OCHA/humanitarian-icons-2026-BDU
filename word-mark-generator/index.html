@@ -1507,17 +1507,26 @@
         container.innerHTML = `<div class="approval-message ${type}">${text}</div>`;
       }
 
-      async function callApprovalAPI(params) {
-        const response = await fetch(APPROVAL_API_URL, {
-          method: "POST",
-          redirect: "follow",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify(params),
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      async function callApprovalAPI(params, retries = 2) {
+        for (let attempt = 1; attempt <= retries; attempt++) {
+          try {
+            const response = await fetch(APPROVAL_API_URL, {
+              method: "POST",
+              body: JSON.stringify(params),
+            });
+            const text = await response.text();
+            try {
+              return JSON.parse(text);
+            } catch (e) {
+              console.error(`API attempt ${attempt} returned non-JSON:`, text.substring(0, 500));
+              if (attempt === retries) throw new Error("Invalid response from server");
+            }
+          } catch (err) {
+            console.error(`API attempt ${attempt} failed:`, err);
+            if (attempt === retries) throw err;
+          }
+          await new Promise(r => setTimeout(r, 1500));
         }
-        return response.json();
       }
 
       async function submitApprovalRequest() {
