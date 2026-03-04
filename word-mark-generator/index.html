@@ -15,11 +15,20 @@
         --cd-ocha-blue: #1f69b3;
         --cd-blue--dark: #144372;
         --cd-blue--bright: #82b5e9;
+        --cd-blue--brighter: #d4e5f7;
+        --cd-highlight-red: #e56a54;
         --cd-white: #fff;
+        --cd-black: #000;
         --cd-grey--light: #f2f2f2;
         --cd-grey--mid: #595959;
         --cd-grey--dark: #4a4a4a;
         --cd-blue-grey: #e6ecf1;
+        --cd-red: #cd3a1f;
+        --cd-red--light: #f8d8d3;
+        --cd-orange: #db7b18;
+        --cd-orange--light: #fae6d1;
+        --cd-green: #7fb92f;
+        --cd-green--light: #e8f5d6;
         --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
         --cd-max-width: 1220px;
       }
@@ -311,7 +320,7 @@
       }
 
       .char-count.at-limit {
-        color: #e53935;
+        color: var(--cd-red);
         font-weight: 700;
       }
 
@@ -332,7 +341,7 @@
       }
 
       .line-row input.at-limit {
-        border-color: #e53935;
+        border-color: var(--cd-red);
       }
 
       .add-line-btn {
@@ -369,7 +378,7 @@
       }
 
       .remove-line-btn:hover {
-        color: #e53935;
+        color: var(--cd-red);
       }
 
       .preview-section {
@@ -449,14 +458,14 @@
       }
 
       .btn-request {
-        background: #e56a54;
+        background: var(--cd-highlight-red);
         color: var(--cd-white);
-        border-color: #e56a54;
+        border-color: var(--cd-highlight-red);
       }
 
       .btn-request:hover:not(:disabled) {
-        background: #c9533e;
-        border-color: #c9533e;
+        background: var(--cd-red);
+        border-color: var(--cd-red);
       }
 
       .btn-check {
@@ -526,27 +535,27 @@
       }
 
       .approval-message.success {
-        background: #e8f5e9;
-        border-color: #4caf50;
-        color: #2e7d32;
+        background: var(--cd-green--light);
+        border-color: var(--cd-green);
+        color: var(--cd-green);
       }
 
       .approval-message.error {
-        background: #fce4ec;
-        border-color: #e53935;
-        color: #c62828;
+        background: var(--cd-red--light);
+        border-color: var(--cd-red);
+        color: var(--cd-red);
       }
 
       .approval-message.info {
-        background: #e3f2fd;
+        background: var(--cd-blue--brighter);
         border-color: var(--cd-ocha-blue);
         color: var(--cd-blue--dark);
       }
 
       .approval-message.pending {
-        background: #fff8e1;
-        border-color: #ffa000;
-        color: #e65100;
+        background: var(--cd-orange--light);
+        border-color: var(--cd-orange);
+        color: var(--cd-orange);
       }
 
       .watermark-note {
@@ -605,11 +614,11 @@
   </head>
   <body>
     <div class="container">
-      <h1>UN OCHA Wordmark Generator</h1>
+      <h1>OCHA Wordmark Generator</h1>
       <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
 
-      <div class="guidelines" style="background: #fff8e1; border-left: 4px solid #f9a825; padding: 1.25rem 1.5rem; margin-bottom: 2rem; font-size: 0.875rem; line-height: 1.7; color: var(--cd-grey--dark);">
-        <strong style="display: block; margin-bottom: 0.5rem; font-size: 1rem; color: #e65100;">Important guidelines</strong>
+      <div class="guidelines" style="background: var(--cd-orange--light); border-left: 4px solid var(--cd-orange); padding: 1.25rem 1.5rem; margin-bottom: 2rem; font-size: 0.875rem; line-height: 1.7; color: var(--cd-grey--dark);">
+        <strong style="display: block; margin-bottom: 0.5rem; font-size: 1rem; color: var(--cd-orange);">Important guidelines</strong>
         <p style="margin: 0 0 0.75rem;">These are wordmarks, not logos. A wordmark is a text-based identifier that may include an icon — it is not a replacement for the OCHA logo.</p>
         <ul style="margin: 0 0 0.75rem; padding-left: 1.25rem;">
           <li>All wordmarks require approval by the <strong>OCHA Brand and Design Unit</strong>.</li>
@@ -644,7 +653,7 @@
       <div class="preview-section">
         <h2>Preview</h2>
         <div id="preview">
-          <p style="color: #999">
+          <p style="color: var(--cd-grey--mid)">
             Select an icon and enter text to see preview
           </p>
         </div>
@@ -973,7 +982,7 @@
           item.className = "icon-item";
           item.innerHTML = `
                     <div class="icon-placeholder" data-url="${icon.url}">
-                        <div style="width: 48px; height: 48px; background: #ddd; margin: 0 auto 5px;"></div>
+                        <div style="width: 48px; height: 48px; background: var(--cd-grey--light); margin: 0 auto 5px;"></div>
                     </div>
                     <div class="icon-name" title="${icon.name}">${icon.name}</div>
                 `;
@@ -1044,7 +1053,7 @@
 
         if (!selectedIcon || !hasText()) {
           preview.innerHTML =
-            '<p style="color: #999;">Select an icon and enter text to see preview</p>';
+            '<p style="color: var(--cd-grey--mid);">Select an icon and enter text to see preview</p>';
           downloadPreviewPNG.disabled = true;
           submitRequest.disabled = true;
           watermarkNote.style.display = "none";
