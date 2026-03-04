@@ -747,6 +747,43 @@
       let lineCount = 1;
       const UN_BLUE = "#009edb";
 
+      // ── Embedded font for PNG rendering ────────────────
+      // When SVG is rendered via <img> + canvas, web fonts are unavailable.
+      // We pre-fetch Roboto 700 and embed it as base64 inside the SVG.
+      let robotoFontBase64 = null;
+
+      async function loadRobotoFont() {
+        if (robotoFontBase64) return;
+        try {
+          const cssResp = await fetch(
+            "https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap"
+          );
+          const css = await cssResp.text();
+          const urlMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
+          if (!urlMatch) return;
+          const fontResp = await fetch(urlMatch[1]);
+          const buf = await fontResp.arrayBuffer();
+          const bytes = new Uint8Array(buf);
+          let binary = "";
+          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+          robotoFontBase64 = btoa(binary);
+        } catch (e) {
+          console.warn("Could not pre-load Roboto font for PNG embedding:", e);
+        }
+      }
+
+      function embedFontInSVG(svg) {
+        if (!robotoFontBase64) return;
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+        style.textContent = `@font-face { font-family: 'Roboto'; font-weight: 700; src: url(data:font/woff2;base64,${robotoFontBase64}) format('woff2'); }`;
+        defs.appendChild(style);
+        svg.insertBefore(defs, svg.firstChild);
+      }
+
+      // Start loading the font immediately
+      loadRobotoFont();
+
       // ── Approval API ──────────────────────────────────
       // Replace this URL with your deployed Google Apps Script Web App URL
       const APPROVAL_API_URL = "https://script.google.com/macros/s/AKfycbzpfHd0kMPT1UF-rifWzxFA8Te8E3QFPpDStuln2EXZp3xzJ1sFejZRqwYEedCqia9Vhw/exec";
@@ -1325,6 +1362,7 @@
       function downloadPreviewPNG() {
         generateWordmark().then((svg) => {
           addWatermark(svg);
+          embedFontInSVG(svg);
           const svgData = new XMLSerializer().serializeToString(svg);
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
@@ -1359,6 +1397,7 @@
       // Download final package (SVG + PNG in a zip)
       async function downloadFinalPackage() {
         const svg = await generateWordmark();
+        embedFontInSVG(svg);
         const svgData = new XMLSerializer().serializeToString(svg);
         const baseName = getDownloadFilename() + "-wordmark";
 
@@ -1507,25 +1546,24 @@
         container.innerHTML = `<div class="approval-message ${type}">${text}</div>`;
       }
 
-      async function callApprovalAPI(params, retries = 2) {
-        for (let attempt = 1; attempt <= retries; attempt++) {
-          try {
-            const response = await fetch(APPROVAL_API_URL, {
-              method: "POST",
-              body: JSON.stringify(params),
-            });
-            const text = await response.text();
-            try {
-              return JSON.parse(text);
-            } catch (e) {
-              console.error(`API attempt ${attempt} returned non-JSON:`, text.substring(0, 500));
-              if (attempt === retries) throw new Error("Invalid response from server");
-            }
-          } catch (err) {
-            console.error(`API attempt ${attempt} failed:`, err);
-            if (attempt === retries) throw err;
-          }
-          await new Promise(r => setTimeout(r, 1500));
+      async function callApprovalAPI(params) {
+        // Use GET for lightweight actions, POST for submit (large payload)
+        let response;
+        if (params.action === "submit") {
+          response = await fetch(APPROVAL_API_URL, {
+            method: "POST",
+            body: JSON.stringify(params),
+          });
+        } else {
+          const qs = new URLSearchParams(params).toString();
+          response = await fetch(APPROVAL_API_URL + "?" + qs);
+        }
+        const text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          console.error("API returned non-JSON:", text.substring(0, 200));
+          throw new Error("Invalid response from server");
         }
       }
 
@@ -1550,6 +1588,7 @@
           // Generate watermarked preview PNG as base64
           const svg = await generateWordmark();
           addWatermark(svg);
+          embedFontInSVG(svg);
           const svgData = new XMLSerializer().serializeToString(svg);
           const previewBase64 = await new Promise((resolve) => {
             const canvas = document.createElement("canvas");
