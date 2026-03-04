@@ -1510,9 +1510,13 @@
       async function callApprovalAPI(params) {
         const response = await fetch(APPROVAL_API_URL, {
           method: "POST",
+          redirect: "follow",
           headers: { "Content-Type": "text/plain" },
           body: JSON.stringify(params),
         });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         return response.json();
       }
 
@@ -1582,7 +1586,7 @@
             showMessage("requestMessage", result.error || "Request failed. Please try again.", "error");
           }
         } catch (err) {
-          showMessage("requestMessage", "Could not reach the approval service. Please try again later.", "error");
+          showMessage("requestMessage", `Could not reach the approval service (${err.message}). Please try again later.`, "error");
           console.error("Submit error:", err);
         }
 
