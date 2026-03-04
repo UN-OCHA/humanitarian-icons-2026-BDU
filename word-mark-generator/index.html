@@ -71,47 +71,38 @@
         font-size: 1.125rem;
       }
 
-      /* CD Alert (from OCHA Common Design) */
-      .cd-alert {
-        --cd-alert-color: var(--cd-blue--bright);
-        --cd-alert-color-bg: var(--cd-white);
+      /* Guidelines box */
+      .guidelines {
         margin: 0 0 2rem;
-        padding: 1rem;
-        color: var(--cd-grey--dark);
-        border: 1px solid var(--cd-alert-color);
-        border-radius: 0.25rem;
-        background-color: var(--cd-alert-color-bg);
-        box-shadow: -8px 0 0 var(--cd-alert-color);
+        padding: 1rem 1rem 1rem 1.25rem;
+        background: #faf0bb;
+        border-left: 4px solid var(--cd-orange);
         font-size: 0.875rem;
         line-height: 1.7;
+        color: var(--cd-grey--dark);
       }
 
-      .cd-alert--warning {
-        --cd-alert-color: var(--cd-orange);
-        --cd-alert-color-bg: #faf0bb;
-      }
-
-      .cd-alert strong.cd-alert__title {
+      .guidelines strong.guidelines__title {
         display: block;
         margin-bottom: 0.5rem;
         font-size: 1rem;
         color: var(--cd-orange);
       }
 
-      .cd-alert p {
+      .guidelines p {
         margin: 0 0 0.75rem;
       }
 
-      .cd-alert p:last-child {
+      .guidelines p:last-child {
         margin-bottom: 0;
       }
 
-      .cd-alert ul {
+      .guidelines ul {
         margin: 0 0 0.75rem;
         padding-left: 1.25rem;
       }
 
-      .cd-alert a {
+      .guidelines a {
         color: var(--cd-ocha-blue);
         font-weight: 500;
       }
@@ -662,8 +653,8 @@
       <h1>OCHA Wordmark Generator</h1>
       <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
 
-      <div class="cd-alert cd-alert--warning">
-        <strong class="cd-alert__title">Important guidelines</strong>
+      <div class="guidelines">
+        <strong class="guidelines__title">Important guidelines</strong>
         <p>These are wordmarks, not logos. A wordmark is a text-based identifier that may include an icon — it is not a replacement for the OCHA logo.</p>
         <ul>
           <li>All wordmarks require approval by the <strong>OCHA Brand and Design Unit</strong>.</li>
