@@ -27,9 +27,9 @@ METADATA_PATH = REPO_ROOT / "metadata.json"
 CURATED_JSON_PATH = REPO_ROOT / "word-mark-generator" / "curated-icons.json"
 CSV_PATH = REPO_ROOT / "output" / "Humanitarian_icons.csv"
 
-# CDN base URL — note: repo is humanitarian-icons-2026, SVG folder is svg/
+# CDN base URL — note: repo is humanitarian-icons-2026-BDU, SVG folder is svg/
 CDN_BASE = (
-    "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/svg/"
+    "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/"
 )
 
 

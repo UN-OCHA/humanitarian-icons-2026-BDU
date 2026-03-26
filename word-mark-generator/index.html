@@ -872,13 +872,13 @@
           .split("/")
           .map((part) => encodeURIComponent(part))
           .join("/");
-        return `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/${encodedPath}`;
+        return `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/${encodedPath}`;
       }
 
       async function loadIconsFromRepo() {
         const apiCandidates = [
-          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026/git/trees/main?recursive=1",
-          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026/git/trees/master?recursive=1",
+          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026-BDU/git/trees/main?recursive=1",
+          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026-BDU/git/trees/master?recursive=1",
         ];
 
         let treeData = null;
@@ -957,7 +957,7 @@
                     const svgFile = key + ".svg";
                     const url = isLocalDev()
                       ? "../svg/" + svgFile
-                      : `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/svg/${encodeURIComponent(svgFile)}`;
+                      : `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/${encodeURIComponent(svgFile)}`;
                     return {
                       name: meta.name,
                       url,
@@ -990,8 +990,8 @@
               repoErr,
             );
             const csvSources = [
-              "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026@main/OCHA_Humanitarian_Icons_URLs.csv",
-              "https://raw.githubusercontent.com/UN-OCHA/humanitarian-icons-2026/main/OCHA_Humanitarian_Icons_URLs.csv",
+              "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/OCHA_Humanitarian_Icons_URLs.csv",
+              "https://raw.githubusercontent.com/UN-OCHA/humanitarian-icons-2026-BDU/main/OCHA_Humanitarian_Icons_URLs.csv",
             ];
 
             let loaded = false;
