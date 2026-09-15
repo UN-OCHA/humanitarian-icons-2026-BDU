@@ -2,17 +2,18 @@
 
 ## Overview
 
-The OCHA wordmark generator uses a Google Sheet + Google Apps Script backend to enforce an approval workflow. Users cannot download a clean wordmark without approval from the OCHA Brand and Design Unit.
+The OCHA Wordmark Generator uses a Google Sheet + Google Apps Script backend to enforce an approval workflow. Users can’t download a clean wordmark without approval from the OCHA Brand and Design Unit.
 
 ### Workflow
 
-1. **User** creates a wordmark preview on the generator page (can download a DRAFT-watermarked PNG)
-2. **User** submits a request with their email → progress bar shown during submission
-3. **BDU** receives an email notification at ochavisual@un.org with a preview image attached
-4. **BDU** opens the Google Sheet and changes the status from "Pending" to "Approved" (or "Rejected")
-5. **User** automatically receives an approval email from "OCHA Visual" (unochavisual@gmail.com) with a direct download link; BDU is CC'd at ochavisual@un.org
-6. **User** clicks the link → generator opens with request pre-loaded, scrolls to download section, shows progress bar, and presents the download button
-7. **User** downloads the clean SVG + PNG package (unlimited downloads once approved)
+1. **User** creates a wordmark preview on the generator page (and can download a DRAFT-watermarked PNG).
+2. **User** submits a request with their email address.
+3. **User** sees their Request ID on screen and receives a confirmation email with the ID and a status link.
+4. **BDU** receives a notification at ochavisual@un.org with a preview image attached. Replying to it goes straight to the requester.
+5. **BDU** opens the Google Sheet and changes the status from “Pending” to “Approved” (or “Rejected”).
+6. **User** automatically receives an email from “OCHA Visual” (unochavisual@gmail.com) with a direct download link; BDU is in copy at ochavisual@un.org.
+7. **User** clicks the link → the generator opens with the request loaded, verifies it, and scrolls to the download button.
+8. **User** downloads the SVG + PNG package (unlimited downloads once approved).
 
 ---
 
@@ -20,10 +21,12 @@ The OCHA wordmark generator uses a Google Sheet + Google Apps Script backend to 
 
 **Generator:** https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/
 
-**Deep-link format (used in approval emails):**
+**Email link format:**
 ```
-https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/?requestId=WM-XXXXX&email=user@example.com
+https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/?requestId=WM-XXXXXX&token=<secret>
 ```
+
+The `token` is a secret stored per request in column K, so email links contain no personal data. The generator removes it from the address bar as soon as the page opens. Links sent before tokens existed use `&email=` instead — those still work.
 
 ---
 
@@ -39,133 +42,125 @@ https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/?reque
 
 #### Column headers (row 1)
 
-| A | B | C | D | E | F | G | H | I | J |
-|---|---|---|---|---|---|---|---|---|---|
-| Timestamp | Email | Icon | Line 1 | Line 2 | Line 3 | Layout | Request ID | Status | Downloaded At |
+| A | B | C | D | E | F | G | H | I | J | K |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Timestamp | Email | Icon | Line 1 | Line 2 | Line 3 | Layout | Request ID | Status | Downloaded At | Token |
+
+Column K (**Token**) is created automatically by the script on first use. Don’t edit or share tokens — anyone with a token link can download that request’s approved wordmark.
 
 #### Status dropdown (column I)
 
-Column I has a data validation dropdown with color-coded options:
-
-| Status | Color | Meaning |
+| Status | Colour | Meaning |
 |---|---|---|
 | Pending | Orange | Request submitted, awaiting review |
 | Approved | Blue | Approved by BDU, user can download |
 | Rejected | Red | Rejected by BDU |
 
-### Apps Script (Standalone Project)
+### Apps Script (standalone project)
 
 - **Account:** unochavisual@gmail.com
 - **Project name:** OCHA Wordmark Approval API
 - **Project URL:** https://script.google.com/u/1/home/projects/1YQbKuIz2Y8MOf8QNI2O2Fv6dpdsykCGtxX0Jl8s_IbQZB2XjHt32jXin/edit
 - **Execute as:** unochavisual@gmail.com
 - **Who has access:** Anyone
-- **Notification email:** ochavisual@un.org (set via `NOTIFY_EMAIL` constant)
-- **Sender display name:** "OCHA Visual" (set via `name` option in `MailApp.sendEmail`)
+- **Notification email:** ochavisual@un.org (`NOTIFY_EMAIL`)
+- **Sender display name:** “OCHA Visual” (`SENDER_NAME`)
+- **Source of truth:** `google-apps-script.js` in this folder — keep the editor and this file identical.
 
-This is a **standalone** script (not bound to the sheet). It accesses the sheet via `SpreadsheetApp.openById(SHEET_ID)`.
+It’s a **standalone** script (not bound to the sheet) and opens the sheet with `SpreadsheetApp.openById(SHEET_ID)`.
 
-### Web App Deployment
+### Web App deployment
 
 - **Deployment URL:** `https://script.google.com/macros/s/AKfycbz3zxqniGTEE5vmxGlceBb0MJj9u6x7nU3As3CdauwS_4WWONZ3xKTDgre7vMXlbcfv3w/exec`
-- This URL is referenced in `index.html` as `APPROVAL_API_URL`
+- Referenced in `index.html` as `APPROVAL_API_URL`.
+- **Always deploy from the unochavisual@gmail.com account.** Deploying from another account makes every email come from that account.
 
-### Installable Trigger (onEdit)
+### Installable trigger (onEdit)
 
-- **Function:** `onStatusChange`
-- **Event:** From spreadsheet → On edit
-- **What it does:** When the Status column (I) changes to "Approved" or "Rejected", it automatically sends an email to the requester
-- **Approved email** includes: request details + a direct deep-link to download
-- **Rejected email** includes: request details + instruction to contact ochavisual@un.org
-- **CC:** ochavisual@un.org on all emails (so BDU has a copy)
-- **Sender:** "OCHA Visual" <unochavisual@gmail.com>
+- **Function:** `onStatusChange` · **Event:** From spreadsheet → On edit
+- When the Status column (I) changes to “Approved” or “Rejected”, the requester is emailed automatically (pasting several statuses at once emails each row).
+- **Approved email:** request details + a direct download link.
+- **Rejected email:** request details + an invitation to contact ochavisual@un.org.
+- **CC:** ochavisual@un.org on every decision email · **Reply-to:** ochavisual@un.org.
 
-The trigger runs as unochavisual@gmail.com regardless of which Google account edits the sheet. You can approve from your personal account, UN account, or mobile — the email always comes from the OCHA Visual address.
+The trigger runs as unochavisual@gmail.com whichever account edits the sheet — you can approve from your personal account, UN account or mobile.
 
-### Generator HTML
+### Generator (`index.html`)
 
-The approval API URL is set in `index.html`:
-```js
-const APPROVAL_API_URL = "https://script.google.com/macros/s/AKfycbz3zxqniGTEE5vmxGlceBb0MJj9u6x7nU3As3CdauwS_4WWONZ3xKTDgre7vMXlbcfv3w/exec";
-```
-
-SVG icons are loaded via **relative paths** (`../svg/`) on GitHub Pages (not jsDelivr CDN), avoiding cache issues after repo renames.
+- Icons: only those flagged `"wordmark": true` in `metadata.json`, loaded from `../svg/` on GitHub Pages. If `metadata.json` can’t be loaded the page shows an error — it never falls back to the full library.
+- **Text is converted to outlines** using the bundled typeface `fonts/Roboto-Bold.ttf` and `vendor/opentype/opentype.min.js`. This keeps the PNG, the SVG and the BDU preview email identical on every computer, including ones without Roboto installed. Don’t replace it with SVG `<text>`.
+- Characters Roboto doesn’t include (e.g. Arabic, Chinese) are flagged under the text fields and block the preview.
+- The final download is built from the icon and text **as approved**, even if the form is edited afterwards.
 
 ---
 
-## Day-to-Day Operations
+## Day-to-day operations
 
 ### When a user submits a request
 
-- A new row appears in the Google Sheet with status **Pending** (orange)
-- You receive an email at ochavisual@un.org with the request details and a preview PNG attached
-- The email is sent from unochavisual@gmail.com
-- The user sees their **Request ID** on screen (e.g., WM-A3K7P2)
+- A new row appears in the Google Sheet with status **Pending** (orange).
+- You receive an email at ochavisual@un.org with the request details and a preview PNG.
+- The user sees their **Request ID** on screen (e.g. WM-A3K7P2) and receives it by email.
 
 ### To approve a request
 
-1. Open the Google Sheet
-2. Find the row
-3. Use the Status dropdown in column I to change from **Pending** to **Approved**
-4. Done — the user automatically receives an email with a download link, and BDU gets a CC copy
+1. Open the Google Sheet.
+2. Find the row.
+3. Change the Status in column I from **Pending** to **Approved**.
+4. Done — the user receives an email with a download link, and BDU gets a copy.
 
 ### To reject a request
 
-1. Use the Status dropdown to change from **Pending** to **Rejected**
-2. Done — the user automatically receives an email explaining they need to contact BDU
+1. Change the Status from **Pending** to **Rejected**.
+2. Done — the user receives an email inviting them to contact BDU.
 
 ### When the user downloads
 
-- They click the link in their approval email (or manually enter Request ID + email on the generator)
-- The generator auto-verifies the request and shows the download button
-- They download the clean SVG + PNG package (no watermark)
-- The download timestamp is recorded in column J
-- Downloads are unlimited once approved
+- They click the link in their approval email (or enter their Request ID + email on the generator).
+- The generator verifies the request and shows the download button.
+- They download the SVG + PNG package (no watermark). The time is recorded in column J.
+- Downloads are unlimited once approved.
 
 ---
 
 ## Troubleshooting
 
-**"Could not reach the approval service"**
-- Verify the Web App URL in `index.html` matches the deployed URL
-- Confirm the Apps Script deployment has "Who has access: Anyone"
-- Check the Apps Script execution log for errors
+**“The approval service couldn’t be reached”**
+- Check the Web App URL in `index.html` matches the deployed URL.
+- Confirm the deployment has “Who has access: Anyone”.
+- Check the Apps Script **Executions** page for errors.
 
-**Approval email not sending**
-- Check the Triggers page in Apps Script (clock icon in sidebar) — should show 1 trigger: `onStatusChange`, From spreadsheet, On edit
-- If missing, click "+ Add Trigger": function = `onStatusChange`, event source = From spreadsheet, event type = On edit, then Save
-- Check the Executions page for errors
+**Decision email not sending**
+- **Triggers** page (clock icon) should show one trigger: `onStatusChange`, From spreadsheet, On edit.
+- If it’s missing: **+ Add Trigger** → function `onStatusChange`, source From spreadsheet, type On edit → Save.
+- Check the **Executions** page for errors.
 
-**Approval email goes to spam**
-- Ask the user to mark it as "Not spam" — Gmail learns quickly
-- BDU always gets a CC at ochavisual@un.org to follow up if needed
+**Emails go to spam**
+- Ask the user to mark it “Not spam”.
+- BDU always gets a copy at ochavisual@un.org to follow up.
 
-**User says they didn't get a Request ID**
-- Check the Google Sheet — the row should still be there
-- The Request ID is shown on screen immediately after submission
+**User didn’t get a Request ID**
+- It’s shown on screen and emailed at submission. The row is in the sheet either way.
 
-**Need to re-approve (user needs to re-download)**
-- Change the status back to "Approved" using the dropdown — the user gets a new email
+**User needs to download again**
+- The link in their approval email works indefinitely. Setting the status to “Approved” again re-sends the email.
 
 **Updating the Apps Script code**
-- Edit in the Apps Script editor (Project URL above)
-- The onEdit trigger runs from "Head" (latest saved code) — no redeployment needed for trigger changes
-- For Web App changes: Deploy > Manage deployments > Edit (pencil) > Version: New version > Deploy
+1. Edit `google-apps-script.js` in this folder, then paste it into the editor (Project URL above) and save.
+2. The trigger uses the latest saved code immediately.
+3. For the Web App, **as unochavisual@gmail.com**: Deploy → Manage deployments → Edit (pencil) → Version: New version → Deploy. The URL stays the same.
 
 ---
 
-## Rebuilding from Scratch
+## Rebuilding from scratch
 
 If the system ever needs to be rebuilt (new account, new sheet, etc.):
 
-1. Create a new Google Sheet with the column headers listed above
-2. Add data validation on column I (Status) with dropdown options: Pending, Approved, Rejected
-3. Go to https://script.google.com and create a new project
-4. Paste the contents of `google-apps-script.js`
-5. Update `SHEET_ID` with the new sheet's ID
-6. Update `NOTIFY_EMAIL` if needed
-7. Deploy as a Web App (Execute as: Me, Who has access: Anyone)
-8. Authorize the script when prompted (it needs access to Sheets and Mail)
-9. Copy the Web App URL and update `APPROVAL_API_URL` in `index.html`
-10. Add a trigger: Function = `onStatusChange`, Event = From spreadsheet → On edit
-11. Authorize the trigger when prompted
+1. Create a Google Sheet with the column headers listed above (K is created automatically).
+2. Add data validation on column I (Status) with: Pending, Approved, Rejected.
+3. Create a new project at https://script.google.com with the account that should send the emails.
+4. Paste the contents of `google-apps-script.js`.
+5. Update `SHEET_ID` (and `NOTIFY_EMAIL` / `SENDER_NAME` if needed).
+6. Deploy as a Web App (Execute as: Me · Who has access: Anyone) and authorise the script.
+7. Copy the Web App URL into `APPROVAL_API_URL` in `index.html`.
+8. Add the trigger: function `onStatusChange`, From spreadsheet → On edit, and authorise it.

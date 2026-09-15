@@ -623,7 +623,7 @@ A browser-based tool that allows OCHA staff to create branded wordmarks using Hu
 
 **Live tool:** https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/
 
-98 of the 388 icons are approved for use in wordmarks. The approval workflow is automated: BDU changes a status in a Google Sheet, and the requester receives an email with a direct download link.
+91 of the 389 icons are approved for use in wordmarks. The approval workflow is automated: BDU changes a status in a Google Sheet, and the requester receives an email with a direct download link.
 
 | File | Purpose |
 |---|---|

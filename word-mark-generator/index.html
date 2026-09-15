@@ -243,6 +243,7 @@
       }
 
       .icon-selector {
+        position: relative; /* offsetParent: reveal an icon without scrolling the page */
         border: 1px solid var(--cd-grey--light);
         border-radius: 0;
         padding: 1rem;
@@ -272,6 +273,9 @@
       }
 
       .icon-item {
+        display: block;
+        width: 100%;
+        min-width: 0;
         border: 2px solid var(--cd-grey--light);
         border-radius: 0;
         padding: 0.75rem;
@@ -279,6 +283,16 @@
         transition: all 0.2s ease;
         text-align: center;
         background: var(--cd-white);
+        color: inherit;
+        font: inherit;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      .icon-item:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: 2px;
       }
 
       .icon-item:hover {
@@ -291,11 +305,26 @@
         border-color: var(--cd-blue--dark);
       }
 
-      .icon-item svg {
+      .icon-placeholder {
+        display: block;
         width: 56px;
         height: 56px;
-        display: block;
         margin: 0 auto 0.5rem;
+        background: var(--cd-grey--light);
+      }
+
+      .icon-placeholder.is-loaded {
+        background: none;
+      }
+
+      .icon-placeholder--failed {
+        background: var(--cd-red--light);
+      }
+
+      .icon-item svg {
+        width: 100%;
+        height: 100%;
+        display: block;
       }
 
       .icon-item.selected svg path,
@@ -307,6 +336,7 @@
       }
 
       .icon-name {
+        display: block;
         font-size: 0.625rem;
         color: var(--cd-grey--mid);
         overflow: hidden;
@@ -340,6 +370,7 @@
       }
 
       .line-label {
+        margin: 0;
         font-size: 0.75rem;
         font-weight: 700;
         color: var(--cd-blue--dark);
@@ -624,6 +655,76 @@
         font-weight: 400;
       }
 
+      /* An author display rule must never win over the hidden attribute */
+      [hidden] {
+        display: none !important;
+      }
+
+      button:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: 2px;
+      }
+
+      .text-warning {
+        margin-top: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        border-left: 3px solid var(--cd-red);
+        background: var(--cd-red--light);
+        color: var(--cd-red);
+      }
+
+      .preview-placeholder {
+        color: var(--cd-grey--mid);
+      }
+
+      .preview-placeholder--error,
+      .loading--error {
+        color: var(--cd-red);
+      }
+
+      .approval-message a,
+      .loading a {
+        color: inherit;
+        font-weight: 700;
+      }
+
+      .progress {
+        text-align: center;
+        padding: 1.5rem 0;
+      }
+
+      .progress__track {
+        display: inline-block;
+        width: 80%;
+        max-width: 320px;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .progress__bar {
+        width: 0;
+        height: 100%;
+        background: var(--cd-ocha-blue);
+        border-radius: 6px;
+        animation: loadBar 3s ease-in-out forwards;
+      }
+
+      .progress__label {
+        font-size: 0.85rem;
+        color: var(--cd-grey--mid);
+        margin-top: 0.5rem;
+      }
+
+      @keyframes loadBar {
+        0% { width: 0%; }
+        60% { width: 75%; }
+        90% { width: 92%; }
+        100% { width: 100%; }
+      }
+
       @media (max-width: 768px) {
         .container {
           padding: 1.5rem;
@@ -719,406 +820,297 @@
           <div class="text-inputs-container" id="textInputs">
             <!-- Lines are built dynamically by setLineCount() -->
           </div>
+          <p class="text-warning" id="textWarning" role="status" hidden></p>
         </div>
       </div>
 
       <div class="preview-section">
         <h2>Preview</h2>
         <div id="preview">
-          <p style="color: var(--cd-grey--mid)">
-            Select an icon and enter text to see preview
-          </p>
+          <p class="preview-placeholder">Select an icon and enter text to see the preview</p>
         </div>
       </div>
 
       <div class="buttons">
         <button class="btn-png" id="downloadPreviewPNG" disabled>Download Preview PNG</button>
       </div>
-      <p class="watermark-note" id="watermarkNote" style="display: none;">Preview files include a DRAFT watermark. Request approval below to download the final version.</p>
+      <p class="watermark-note" id="watermarkNote" hidden>Preview files include a DRAFT watermark. Request approval below to download the final version.</p>
+      <div id="previewMessage" aria-live="polite"></div>
 
       <!-- Step 3: Request Approval -->
       <div class="approval-section" id="requestSection">
         <h3>3. Request Approval</h3>
         <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
-          Wordmarks must be approved by the OCHA Visual team before use.
-          Submit your request and you will receive a Request ID by email.
+          Wordmarks must be approved by the OCHA Brand and Design Unit before use.
+          Submit your request: you’ll see your Request ID on screen and receive it by email.
         </p>
         <div class="approval-row">
           <div class="approval-field">
             <label for="requestEmail">Your email</label>
-            <input type="text" id="requestEmail" placeholder="your.name@un.org" />
+            <input type="email" id="requestEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
           </div>
           <button class="btn-request" id="submitRequest" disabled>Request Approval</button>
         </div>
-        <div id="submitLoader" style="display:none; text-align:center; padding:1.5rem 0;">
-          <div style="display:inline-block; width:80%; max-width:320px; background:#e9ecef; border-radius:6px; height:6px; overflow:hidden;">
-            <div style="width:0%; height:100%; background:var(--cd-ocha-blue); border-radius:6px; animation: loadBar 3s ease-in-out forwards;"></div>
-          </div>
-          <p style="font-size:0.85rem; color:var(--cd-grey--mid); margin-top:0.5rem;">Submitting your request…</p>
+        <div class="progress" id="submitLoader" hidden>
+          <div class="progress__track"><div class="progress__bar"></div></div>
+          <p class="progress__label">Submitting your request…</p>
         </div>
-        <div id="requestMessage"></div>
+        <div id="requestMessage" aria-live="polite"></div>
       </div>
 
       <!-- Step 4: Download Approved Wordmark -->
       <div class="approval-section step-divider" id="downloadSection">
         <h3>4. Download Approved Wordmark</h3>
         <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
-          Already have an approved Request ID? Enter it below to download the final wordmark.
+          Use the link in your approval email, or enter your Request ID and email address below.
         </p>
         <div class="approval-row">
           <div class="approval-field">
             <label for="downloadEmail">Your email</label>
-            <input type="text" id="downloadEmail" placeholder="your.name@un.org" />
+            <input type="email" id="downloadEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
           </div>
           <div class="approval-field">
             <label for="downloadCode">Request ID</label>
-            <input type="text" id="downloadCode" placeholder="e.g., WM-A3K7P2" style="text-transform: uppercase;" />
+            <input type="text" id="downloadCode" placeholder="e.g., WM-A3K7P2" style="text-transform: uppercase;" autocomplete="off" autocapitalize="characters" spellcheck="false" />
           </div>
           <button class="btn-check" id="checkStatus">Check Status</button>
         </div>
-        <div id="deepLinkLoader" style="display:none; text-align:center; padding:1.5rem 0;">
-          <div style="display:inline-block; width:80%; max-width:320px; background:#e9ecef; border-radius:6px; height:6px; overflow:hidden;">
-            <div style="width:0%; height:100%; background:var(--cd-ocha-blue); border-radius:6px; animation: loadBar 2.5s ease-in-out forwards;"></div>
-          </div>
-          <p style="font-size:0.85rem; color:var(--cd-grey--mid); margin-top:0.5rem;">Verifying your request…</p>
-          <style>@keyframes loadBar { 0%{width:0%} 60%{width:75%} 90%{width:92%} 100%{width:100%} }</style>
+        <div class="progress" id="deepLinkLoader" hidden>
+          <div class="progress__track"><div class="progress__bar"></div></div>
+          <p class="progress__label">Verifying your request…</p>
         </div>
-        <div id="downloadMessage"></div>
-        <div class="buttons" id="approvedButtons" style="display: none;">
+        <div id="downloadMessage" aria-live="polite"></div>
+        <div class="buttons" id="approvedButtons" hidden>
           <button class="btn-svg" id="downloadPackage">Download Wordmark (SVG + PNG)</button>
         </div>
       </div>
     </div>
 
+    <script src="vendor/opentype/opentype.min.js"></script>
     <script>
-      let icons = [];
-      let selectedIcon = null;
-      let isDeepLink = false; // suppress icon-grid scroll during deep-link restore
-      let lineCount = 1;
+      // ── Configuration ─────────────────────────────────
       const UN_BLUE = "#009edb";
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const PNG_TARGET_WIDTH = 1200;
+      const MAX_CHARS = 16;
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-      // ── Approval API ──────────────────────────────────
-      // Replace this URL with your deployed Google Apps Script Web App URL
+      // Google Apps Script Web App owned by unochavisual@gmail.com — see APPROVAL_SETUP.md
       const APPROVAL_API_URL = "https://script.google.com/macros/s/AKfycbz3zxqniGTEE5vmxGlceBb0MJj9u6x7nU3As3CdauwS_4WWONZ3xKTDgre7vMXlbcfv3w/exec";
 
+      // ── State ─────────────────────────────────────────
+      let icons = [];
+      let selectedIcon = null;
+      let lineCount = 1;
+      let previewReady = false;
+      let previewRenderId = 0;
+      // Set from the token in an approval-email link. It proves ownership of the
+      // request instead of the email address, so no personal data is in the URL.
+      let accessToken = null;
+      // Icon + text exactly as approved. Final downloads are built from this, never
+      // from the form, so editing the form after approval can't change the files.
+      let approvedConfig = null;
+
+      const svgTextCache = new Map(); // icon URL → Promise<string>
+
+      // The wordmark typeface is loaded as a font FILE and every line of text is
+      // converted to outlines. Do not switch back to SVG <text>: an SVG drawn into
+      // a PNG (canvas) or opened in Illustrator, PowerPoint or Word can't use the
+      // page's web font, so exports silently fell back to Arial/Times on machines
+      // without Roboto installed — while the on-screen preview still looked right.
+      const fontReady = fetch("fonts/Roboto-Bold.ttf")
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.arrayBuffer();
+        })
+        .then((buffer) => opentype.parse(buffer));
+      fontReady.catch((err) => console.error("Wordmark typeface failed to load:", err));
+
+      let resolveIconsReady;
+      let rejectIconsReady;
+      const iconsReady = new Promise((resolve, reject) => {
+        resolveIconsReady = resolve;
+        rejectIconsReady = reject;
+      });
+      iconsReady.catch(() => {}); // the failure is shown in the icon list
+
+      // ── Helpers ───────────────────────────────────────
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+
       function normalizeIconName(value) {
-        return (value || "")
+        return String(value || "")
           .toLowerCase()
           .replace(/&/g, "and")
           .replace(/[\s\-_,.()\/]+/g, "")
           .trim();
       }
 
-      function parseCSV(text) {
-        const rows = [];
-        let row = [];
-        let field = "";
-        let inQuotes = false;
-
-        for (let i = 0; i < text.length; i++) {
-          const char = text[i];
-          const next = text[i + 1];
-
-          if (char === '"') {
-            if (inQuotes && next === '"') {
-              field += '"';
-              i++;
-            } else {
-              inQuotes = !inQuotes;
-            }
-          } else if (char === "," && !inQuotes) {
-            row.push(field);
-            field = "";
-          } else if ((char === "\n" || char === "\r") && !inQuotes) {
-            if (char === "\r" && next === "\n") i++;
-            row.push(field);
-            const trimmed = row.map((v) => v.trim());
-            if (trimmed.some((v) => v.length > 0)) rows.push(trimmed);
-            row = [];
-            field = "";
-          } else {
-            field += char;
-          }
-        }
-
-        if (field.length > 0 || row.length > 0) {
-          row.push(field);
-          const trimmed = row.map((v) => v.trim());
-          if (trimmed.some((v) => v.length > 0)) rows.push(trimmed);
-        }
-
-        return rows;
-      }
-
-      function humanizeIconNameFromPath(path) {
-        const filename = path
-          .split("/")
-          .pop()
-          .replace(/\.svg$/i, "");
-        return filename
-          .replace(/[_-]+/g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-          .replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-
-      function isIconSvgPath(path) {
-        const lower = path.toLowerCase();
-        return (
-          lower.endsWith(".svg") &&
-          lower.startsWith("svg/") &&
-          !lower.includes("/.")
-        );
-      }
-
-      function isLocalOrPages() {
-        // Local dev OR GitHub Pages — both serve SVGs from the same origin
-        const h = location.hostname;
-        return h === 'localhost' || h === '127.0.0.1' || location.protocol === 'file:' || h.endsWith('.github.io');
-      }
-
-      function repoPathToCdnUrl(path) {
-        if (isLocalOrPages()) {
-          // Relative path works on local dev and GitHub Pages (SVGs sit next to this page)
-          const filename = path.split("/").pop();
-          return "../svg/" + filename;
-        }
-        const encodedPath = path
-          .split("/")
-          .map((part) => encodeURIComponent(part))
-          .join("/");
-        return `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/${encodedPath}`;
-      }
-
-      async function loadIconsFromRepo() {
-        const apiCandidates = [
-          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026-BDU/git/trees/main?recursive=1",
-          "https://api.github.com/repos/UN-OCHA/humanitarian-icons-2026-BDU/git/trees/master?recursive=1",
-        ];
-
-        let treeData = null;
-        let lastError = null;
-
-        for (const url of apiCandidates) {
-          try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            treeData = await response.json();
-            if (treeData && Array.isArray(treeData.tree)) break;
-          } catch (err) {
-            lastError = err;
-          }
-        }
-
-        if (!treeData || !Array.isArray(treeData.tree)) {
-          throw lastError || new Error("Could not read repository tree.");
-        }
-
-        const iconMap = new Map();
-        treeData.tree
-          .filter(
-            (item) =>
-              item && item.type === "blob" && isIconSvgPath(item.path || ""),
-          )
-          .forEach((item) => {
-            const name = humanizeIconNameFromPath(item.path);
-            iconMap.set(name, repoPathToCdnUrl(item.path));
+      function getIconSvgText(url) {
+        if (!svgTextCache.has(url)) {
+          const request = fetch(url).then((response) => {
+            if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+            return response.text();
           });
-
-        return iconMap;
-      }
-
-      function parseUrlMappingsFromCSV(csvText) {
-        const iconMap = new Map();
-        const rows = parseCSV(csvText);
-        const header = (rows[0] || []).map((h) => h.toLowerCase());
-        const nameIdx = header.indexOf("name");
-        const variantIdx = header.indexOf("variant");
-        const urlIdx = header.indexOf("url");
-
-        if (nameIdx === -1 || variantIdx === -1 || urlIdx === -1) {
-          throw new Error("URL CSV is missing Name/Variant/URL columns.");
+          request.catch(() => svgTextCache.delete(url)); // allow a retry after a failure
+          svgTextCache.set(url, request);
         }
-
-        rows.slice(1).forEach((r) => {
-          const name = (r[nameIdx] || "").trim();
-          const variant = (r[variantIdx] || "")
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "-");
-          const url = (r[urlIdx] || "").trim();
-          if ((variant === "un-blue" || variant === "unblue") && name && url) {
-            iconMap.set(name, url);
-          }
-        });
-
-        return iconMap;
+        return svgTextCache.get(url);
       }
 
-      // Load icons from metadata.json (or fallback to humanitarian-icons repo)
+      function setBusy(button, busyLabel) {
+        if (!button.dataset.label) button.dataset.label = button.textContent;
+        button.disabled = true;
+        button.textContent = busyLabel;
+        return () => {
+          button.disabled = false;
+          button.textContent = button.dataset.label;
+        };
+      }
+
+      function showMessage(containerId, html, type) {
+        document.getElementById(containerId).innerHTML =
+          `<div class="approval-message ${type}">${html}</div>`;
+      }
+
+      function clearMessage(containerId) {
+        document.getElementById(containerId).innerHTML = "";
+      }
+
+      // ── Icons ─────────────────────────────────────────
       async function loadIcons() {
+        const container = document.getElementById("iconSelector");
         try {
-          // Try to load from metadata.json first
-          try {
-            console.log("Attempting to load metadata.json...");
-            const response = await fetch("../metadata.json");
-            if (response.ok) {
-              const data = await response.json();
-              if (data.icons && typeof data.icons === "object") {
-                // Filter for wordmark-approved icons and build icon array
-                icons = Object.entries(data.icons)
-                  .filter(([key, meta]) => meta.wordmark)
-                  .map(([key, meta]) => {
-                    const svgFile = key + ".svg";
-                    const url = isLocalOrPages()
-                      ? "../svg/" + svgFile
-                      : `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/${encodeURIComponent(svgFile)}`;
-                    return {
-                      name: meta.name,
-                      url,
-                      verticalAdjustment: meta.wordmark_valign || 0,
-                      category: meta.family || "Uncategorized",
-                    };
-                  })
-                  .sort((a, b) => a.name.localeCompare(b.name));
-                console.log("Loaded from metadata.json:", icons.length, "wordmark icons");
-                renderIcons(icons);
-                return;
-              } else {
-                throw new Error("Invalid metadata.json format");
-              }
-            }
-          } catch (e) {
-            console.log(
-              "No metadata.json found, loading from humanitarian-icons repository",
-              e,
-            );
+          const response = await fetch("../metadata.json");
+          if (!response.ok) throw new Error(`metadata.json: HTTP ${response.status}`);
+          const data = await response.json();
+          if (!data.icons || typeof data.icons !== "object") {
+            throw new Error("metadata.json has no icons");
           }
-
-          const iconMap = new Map();
-          try {
-            const repoMap = await loadIconsFromRepo();
-            repoMap.forEach((url, name) => iconMap.set(name, url));
-          } catch (repoErr) {
-            console.warn(
-              "Repo tree fetch failed; trying URL CSV fallback.",
-              repoErr,
-            );
-            const csvSources = [
-              "https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/OCHA_Humanitarian_Icons_URLs.csv",
-              "https://raw.githubusercontent.com/UN-OCHA/humanitarian-icons-2026-BDU/main/OCHA_Humanitarian_Icons_URLs.csv",
-            ];
-
-            let loaded = false;
-            for (const url of csvSources) {
-              try {
-                const response = await fetch(url);
-                if (!response.ok) continue;
-                const csvText = await response.text();
-                const csvMap = parseUrlMappingsFromCSV(csvText);
-                csvMap.forEach((iconUrl, name) => iconMap.set(name, iconUrl));
-                loaded = iconMap.size > 0;
-                if (loaded) break;
-              } catch (csvErr) {
-                console.warn("CSV source failed:", url, csvErr);
-              }
-            }
-
-            if (!loaded) {
-              throw new Error(
-                "Could not load icons from the UN-OCHA humanitarian-icons repository.",
-              );
-            }
-          }
-
-          icons = Array.from(iconMap.entries())
-            .map(([name, url]) => ({
-              name,
-              url,
-              verticalAdjustment: 0,
+          // Only icons flagged `wordmark: true` may ever be offered. There is
+          // deliberately no fallback to the full library if this fails.
+          icons = Object.entries(data.icons)
+            .filter(([, meta]) => meta.wordmark)
+            .map(([key, meta]) => ({
+              key,
+              name: meta.name || key,
+              url: `../svg/${encodeURIComponent(key)}.svg`,
+              verticalAdjustment: meta.wordmark_valign || 0,
             }))
             .sort((a, b) => a.name.localeCompare(b.name));
+          if (!icons.length) throw new Error("metadata.json has no wordmark icons");
 
-          renderIcons(icons);
-        } catch (error) {
-          document.getElementById("iconSelector").innerHTML =
-            '<div class="loading" style="color: red;">Error loading icons. Please refresh the page.</div>';
-          console.error("Error loading icons:", error);
+          renderIcons();
+          resolveIconsReady(icons);
+        } catch (err) {
+          console.error("Could not load icons:", err);
+          container.innerHTML =
+            '<div class="loading loading--error">Icons couldn’t be loaded. Please refresh the page. ' +
+            'If it keeps happening, contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.</div>';
+          rejectIconsReady(err);
         }
       }
 
-      function renderIcons(iconsToRender) {
+      // Removes styles and classes so icons can be recoloured by the page CSS.
+      function cleanIconSvg(svgText) {
+        let cleaned = svgText.replace(/<defs>[\s\S]*?<\/defs>/gi, "");
+        cleaned = cleaned.replace(/<defs\s[^>]*>[\s\S]*?<\/defs>/gi, "");
+        cleaned = cleaned.replace(/<style[\s\S]*?<\/style>/gi, "");
+        cleaned = cleaned.replace(/<title>[\s\S]*?<\/title>/gi, "");
+        cleaned = cleaned.replace(/\s+class="[^"]*"/g, "");
+        ["path", "circle", "rect", "polygon", "ellipse", "polyline"].forEach((tag) => {
+          const noFill = new RegExp("<" + tag + "(?![^>]*\\bfill\\s*=)", "g");
+          cleaned = cleaned.replace(noFill, "<" + tag + ' fill="#009edb"');
+        });
+        cleaned = cleaned.replace(/\s+style="[^"]*"/g, "");
+        return cleaned.replace(/<svg\b/i, '<svg aria-hidden="true" focusable="false"');
+      }
+
+      function renderIcons() {
         const container = document.getElementById("iconSelector");
-
-        // Filter out icons with empty or invalid URLs
-        const validIcons = iconsToRender.filter(
-          (icon) =>
-            icon.url && icon.url.trim() !== "" && icon.url.endsWith(".svg"),
-        );
-
-        if (validIcons.length === 0) {
-          container.innerHTML = '<div class="no-results">No icons found</div>';
-          return;
-        }
-
         const grid = document.createElement("div");
         grid.className = "icon-grid";
+        grid.setAttribute("role", "group");
+        grid.setAttribute("aria-label", "Wordmark icons");
 
-        validIcons.forEach((icon) => {
-          const item = document.createElement("div");
+        icons.forEach((icon) => {
+          const item = document.createElement("button");
+          item.type = "button";
           item.className = "icon-item";
-          item.innerHTML = `
-                    <div class="icon-placeholder" data-url="${icon.url}">
-                        <div style="width: 48px; height: 48px; background: var(--cd-grey--light); margin: 0 auto 5px;"></div>
-                    </div>
-                    <div class="icon-name" title="${icon.name}">${icon.name}</div>
-                `;
+          item.title = icon.name;
+          item.dataset.search = icon.name.toLowerCase();
+          item.setAttribute("aria-pressed", "false");
 
-          item.addEventListener("click", () => selectIcon(icon, item));
+          const art = document.createElement("span");
+          art.className = "icon-placeholder";
+          art.setAttribute("aria-hidden", "true");
+
+          const label = document.createElement("span");
+          label.className = "icon-name";
+          label.textContent = icon.name;
+
+          item.append(art, label);
+          item.addEventListener("click", () => selectIcon(icon));
+          icon.element = item;
           grid.appendChild(item);
 
-          // Load SVG asynchronously, cleaning CSS classes to prevent conflicts
-          fetch(icon.url)
-            .then((r) => r.text())
+          getIconSvgText(icon.url)
             .then((svgText) => {
-              const placeholder = item.querySelector(".icon-placeholder");
-              // Strip <defs>...</defs> and <style>...</style> blocks
-              let cleaned = svgText.replace(/<defs>[\s\S]*?<\/defs>/gi, '');
-              cleaned = cleaned.replace(/<defs\s[^>]*>[\s\S]*?<\/defs>/gi, '');
-              cleaned = cleaned.replace(/<style[\s\S]*?<\/style>/gi, '');
-              cleaned = cleaned.replace(/<title>[\s\S]*?<\/title>/gi, '');
-              // Remove class attributes and add direct fill
-              cleaned = cleaned.replace(/\s+class="[^"]*"/g, '');
-              // Add fill to shape elements that don't have one
-              const shapes = ['path', 'circle', 'rect', 'polygon', 'ellipse', 'polyline'];
-              shapes.forEach(tag => {
-                const re = new RegExp('<' + tag + '(?![^>]*\\bfill\\s*=)', 'g');
-                cleaned = cleaned.replace(re, '<' + tag + ' fill="#009edb"');
-              });
-              // Remove inline style attributes (which may contain fill via CSS class)
-              cleaned = cleaned.replace(/\s+style="[^"]*"/g, '');
-              placeholder.innerHTML = cleaned;
+              art.innerHTML = cleanIconSvg(svgText);
+              art.classList.add("is-loaded");
             })
-            .catch((err) => console.error("Error loading icon:", err));
+            .catch((err) => {
+              console.error(`Icon failed to load: ${icon.name}`, err);
+              art.classList.add("icon-placeholder--failed");
+            });
         });
 
-        container.innerHTML = "";
-        container.appendChild(grid);
+        const empty = document.createElement("div");
+        empty.className = "no-results";
+        empty.id = "iconNoResults";
+        empty.textContent = "No icons match your search";
+        empty.hidden = true;
+
+        container.replaceChildren(grid, empty);
       }
 
-      function selectIcon(icon, element) {
-        // Remove previous selection
-        document.querySelectorAll(".icon-item").forEach((item) => {
-          item.classList.remove("selected");
+      function applySearch() {
+        const term = document.getElementById("iconSearch").value.trim().toLowerCase();
+        let visible = 0;
+        icons.forEach((icon) => {
+          if (!icon.element) return;
+          const match = !term || icon.element.dataset.search.includes(term);
+          icon.element.hidden = !match;
+          if (match) visible++;
         });
+        const empty = document.getElementById("iconNoResults");
+        if (empty) empty.hidden = visible > 0;
+      }
 
-        // Add selection
-        element.classList.add("selected");
+      function setSelectedIcon(icon, { reveal = false } = {}) {
         selectedIcon = icon;
-
-        updatePreview();
+        icons.forEach((candidate) => {
+          if (!candidate.element) return;
+          const isSelected = candidate === icon;
+          candidate.element.classList.toggle("selected", isSelected);
+          candidate.element.setAttribute("aria-pressed", String(isSelected));
+        });
+        if (reveal && icon && icon.element) {
+          // Scroll only the icon list — scrollIntoView() would also move the page.
+          const selector = document.getElementById("iconSelector");
+          selector.scrollTop = icon.element.offsetTop - selector.clientHeight / 2 + icon.element.offsetHeight / 2;
+        }
       }
 
+      function selectIcon(icon) {
+        setSelectedIcon(icon);
+        return updatePreview();
+      }
+
+      // ── Text lines ────────────────────────────────────
       function getTextLines() {
         const lines = [];
         for (let i = 1; i <= lineCount; i++) {
@@ -1128,42 +1120,170 @@
         return lines;
       }
 
-      function hasText() {
-        return getTextLines().some(line => line.length > 0);
+      function getFilledLines() {
+        return getTextLines().filter((line) => line.length > 0);
+      }
+
+      function setLineCount(count, { values, render = true } = {}) {
+        const current = values ?? getTextLines();
+        lineCount = count;
+
+        const placeholders = ["e.g., Country Team", "e.g., Mozambique", "e.g., 2026"];
+        const children = [];
+
+        for (let i = 0; i < count; i++) {
+          const n = i + 1;
+          const row = document.createElement("div");
+          row.className = "line-row";
+
+          const header = document.createElement("div");
+          header.className = "line-row-header";
+
+          const label = document.createElement("label");
+          label.className = "line-label";
+          label.htmlFor = `line${n}`;
+          label.textContent = `Line ${n}`;
+
+          const counter = document.createElement("span");
+          counter.className = "char-count";
+          counter.id = `count${n}`;
+          header.append(label, counter);
+
+          // Values are set as properties, never interpolated into HTML.
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = `line${n}`;
+          input.maxLength = MAX_CHARS;
+          input.placeholder = placeholders[i];
+          input.autocomplete = "off";
+          input.value = String(current[i] || "").slice(0, MAX_CHARS);
+
+          const syncCounter = () => {
+            const length = input.value.length;
+            const atLimit = length >= MAX_CHARS;
+            counter.textContent = `${length}/${MAX_CHARS}`;
+            counter.classList.toggle("at-limit", atLimit);
+            input.classList.toggle("at-limit", atLimit);
+          };
+          syncCounter();
+          input.addEventListener("input", () => {
+            syncCounter();
+            updatePreview();
+          });
+
+          if (n === count && count > 1) {
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "remove-line-btn";
+            remove.textContent = "Remove";
+            remove.setAttribute("aria-label", `Remove line ${n}`);
+            remove.addEventListener("click", () => setLineCount(count - 1));
+            header.appendChild(remove);
+          }
+
+          row.append(header, input);
+          children.push(row);
+        }
+
+        if (count < 3) {
+          const add = document.createElement("button");
+          add.type = "button";
+          add.className = "add-line-btn";
+          add.textContent = `+ Add line ${count + 1}`;
+          add.addEventListener("click", () => {
+            setLineCount(count + 1);
+            document.getElementById(`line${count + 1}`)?.focus();
+          });
+          children.push(add);
+        }
+
+        document.getElementById("textInputs").replaceChildren(...children);
+        if (render) updatePreview();
+      }
+
+      function findUnsupportedCharacters(font, lines) {
+        const unsupported = new Set();
+        for (const character of lines.join("")) {
+          if (character.trim() === "") continue;
+          if (font.charToGlyphIndex(character) === 0) unsupported.add(character);
+        }
+        return [...unsupported];
+      }
+
+      // ── Preview ───────────────────────────────────────
+      function currentConfig() {
+        return { icon: selectedIcon, lines: getFilledLines() };
       }
 
       async function updatePreview() {
+        const renderId = ++previewRenderId;
         const preview = document.getElementById("preview");
-        const downloadPreviewPNG = document.getElementById("downloadPreviewPNG");
-        const submitRequest = document.getElementById("submitRequest");
-        const watermarkNote = document.getElementById("watermarkNote");
+        const warning = document.getElementById("textWarning");
 
-        if (!selectedIcon || !hasText()) {
-          preview.innerHTML =
-            '<p style="color: var(--cd-grey--mid);">Select an icon and enter text to see preview</p>';
-          downloadPreviewPNG.disabled = true;
-          submitRequest.disabled = true;
-          watermarkNote.style.display = "none";
+        const setReady = (ready) => {
+          previewReady = ready;
+          document.getElementById("downloadPreviewPNG").disabled = !ready;
+          document.getElementById("submitRequest").disabled = !ready;
+          document.getElementById("watermarkNote").hidden = !ready;
+        };
+        const showPlaceholder = (text, isError = false) => {
+          preview.innerHTML = `<p class="preview-placeholder${isError ? " preview-placeholder--error" : ""}">${text}</p>`;
+          setReady(false);
+        };
+
+        const { icon, lines } = currentConfig();
+        if (!icon || !lines.length) {
+          warning.hidden = true;
+          showPlaceholder("Select an icon and enter text to see the preview");
           return;
         }
 
-        const svg = await generateWordmark();
-        // Scale preview so multi-line wordmarks don't look tiny
-        const lines = getTextLines().filter(l => l.length > 0);
-        const numLines = lines.length;
-        const scale = numLines === 1 ? 1 : numLines === 2 ? 1.6 : 2;
-        svg.style.width = `${parseFloat(svg.getAttribute("width")) * scale}px`;
-        svg.style.height = "auto";
-        preview.innerHTML = "";
-        preview.appendChild(svg);
+        let font;
+        try {
+          font = await fontReady;
+        } catch (err) {
+          if (renderId === previewRenderId) {
+            showPlaceholder("The wordmark typeface couldn’t be loaded. Please refresh the page.", true);
+          }
+          return;
+        }
+        if (renderId !== previewRenderId) return;
 
-        downloadPreviewPNG.disabled = false;
-        submitRequest.disabled = false;
-        watermarkNote.style.display = "block";
+        const unsupported = findUnsupportedCharacters(font, lines);
+        if (unsupported.length) {
+          warning.textContent =
+            `These characters aren’t available in the wordmark typeface: ${unsupported.join(" ")}. ` +
+            "Please use Latin, Greek or Cyrillic letters.";
+          warning.hidden = false;
+          showPlaceholder("Remove the unsupported characters to see the preview");
+          return;
+        }
+        warning.hidden = true;
+
+        try {
+          const svg = await generateWordmark({ icon, lines });
+          if (renderId !== previewRenderId) return; // a newer edit already started a render
+          // Scale multi-line wordmarks up so they don't look tiny on screen.
+          const scale = lines.length === 1 ? 1 : lines.length === 2 ? 1.6 : 2;
+          svg.style.width = `${parseFloat(svg.getAttribute("width")) * scale}px`;
+          svg.style.maxWidth = "100%";
+          svg.style.height = "auto";
+          preview.replaceChildren(svg);
+          setReady(true);
+        } catch (err) {
+          if (renderId !== previewRenderId) return;
+          console.error("Preview failed:", err);
+          showPlaceholder("The preview couldn’t be generated. Please try again.", true);
+        }
       }
 
-      async function generateWordmark() {
-        const lines = getTextLines().filter(l => l.length > 0);
+      // ── Wordmark geometry ─────────────────────────────
+      async function generateWordmark(config = currentConfig()) {
+        const { icon, lines } = config;
+        if (!icon || !lines.length) {
+          throw new Error("An icon and at least one line of text are required");
+        }
+        const [font, iconSVGText] = await Promise.all([fontReady, getIconSvgText(icon.url)]);
         const numLines = lines.length;
 
         // Font sizes: 1-line = 30px, 2-line = 18px, 3-line = 14px
@@ -1172,49 +1292,29 @@
         const spacing = 12;
         const iconBoxSize = 48; // Icon is always 48×48, never cropped
 
-        // Fetch the icon SVG
-        const response = await fetch(selectedIcon.url);
-        const iconSVGText = await response.text();
+        const iconDoc = new DOMParser().parseFromString(iconSVGText, "image/svg+xml");
+        const iconShapes = iconDoc.querySelectorAll("path, circle, rect, polygon, polyline, line, ellipse");
 
-        // Parse the icon SVG to extract the paths
-        const parser = new DOMParser();
-        const iconDoc = parser.parseFromString(iconSVGText, "image/svg+xml");
-        const iconPaths = iconDoc.querySelectorAll(
-          "path, circle, rect, polygon, polyline, line, ellipse",
-        );
-
-        // Get the actual bounding box of the icon content
-        const tempSvg = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg",
-        );
-        tempSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        // Measure the icon's real content box (getBBox needs it in the DOM).
+        const tempSvg = document.createElementNS(SVG_NS, "svg");
         tempSvg.setAttribute("viewBox", "0 0 48 48");
         tempSvg.setAttribute("width", "48");
         tempSvg.setAttribute("height", "48");
         tempSvg.style.position = "absolute";
         tempSvg.style.visibility = "hidden";
-        document.body.appendChild(tempSvg);
-
-        const tempGroup = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "g",
-        );
-        iconPaths.forEach((path) => {
-          const clonedPath = path.cloneNode(true);
-          clonedPath.setAttribute("fill", "#009edb");
-          tempGroup.appendChild(clonedPath);
+        const tempGroup = document.createElementNS(SVG_NS, "g");
+        iconShapes.forEach((shape) => {
+          const clone = shape.cloneNode(true);
+          clone.setAttribute("fill", UN_BLUE);
+          tempGroup.appendChild(clone);
         });
         tempSvg.appendChild(tempGroup);
-
+        document.body.appendChild(tempSvg);
         const bbox = tempGroup.getBBox();
-        document.body.removeChild(tempSvg);
+        tempSvg.remove();
 
-        // Measure text metrics for each line
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        ctx.font = `700 ${fontSize}px Roboto`;
-        const lineWidths = lines.map(line => ctx.measureText(line).width);
+        // Text widths come from the font file, so layout matches the outlines exactly.
+        const lineWidths = lines.map((line) => font.getAdvanceWidth(line, fontSize, { kerning: true }));
         const maxTextWidth = Math.max(...lineWidths);
 
         // Cap height (uppercase letter height) ≈ 0.7 of font size
@@ -1227,15 +1327,12 @@
 
         // Scale icon to fit the 48×48 box with padding
         const iconMaxDim = iconBoxSize * 0.9;
-        const iconScale = Math.min(
-          iconMaxDim / bbox.width,
-          iconMaxDim / bbox.height,
-        );
+        const iconScale = Math.min(iconMaxDim / bbox.width, iconMaxDim / bbox.height);
         const scaledIconWidth = bbox.width * iconScale;
         const scaledIconHeight = bbox.height * iconScale;
 
         // Vertical adjustment from curated data
-        const boxAdjustment = selectedIcon.verticalAdjustment || 0;
+        const boxAdjustment = icon.verticalAdjustment || 0;
 
         // Total height: icon box is always fully visible, text block may be taller
         const totalHeight = Math.max(iconBoxSize, textBlockHeight + 8);
@@ -1247,9 +1344,8 @@
         // Icon vertical center:
         // 1-line: centered with text
         // 2-line: midpoint between line 1 top and line 2 baseline
-        // 3-line: centered across all 3 lines
+        // 3-line: centered between lines 1 and 2 (icon sits higher)
         let iconCenterY;
-
         if (numLines === 1) {
           iconCenterY = textStartY - capHeight / 2;
         } else if (numLines === 2) {
@@ -1257,24 +1353,17 @@
           const line2Bottom = textStartY + lineHeight;
           iconCenterY = (line1Top + line2Bottom) / 2 - 3;
         } else {
-          // 3-line: center between lines 1 and 2 (icon sits higher)
           const line1Top = textStartY - capHeight;
           const line2Bottom = textStartY + lineHeight;
           iconCenterY = (line1Top + line2Bottom) / 2 + 2;
         }
 
-        // Text X position
         const textX = iconBoxSize + spacing;
-
-        // Total width
         const totalWidth = textX + maxTextWidth;
 
         // Position icon: right-aligned in icon box, vertically at iconCenterY
         const iconX = iconBoxSize - scaledIconWidth - bbox.x * iconScale;
-        let iconY =
-          iconCenterY - scaledIconHeight / 2 -
-          bbox.y * iconScale -
-          boxAdjustment;
+        let iconY = iconCenterY - scaledIconHeight / 2 - bbox.y * iconScale - boxAdjustment;
 
         // Ensure icon is never cropped: if iconY is negative, add top padding
         let topPadding = 0;
@@ -1282,61 +1371,43 @@
           topPadding = -iconY;
           iconY = 0;
         }
-        // Also check bottom: icon must not exceed totalHeight
-        const iconBottom = iconY + scaledIconHeight + (bbox.y * iconScale);
+        const iconBottom = iconY + scaledIconHeight + bbox.y * iconScale;
         const finalHeight = Math.max(totalHeight, iconBottom) + topPadding;
 
-        // Create the combined SVG
-        const svg = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg",
-        );
-        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        const svg = document.createElementNS(SVG_NS, "svg");
+        svg.setAttribute("xmlns", SVG_NS);
         svg.setAttribute("viewBox", `0 0 ${totalWidth} ${finalHeight}`);
         svg.setAttribute("width", totalWidth);
         svg.setAttribute("height", finalHeight);
+        svg.setAttribute("role", "img");
 
-        // Add icon group with scaling and positioning
-        const iconGroup = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "g",
-        );
-        iconGroup.setAttribute(
-          "transform",
-          `translate(${iconX}, ${iconY}) scale(${iconScale})`,
-        );
+        const title = document.createElementNS(SVG_NS, "title");
+        title.textContent = lines.join(" ");
+        svg.appendChild(title);
 
-        iconPaths.forEach((path) => {
-          const clonedPath = path.cloneNode(true);
-          clonedPath.setAttribute("fill", UN_BLUE);
-          clonedPath.removeAttribute("class");
-          iconGroup.appendChild(clonedPath);
+        const iconGroup = document.createElementNS(SVG_NS, "g");
+        iconGroup.setAttribute("transform", `translate(${iconX}, ${iconY}) scale(${iconScale})`);
+        iconShapes.forEach((shape) => {
+          const clone = shape.cloneNode(true);
+          clone.setAttribute("fill", UN_BLUE);
+          clone.removeAttribute("class");
+          iconGroup.appendChild(clone);
         });
-
         svg.appendChild(iconGroup);
 
-        // Add text lines
+        // Each line becomes an outlined path (see the note at fontReady).
+        const textGroup = document.createElementNS(SVG_NS, "g");
+        textGroup.setAttribute("fill", "#000000");
         lines.forEach((line, index) => {
-          const textElement = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text",
-          );
-          textElement.setAttribute("x", textX);
-          textElement.setAttribute("y", textStartY + topPadding + index * lineHeight);
-          textElement.setAttribute("font-family", "Roboto");
-          textElement.setAttribute("font-weight", "700");
-          textElement.setAttribute("font-size", fontSize);
-          textElement.setAttribute("fill", "#000000");
-          textElement.textContent = line;
-          svg.appendChild(textElement);
+          const baseline = textStartY + topPadding + index * lineHeight;
+          const outline = font.getPath(line, textX, baseline, fontSize, { kerning: true });
+          const path = document.createElementNS(SVG_NS, "path");
+          path.setAttribute("d", outline.toPathData(2));
+          textGroup.appendChild(path);
         });
+        svg.appendChild(textGroup);
 
         return svg;
-      }
-
-      function getDownloadFilename() {
-        const lines = getTextLines().filter(l => l.length > 0);
-        return sanitizeFilename(lines.join("-"));
       }
 
       // Add repeating DRAFT watermark pattern to an SVG element
@@ -1348,13 +1419,13 @@
         const stepX = fontSize * 4;
         const stepY = fontSize * 2;
 
-        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const g = document.createElementNS(SVG_NS, "g");
         g.setAttribute("transform", `rotate(-20 ${w / 2} ${h / 2})`);
 
         // Cover area generously (rotation expands needed area)
         for (let y = -h; y < h * 2; y += stepY) {
           for (let x = -w; x < w * 2; x += stepX) {
-            const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            const t = document.createElementNS(SVG_NS, "text");
             t.setAttribute("x", x);
             t.setAttribute("y", y);
             t.setAttribute("font-family", "Roboto, Arial, sans-serif");
@@ -1369,85 +1440,97 @@
         svg.appendChild(g);
       }
 
-      // Target PNG width
-      const PNG_TARGET_WIDTH = 1200;
-
-      // Download preview PNG (with watermark)
-      function downloadPreviewPNG() {
-        generateWordmark().then((svg) => {
-          addWatermark(svg);
+      // ── Export ────────────────────────────────────────
+      function renderSvgToCanvas(svg, background) {
+        return new Promise((resolve, reject) => {
           const svgData = new XMLSerializer().serializeToString(svg);
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
+          const url = URL.createObjectURL(new Blob([svgData], { type: "image/svg+xml" }));
           const img = new Image();
-          const blob = new Blob([svgData], { type: "image/svg+xml" });
-          const url = URL.createObjectURL(blob);
-
-          img.onload = function () {
+          img.onload = () => {
             const scale = PNG_TARGET_WIDTH / img.width;
+            const canvas = document.createElement("canvas");
             canvas.width = PNG_TARGET_WIDTH;
             canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext("2d");
             ctx.scale(scale, scale);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, img.width, img.height);
+            if (background) {
+              ctx.fillStyle = background;
+              ctx.fillRect(0, 0, img.width, img.height);
+            }
             ctx.drawImage(img, 0, 0);
-
-            canvas.toBlob(function (pngBlob) {
-              const pngUrl = URL.createObjectURL(pngBlob);
-              const a = document.createElement("a");
-              a.href = pngUrl;
-              a.download = `${getDownloadFilename()}-DRAFT-wordmark.png`;
-              a.click();
-              URL.revokeObjectURL(url);
-              URL.revokeObjectURL(pngUrl);
-            });
+            URL.revokeObjectURL(url);
+            resolve(canvas);
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("The wordmark image couldn't be rendered"));
           };
           img.src = url;
         });
       }
 
-      // Download final package (SVG + PNG in a zip)
-      async function downloadFinalPackage() {
-        const svg = await generateWordmark();
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const baseName = getDownloadFilename() + "-wordmark";
-
-        // Generate PNG from SVG
-        const pngBlob = await new Promise((resolve) => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          const img = new Image();
-          const blob = new Blob([svgData], { type: "image/svg+xml" });
-          const url = URL.createObjectURL(blob);
-
-          img.onload = function () {
-            const scale = PNG_TARGET_WIDTH / img.width;
-            canvas.width = PNG_TARGET_WIDTH;
-            canvas.height = Math.round(img.height * scale);
-            ctx.scale(scale, scale);
-            ctx.drawImage(img, 0, 0);
-            canvas.toBlob(function (pngBlob) {
-              URL.revokeObjectURL(url);
-              resolve(pngBlob);
-            });
-          };
-          img.src = url;
+      function canvasToBlob(canvas) {
+        return new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("PNG export failed"))), "image/png");
         });
+      }
 
-        // Build zip using minimal inline zip creator (no library needed)
-        const svgBytes = new TextEncoder().encode(svgData);
-        const pngBytes = new Uint8Array(await pngBlob.arrayBuffer());
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        // Revoke later: revoking straight away can cancel the download in Safari and Firefox.
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+      }
+
+      function sanitizeFilename(text) {
+        return text
+          .replace(/[^a-z0-9]/gi, "-")
+          .toLowerCase()
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+          .substring(0, 50);
+      }
+
+      function getDownloadFilename(lines) {
+        return sanitizeFilename(lines.join("-")) || "ocha";
+      }
+
+      // Preview PNG (with watermark only — no SVG, to prevent editing)
+      async function downloadPreviewPNG() {
+        const button = document.getElementById("downloadPreviewPNG");
+        const done = setBusy(button, "Preparing…");
+        clearMessage("previewMessage");
+        try {
+          const config = currentConfig();
+          const svg = await generateWordmark(config);
+          addWatermark(svg);
+          const canvas = await renderSvgToCanvas(svg, "#ffffff");
+          triggerDownload(await canvasToBlob(canvas), `${getDownloadFilename(config.lines)}-DRAFT-wordmark.png`);
+        } catch (err) {
+          console.error("Preview download failed:", err);
+          showMessage("previewMessage", "The preview couldn’t be downloaded. Please try again.", "error");
+        } finally {
+          done();
+          button.disabled = !previewReady;
+        }
+      }
+
+      // Final package (SVG + transparent PNG in a zip), built from the approved config
+      async function downloadFinalPackage(config) {
+        const svg = await generateWordmark(config);
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const pngBlob = await canvasToBlob(await renderSvgToCanvas(svg));
+        const baseName = `${getDownloadFilename(config.lines)}-wordmark`;
         const zipBlob = createZip([
-          { name: baseName + ".svg", data: svgBytes },
-          { name: baseName + ".png", data: pngBytes },
+          { name: `${baseName}.svg`, data: new TextEncoder().encode(svgData) },
+          { name: `${baseName}.png`, data: new Uint8Array(await pngBlob.arrayBuffer()) },
         ]);
-
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(zipBlob);
-        a.download = baseName + ".zip";
-        a.click();
-        URL.revokeObjectURL(a.href);
+        triggerDownload(zipBlob, `${baseName}.zip`);
       }
 
       // Minimal ZIP file creator (store-only, no compression — keeps it simple)
@@ -1507,7 +1590,7 @@
 
         const centralOffset = offset;
         let centralSize = 0;
-        centralHeaders.forEach(c => centralSize += c.length);
+        centralHeaders.forEach((c) => (centralSize += c.length));
 
         // End of central directory (22 bytes)
         const eocd = new Uint8Array(22);
@@ -1543,390 +1626,301 @@
         return (crc ^ 0xFFFFFFFF) >>> 0;
       }
 
-      function sanitizeFilename(text) {
-        return text
-          .replace(/[^a-z0-9]/gi, "-")
-          .toLowerCase()
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-          .substring(0, 50);
-      }
-
       // ── Approval workflow ─────────────────────────────
-      function showMessage(containerId, text, type) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `<div class="approval-message ${type}">${text}</div>`;
-      }
-
       function callApprovalAPI(params) {
         return new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           if (params.action === "submit") {
             xhr.open("POST", APPROVAL_API_URL);
           } else {
-            const qs = new URLSearchParams(params).toString();
-            xhr.open("GET", APPROVAL_API_URL + "?" + qs);
+            xhr.open("GET", APPROVAL_API_URL + "?" + new URLSearchParams(params).toString());
           }
-          xhr.onload = function () {
+          xhr.timeout = 30000;
+          xhr.onload = () => {
             try {
               resolve(JSON.parse(xhr.responseText));
             } catch (e) {
-              console.error("API returned non-JSON:", xhr.responseText.substring(0, 200));
+              console.error("Approval service returned non-JSON:", xhr.responseText.substring(0, 200));
               reject(new Error("Invalid response from server"));
             }
           };
-          xhr.onerror = function () {
-            reject(new Error("Network error"));
-          };
-          xhr.ontimeout = function () {
-            reject(new Error("Request timed out"));
-          };
-          xhr.timeout = 30000;
-          if (params.action === "submit") {
-            xhr.send(JSON.stringify(params));
-          } else {
-            xhr.send();
-          }
+          xhr.onerror = () => reject(new Error("Network error"));
+          xhr.ontimeout = () => reject(new Error("Request timed out"));
+          // text/plain body (no Content-Type header) avoids a CORS preflight Apps Script can't answer
+          xhr.send(params.action === "submit" ? JSON.stringify(params) : null);
         });
       }
 
+      function getOwnershipParams() {
+        const params = {
+          requestId: document.getElementById("downloadCode").value.trim().toUpperCase(),
+          email: document.getElementById("downloadEmail").value.trim(),
+        };
+        if (accessToken) params.token = accessToken;
+        return params;
+      }
+
       async function submitApprovalRequest() {
-        const email = document.getElementById("requestEmail").value.trim();
-        if (!email) {
-          showMessage("requestMessage", "Please enter your email address.", "error");
+        const emailInput = document.getElementById("requestEmail");
+        const email = emailInput.value.trim();
+        if (!EMAIL_RE.test(email)) {
+          showMessage("requestMessage", "Please enter a valid email address, e.g. name@un.org.", "error");
+          emailInput.focus();
           return;
         }
-
-        if (!selectedIcon || !hasText()) {
+        const config = currentConfig();
+        if (!config.icon || !config.lines.length || !previewReady) {
           showMessage("requestMessage", "Please select an icon and enter text first.", "error");
           return;
         }
 
-        const lines = getTextLines();
-        const btn = document.getElementById("submitRequest");
-        btn.disabled = true;
-        btn.textContent = "SUBMITTING...";
-        document.getElementById("submitLoader").style.display = "block";
-        document.getElementById("requestMessage").innerHTML = "";
+        const button = document.getElementById("submitRequest");
+        const done = setBusy(button, "Submitting…");
+        const loader = document.getElementById("submitLoader");
+        loader.hidden = false;
+        clearMessage("requestMessage");
 
         try {
-          // Generate watermarked preview PNG as base64
-          const svg = await generateWordmark();
+          // Watermarked preview PNG for the BDU notification email
+          const svg = await generateWordmark(config);
           addWatermark(svg);
-          const svgData = new XMLSerializer().serializeToString(svg);
-          const previewBase64 = await new Promise((resolve) => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-            const blob = new Blob([svgData], { type: "image/svg+xml" });
-            const url = URL.createObjectURL(blob);
-            img.onload = function () {
-              const scale = PNG_TARGET_WIDTH / img.width;
-              canvas.width = PNG_TARGET_WIDTH;
-              canvas.height = Math.round(img.height * scale);
-              ctx.scale(scale, scale);
-              ctx.fillStyle = "#ffffff";
-              ctx.fillRect(0, 0, img.width, img.height);
-              ctx.drawImage(img, 0, 0);
-              URL.revokeObjectURL(url);
-              resolve(canvas.toDataURL("image/png").split(",")[1]);
-            };
-            img.src = url;
-          });
+          const canvas = await renderSvgToCanvas(svg, "#ffffff");
+          const previewBase64 = canvas.toDataURL("image/png").split(",")[1];
 
           const result = await callApprovalAPI({
             action: "submit",
-            email: email,
-            icon: selectedIcon.name,
-            line1: lines[0] || "",
-            line2: lines[1] || "",
-            line3: lines[2] || "",
-            layout: String(lineCount),
+            email,
+            icon: config.icon.name,
+            line1: config.lines[0] || "",
+            line2: config.lines[1] || "",
+            line3: config.lines[2] || "",
+            layout: String(config.lines.length),
             previewImage: previewBase64,
           });
 
           if (result.success) {
             showMessage(
               "requestMessage",
-              `Request submitted! Your Request ID is <strong>${result.requestId}</strong>.<br><br>` +
-              `OCHA Brand and Design Unit will review your request and get back to you as soon as possible. ` +
-              `If urgent, please contact Javier Cueto via Teams.<br><br>` +
-              `Once approved, use your Request ID in step 4 below to download the final wordmark.`,
+              `Request submitted. Your Request ID is <strong>${escapeHtml(result.requestId)}</strong> — we’ve also emailed it to you.<br><br>` +
+                "The OCHA Brand and Design Unit will review your request and get back to you as soon as possible. " +
+                'If it’s urgent, contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.<br><br>' +
+                "Once it’s approved, you’ll receive an email with a direct download link. You can also check its status in step 4 below.",
               "success"
             );
+            document.getElementById("downloadCode").value = result.requestId;
+            document.getElementById("downloadEmail").value = email;
+            accessToken = null;
           } else {
-            showMessage("requestMessage", result.error || "Request failed. Please try again.", "error");
+            showMessage("requestMessage", escapeHtml(result.error || "The request failed. Please try again."), "error");
           }
         } catch (err) {
-          showMessage("requestMessage", `Could not reach the approval service (${err.message}). Please try again later.`, "error");
           console.error("Submit error:", err);
+          showMessage(
+            "requestMessage",
+            `The approval service couldn’t be reached (${escapeHtml(err.message)}). Please try again later.`,
+            "error"
+          );
+        } finally {
+          loader.hidden = true;
+          done();
+          button.disabled = !previewReady;
         }
-
-        document.getElementById("submitLoader").style.display = "none";
-        btn.disabled = false;
-        btn.textContent = "REQUEST APPROVAL";
       }
 
+      // Returns true when the request is approved and ready to download.
       async function checkApprovalStatus() {
-        const email = document.getElementById("downloadEmail").value.trim();
-        const code = document.getElementById("downloadCode").value.trim().toUpperCase();
+        const params = getOwnershipParams();
+        const approvedButtons = document.getElementById("approvedButtons");
+        approvedButtons.hidden = true;
+        approvedConfig = null;
 
-        if (!email || !code) {
-          showMessage("downloadMessage", "Please enter both your email and Request ID.", "error");
-          return;
+        if (!params.requestId) {
+          showMessage("downloadMessage", "Please enter your Request ID.", "error");
+          return false;
+        }
+        if (!params.token && !EMAIL_RE.test(params.email)) {
+          showMessage("downloadMessage", "Please enter the email address you used for the request.", "error");
+          return false;
         }
 
-        const btn = document.getElementById("checkStatus");
-        btn.disabled = true;
-        btn.textContent = "CHECKING...";
-
+        const button = document.getElementById("checkStatus");
+        const done = setBusy(button, "Checking…");
         try {
-          const result = await callApprovalAPI({
-            action: "check",
-            email: email,
-            requestId: code,
-          });
-
-          if (result.success) {
-            if (result.canDownload) {
-              // Restore icon and text from the request data
-              restoreWordmarkConfig(result);
-              showMessage(
-                "downloadMessage",
-                "Your request is <strong>approved</strong>! Click a download button below.",
-                "success"
-              );
-              document.getElementById("approvedButtons").style.display = "flex";
-            } else if (result.status === "Pending") {
-              showMessage(
-                "downloadMessage",
-                "Your request is still <strong>pending review</strong>. Please check back later.",
-                "pending"
-              );
-              document.getElementById("approvedButtons").style.display = "none";
-            } else {
-              showMessage(
-                "downloadMessage",
-                `Request status: <strong>${result.status}</strong>.`,
-                "info"
-              );
-              document.getElementById("approvedButtons").style.display = "none";
-            }
-          } else {
-            showMessage("downloadMessage", result.error || "Could not verify request.", "error");
-            document.getElementById("approvedButtons").style.display = "none";
+          const result = await callApprovalAPI({ action: "check", ...params });
+          if (!result.success) {
+            showMessage("downloadMessage", escapeHtml(result.error || "The request couldn’t be verified."), "error");
+            return false;
           }
-        } catch (err) {
-          showMessage("downloadMessage", `Could not reach the approval service (${err.message}).`, "error");
-          console.error("Check error:", err);
-        }
 
-        btn.disabled = false;
-        btn.textContent = "CHECK STATUS";
-      }
+          const emailInput = document.getElementById("downloadEmail");
+          if (result.email && !emailInput.value.trim()) emailInput.value = result.email;
 
-      // Restore icon selection and text fields from request data
-      function restoreWordmarkConfig(data) {
-        // Find and select the icon by name
-        const iconName = (data.icon || "").trim();
-        console.log("Restoring config — icon from API:", JSON.stringify(iconName));
-        console.log("Available icons:", icons.map(ic => ic.name));
-        const matchedIcon = icons.find(
-          (ic) => normalizeIconName(ic.name) === normalizeIconName(iconName)
-        );
-        console.log("Matched icon:", matchedIcon ? matchedIcon.name : "NOT FOUND");
-        if (matchedIcon) {
-          selectedIcon = matchedIcon;
-          // Highlight it in the grid
-          document.querySelectorAll(".icon-item").forEach((el) => {
-            el.classList.remove("selected");
-            if (el.querySelector(".icon-name") &&
-                normalizeIconName(el.querySelector(".icon-name").textContent) === normalizeIconName(iconName)) {
-              el.classList.add("selected");
-              if (!isDeepLink) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          if (result.canDownload) {
+            const restored = await restoreWordmarkConfig(result);
+            if (!restored) {
+              showMessage(
+                "downloadMessage",
+                'This request uses an icon that is no longer available for wordmarks. Please contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.',
+                "error"
+              );
+              return false;
             }
-          });
-        }
+            approvedConfig = restored;
+            showMessage("downloadMessage", "Your request is <strong>approved</strong>. Download your wordmark below.", "success");
+            approvedButtons.hidden = false;
+            return true;
+          }
 
-        // Set the line count and text
-        const lines = [data.line1, data.line2, data.line3].filter((l) => l && l.trim());
-        setLineCount(lines.length || 1);
-        lines.forEach((text, i) => {
-          const input = document.getElementById(`line${i + 1}`);
-          if (input) input.value = text;
-        });
-
-        updatePreview();
-      }
-
-      // Mark as downloaded and trigger final package download
-      async function approvedDownload() {
-        if (!selectedIcon || !hasText()) {
-          showMessage("downloadMessage", "Please check your request status first — it will restore your wordmark configuration.", "error");
-          return;
-        }
-
-        const email = document.getElementById("downloadEmail").value.trim();
-        const code = document.getElementById("downloadCode").value.trim().toUpperCase();
-        const btn = document.getElementById("downloadPackage");
-        btn.disabled = true;
-        btn.textContent = "PREPARING...";
-
-        try {
-          const result = await callApprovalAPI({
-            action: "download",
-            email: email,
-            requestId: code,
-          });
-
-          if (result.success && result.canDownload) {
-            await downloadFinalPackage();
-            document.getElementById("approvedButtons").style.display = "none";
+          if (result.status === "Pending") {
             showMessage(
               "downloadMessage",
-              "Download complete! Your package includes both SVG and PNG. You can download it again anytime using your email and Request ID.",
+              "Your request is still <strong>pending review</strong>. You’ll receive an email as soon as it’s been reviewed.",
+              "pending"
+            );
+          } else if (result.status === "Rejected") {
+            showMessage(
+              "downloadMessage",
+              'This request needs changes before it can be approved. Please contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.',
+              "error"
+            );
+          } else {
+            showMessage("downloadMessage", `Request status: <strong>${escapeHtml(result.status)}</strong>.`, "info");
+          }
+          return false;
+        } catch (err) {
+          console.error("Check error:", err);
+          showMessage("downloadMessage", `The approval service couldn’t be reached (${escapeHtml(err.message)}).`, "error");
+          return false;
+        } finally {
+          done();
+        }
+      }
+
+      // Puts the approved icon and text back into the form. Returns the approved
+      // config, or null if the icon is no longer available for wordmarks.
+      async function restoreWordmarkConfig(data) {
+        await iconsReady;
+
+        const search = document.getElementById("iconSearch");
+        if (search.value) {
+          search.value = "";
+          applySearch();
+        }
+
+        const lines = [data.line1, data.line2, data.line3]
+          .map((line) => String(line || "").trim())
+          .filter(Boolean)
+          .slice(0, 3);
+        setLineCount(Math.max(lines.length, 1), { values: lines, render: false });
+
+        const wanted = normalizeIconName(data.icon);
+        const icon = icons.find(
+          (candidate) => normalizeIconName(candidate.name) === wanted || normalizeIconName(candidate.key) === wanted
+        );
+        setSelectedIcon(icon || null, { reveal: true });
+        await updatePreview();
+        return icon ? { icon, lines } : null;
+      }
+
+      async function approvedDownload() {
+        if (!approvedConfig) {
+          showMessage("downloadMessage", "Please check your request status first.", "error");
+          return;
+        }
+
+        const button = document.getElementById("downloadPackage");
+        const done = setBusy(button, "Preparing…");
+        try {
+          const result = await callApprovalAPI({ action: "download", ...getOwnershipParams() });
+          if (result.success && result.canDownload) {
+            await downloadFinalPackage(approvedConfig);
+            showMessage(
+              "downloadMessage",
+              "Download started. The zip contains your wordmark as SVG and PNG. You can download it again anytime with the link in your approval email.",
               "info"
             );
           } else {
-            showMessage("downloadMessage", result.error || "Download not authorized.", "error");
-            document.getElementById("approvedButtons").style.display = "none";
+            document.getElementById("approvedButtons").hidden = true;
+            showMessage("downloadMessage", escapeHtml(result.error || "This download isn’t authorised."), "error");
           }
         } catch (err) {
-          showMessage("downloadMessage", `Could not reach the approval service (${err.message}).`, "error");
           console.error("Download error:", err);
+          showMessage("downloadMessage", `The approval service couldn’t be reached (${escapeHtml(err.message)}).`, "error");
+        } finally {
+          done();
         }
-
-        btn.disabled = false;
-        btn.textContent = "DOWNLOAD WORDMARK (SVG + PNG)";
       }
 
-      // --- Line layout management ---
-      const MAX_CHARS = 16;
-
-      function setLineCount(count) {
-        lineCount = count;
-
-        const container = document.getElementById("textInputs");
-
-        // Save existing values
-        const existingValues = [];
-        for (let i = 1; i <= 3; i++) {
-          const input = document.getElementById(`line${i}`);
-          if (input) existingValues.push(input.value);
-        }
-
-        const placeholders = [
-          "e.g., Country Team",
-          "e.g., Mozambique",
-          "e.g., 2026",
-        ];
-
-        let html = "";
-        for (let i = 0; i < count; i++) {
-          const value = existingValues[i] || "";
-          const charLen = value.length;
-          const atLimit = charLen >= MAX_CHARS;
-          html += `<div class="line-row">
-            <div class="line-row-header">
-              <span class="line-label">Line ${i + 1}</span>
-              <span class="char-count ${atLimit ? 'at-limit' : ''}" id="count${i + 1}">${charLen}/${MAX_CHARS}</span>
-            </div>
-            <input type="text" id="line${i + 1}" maxlength="${MAX_CHARS}" placeholder="${placeholders[i]}" value="${value}" class="${atLimit ? 'at-limit' : ''}" />
-          </div>`;
-        }
-
-        // Add line button (if under 3)
-        if (count < 3) {
-          html += `<button type="button" class="add-line-btn" id="addLineBtn">+ Add line ${count + 1}</button>`;
-        }
-
-        container.innerHTML = html;
-
-        // Bind input events with char counting
-        for (let i = 1; i <= count; i++) {
-          const input = document.getElementById(`line${i}`);
-          const counter = document.getElementById(`count${i}`);
-          input.addEventListener("input", () => {
-            const len = input.value.length;
-            counter.textContent = `${len}/${MAX_CHARS}`;
-            const atLimit = len >= MAX_CHARS;
-            counter.classList.toggle("at-limit", atLimit);
-            input.classList.toggle("at-limit", atLimit);
-            updatePreview();
-          });
-        }
-
-        // Add line button
-        const addBtn = document.getElementById("addLineBtn");
-        if (addBtn) {
-          addBtn.addEventListener("click", () => setLineCount(count + 1));
-        }
-
-        // Remove line buttons — add to line 2 and 3 headers
-        if (count >= 2) {
-          for (let i = count; i >= 2; i--) {
-            const header = document.getElementById(`line${i}`).parentElement.querySelector('.line-row-header');
-            const removeBtn = document.createElement("button");
-            removeBtn.type = "button";
-            removeBtn.className = "remove-line-btn";
-            removeBtn.textContent = "Remove";
-            removeBtn.addEventListener("click", () => setLineCount(i - 1));
-            header.appendChild(removeBtn);
-            break; // Only add remove to the last line
-          }
-        }
-
-        updatePreview();
+      // Smooth scrolling never runs in a background tab (e.g. an email link opened
+      // with Cmd/Ctrl-click), so jump instantly there — otherwise the page stays at the top.
+      function scrollToElement(element, block) {
+        const behavior = document.visibilityState === "visible" ? "smooth" : "auto";
+        element.scrollIntoView({ behavior, block });
       }
 
-      // Initialize line inputs
+      // Opened from an email link:
+      //   ?requestId=WM-XXXXXX&token=…   (current links)
+      //   ?requestId=WM-XXXXXX&email=…   (links sent before tokens existed)
+      async function handleDeepLink() {
+        const params = new URLSearchParams(window.location.search);
+        const requestId = (params.get("requestId") || params.get("rid") || "").trim();
+        const token = (params.get("token") || "").trim();
+        const email = (params.get("email") || "").trim();
+        if (!requestId || (!token && !email)) return;
+
+        document.getElementById("downloadCode").value = requestId.toUpperCase();
+        document.getElementById("downloadEmail").value = email;
+        accessToken = token || null;
+
+        // Take the token/email out of the address bar so they aren't kept in
+        // bookmarks or shared by copy-pasting the URL.
+        history.replaceState(null, "", window.location.pathname + window.location.hash);
+
+        const loader = document.getElementById("deepLinkLoader");
+        scrollToElement(document.getElementById("downloadSection"), "start");
+        loader.hidden = false;
+
+        let approved = false;
+        try {
+          await Promise.allSettled([iconsReady, fontReady]);
+          approved = await checkApprovalStatus();
+        } finally {
+          loader.hidden = true;
+        }
+
+        // Scroll again once the result is on screen: the preview above grows
+        // while it renders and pushes this section down after the first scroll.
+        const target = document.getElementById(approved ? "approvedButtons" : "downloadMessage");
+        scrollToElement(target, "center");
+      }
+
+      // ── Wiring ────────────────────────────────────────
       setLineCount(1);
 
-      // Preview download (PNG with watermark only — no SVG to prevent editing)
       document.getElementById("downloadPreviewPNG").addEventListener("click", downloadPreviewPNG);
-
-      // Approval workflow
       document.getElementById("submitRequest").addEventListener("click", submitApprovalRequest);
       document.getElementById("checkStatus").addEventListener("click", checkApprovalStatus);
-
-      // Final download (approved package: SVG + PNG zip)
       document.getElementById("downloadPackage").addEventListener("click", approvedDownload);
+      document.getElementById("iconSearch").addEventListener("input", applySearch);
 
-      // Search functionality
-      document.getElementById("iconSearch").addEventListener("input", (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const filtered = icons.filter((icon) =>
-          icon.name.toLowerCase().includes(searchTerm),
-        );
-        renderIcons(filtered);
+      document.getElementById("requestEmail").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !document.getElementById("submitRequest").disabled) submitApprovalRequest();
+      });
+      ["downloadEmail", "downloadCode"].forEach((id) => {
+        const input = document.getElementById(id);
+        // Editing the details invalidates a previous check and any link token.
+        input.addEventListener("input", () => {
+          accessToken = null;
+          approvedConfig = null;
+          document.getElementById("approvedButtons").hidden = true;
+        });
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") checkApprovalStatus();
+        });
       });
 
-      // Initialize
       loadIcons();
-
-      // Deep-link support: ?requestId=WM-XXXXX&email=user@example.com
-      // Pre-fills the download section and auto-checks the status so the
-      // approval email can include a one-click link.
-      (function handleDeepLink() {
-        const params = new URLSearchParams(window.location.search);
-        const rid = params.get('requestId') || params.get('rid');
-        const em = params.get('email');
-        if (!rid || !em) return;
-
-        // Pre-fill the download fields
-        document.getElementById('downloadEmail').value = em;
-        document.getElementById('downloadCode').value = rid.toUpperCase();
-
-        // Scroll to download section, show progress bar, then auto-check status
-        isDeepLink = true;
-        setTimeout(async () => {
-          document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
-          document.getElementById('deepLinkLoader').style.display = 'block';
-          await checkApprovalStatus();
-          document.getElementById('deepLinkLoader').style.display = 'none';
-          isDeepLink = false;
-        }, 500);
-      })();
+      handleDeepLink();
     </script>
 
     <footer class="cd-footer">

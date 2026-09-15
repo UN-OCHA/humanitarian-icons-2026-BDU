@@ -6,7 +6,7 @@
 
 The official OCHA Humanitarian Icons — a set of single-colour SVG icons in OCHA blue (`#009edb`) used across OCHA products, publications, and digital platforms. Maintained by the OCHA Brand and Design Unit (BDU). Licensed CC BY 4.0.
 
-**389 icons** across **19 families**. **98** are approved for use in wordmarks.
+**389 icons** across **19 families**. **91** are approved for use in wordmarks.
 
 ## Where it lives
 
@@ -107,17 +107,17 @@ Legend: **✎** = approved for wordmarks.
 
 ### Clusters (11)
 
-- `Camp-coordination-and-camp-management.svg` — Camp coordination and camp management ✎
-- `Early-recovery.svg` — Early recovery ✎
+- `Camp-coordination-and-camp-management.svg` — Camp coordination and camp management
+- `Early-recovery.svg` — Early recovery
 - `Education.svg` — Education ✎
-- `Emergency-telecommunications.svg` — Emergency telecommunications ✎
-- `Food-security.svg` — Food security ✎
+- `Emergency-telecommunications.svg` — Emergency telecommunications
+- `Food-security.svg` — Food security
 - `Health.svg` — Health ✎
 - `Logistics.svg` — Logistics ✎
 - `Nutrition.svg` — Nutrition ✎
 - `Protection.svg` — Protection ✎
 - `Shelter.svg` — Shelter ✎
-- `Water-sanitation-and-hygiene.svg` — Water sanitation and hygiene ✎
+- `Water-sanitation-and-hygiene.svg` — Water sanitation and hygiene
 
 ### Damage (30)
 
@@ -309,11 +309,11 @@ Legend: **✎** = approved for wordmarks.
 - `Coordination.svg` — Coordination ✎
 - `Environment.svg` — Environment ✎
 - `Fishery.svg` — Fishery ✎
-- `Logistics-and-telecommunications.svg` — Logistics and telecommunications ✎
+- `Logistics-and-telecommunications.svg` — Logistics and telecommunications
 - `Multi-cluster-sector.svg` — Multi-cluster sector ✎
 - `Rule-of-law-and-justice.svg` — Rule of law and justice ✎
 - `Safety-and-security.svg` — Safety and security ✎
-- `Shelter-land-and-site-coordination.svg` — Shelter, land and site coordination ✎
+- `Shelter-land-and-site-coordination.svg` — Shelter, land and site coordination
 
 ### People (27)
 

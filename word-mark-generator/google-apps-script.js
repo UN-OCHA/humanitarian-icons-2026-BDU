@@ -1,46 +1,54 @@
 // ============================================================
 // OCHA Wordmark Approval — Google Apps Script
 // ============================================================
-// Deploy this as a Web App in Google Apps Script.
-// It connects to a Google Sheet that acts as the approval ledger.
+// Standalone script owned by unochavisual@gmail.com and deployed as a Web App
+// (Execute as: Me · Who has access: Anyone). A Google Sheet is the approval
+// ledger. Setup, deployment and day-to-day operations: APPROVAL_SETUP.md.
 //
-// SETUP:
-// 1. Create a Google Sheet with these column headers in row 1:
-//    A: Timestamp | B: Email | C: Icon | D: Line 1 | E: Line 2
-//    F: Line 3 | G: Layout | H: Request ID | I: Status | J: Downloaded At
+// Sheet columns (row 1 headers):
+//   A Timestamp | B Email | C Icon | D Line 1 | E Line 2 | F Line 3
+//   G Layout | H Request ID | I Status | J Downloaded At | K Token
 //
-// 2. Go to Extensions > Apps Script, paste this code
-// 3. Deploy > New deployment > Web app
-//    - Execute as: Me
-//    - Who has access: Anyone
-// 4. Copy the Web App URL and paste it into the word mark generator
-//    (the APPROVAL_API_URL constant)
+// STATUS values: Pending | Approved | Rejected
 //
-// STATUS values: Pending | Approved | Downloaded | Rejected
+// Deploying changes: the onEdit trigger always runs the latest SAVED code, but
+// the Web App only changes when a new version is deployed from THIS account
+// (Deploy → Manage deployments → Edit → Version: New version → Deploy).
+// Deploying from another Google account makes every email come from that
+// account instead of unochavisual@gmail.com.
 // ============================================================
 
-// Name of the sheet tab (default is first sheet)
-const SHEET_NAME = 'Requests';
-
-// Email address that receives notification when a new request comes in
-const NOTIFY_EMAIL = 'ochavisual@un.org';
-
-// Standalone script — open the sheet by ID (not getActiveSpreadsheet)
-// so this works when deployed from any Google account.
 const SHEET_ID = '1eEb70cPxF8dYkomCcBR6TZXy0Q7jTnDM-LxWPbAspxE';
+const SHEET_NAME = 'Requests';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/edit';
+
+// BDU inbox: receives new-request notifications and a copy of every decision.
+const NOTIFY_EMAIL = 'ochavisual@un.org';
+// Display name on every email (the address is always the deploying account).
+const SENDER_NAME = 'OCHA Visual';
+const GENERATOR_URL = 'https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/';
+
+// 1-based column numbers — keep in sync with the header row above.
+const COL = {
+  TIMESTAMP: 1, EMAIL: 2, ICON: 3, LINE1: 4, LINE2: 5, LINE3: 6,
+  LAYOUT: 7, REQUEST_ID: 8, STATUS: 9, DOWNLOADED_AT: 10, TOKEN: 11
+};
+const NUM_COLS = 11;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function getSheet() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.getSheets()[0];
-  }
+  const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+  // Column K was added after launch — create its header on first use.
+  const tokenHeader = sheet.getRange(1, COL.TOKEN);
+  if (!String(tokenHeader.getValue()).trim()) tokenHeader.setValue('Token');
   return sheet;
 }
 
-// Generate a short unique request ID
+// Short, human-readable request ID (no ambiguous characters).
 function generateRequestId() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let id = 'WM-';
   for (let i = 0; i < 6; i++) {
     id += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -48,7 +56,34 @@ function generateRequestId() {
   return id;
 }
 
-// Handle incoming requests (both GET and POST)
+// Secret per-request token used in email links instead of the requester's
+// email address, so no personal data sits in URLs, browser history or logs.
+function generateToken() {
+  return Utilities.getUuid().replace(/-/g, '');
+}
+
+function cell(row, col) {
+  const value = row[col - 1];
+  return String(value == null ? '' : value).trim();
+}
+
+function requestLink(requestId, token) {
+  return GENERATOR_URL + '?requestId=' + encodeURIComponent(requestId) +
+    '&token=' + encodeURIComponent(token);
+}
+
+function describeRequest(fields) {
+  return [
+    'Request ID: ' + fields.requestId,
+    'Icon: ' + fields.icon,
+    'Line 1: ' + fields.line1,
+    fields.line2 ? 'Line 2: ' + fields.line2 : '',
+    fields.line3 ? 'Line 3: ' + fields.line3 : ''
+  ].filter(Boolean);
+}
+
+// ── Web App entry points ──────────────────────────────────────
+
 function doPost(e) {
   return handleRequest(e);
 }
@@ -58,265 +93,264 @@ function doGet(e) {
 }
 
 function handleRequest(e) {
-  // Enable CORS
-  const output = ContentService.createTextOutput();
-  output.setMimeType(ContentService.MimeType.JSON);
-
+  let result;
   try {
-    let params;
-    if (e.postData) {
-      params = JSON.parse(e.postData.contents);
-    } else {
-      params = e.parameter;
-    }
-
-    const action = params.action;
-
-    if (action === 'submit') {
-      return output.setContent(JSON.stringify(submitRequest(params)));
-    } else if (action === 'check') {
-      return output.setContent(JSON.stringify(checkStatus(params)));
-    } else if (action === 'download') {
-      return output.setContent(JSON.stringify(markDownloaded(params)));
-    } else {
-      return output.setContent(JSON.stringify({ success: false, error: 'Unknown action' }));
+    const params = e && e.postData ? JSON.parse(e.postData.contents) : (e ? e.parameter : {});
+    switch (params.action) {
+      case 'submit': result = submitRequest(params); break;
+      case 'check': result = checkStatus(params); break;
+      case 'download': result = markDownloaded(params); break;
+      default: result = { success: false, error: 'Unknown action' };
     }
   } catch (err) {
-    return output.setContent(JSON.stringify({ success: false, error: err.message }));
+    Logger.log('handleRequest error: ' + err.message);
+    result = {
+      success: false,
+      error: 'Something went wrong. Please try again, or contact ' + NOTIFY_EMAIL + '.'
+    };
   }
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ACTION: submit — user submits a new wordmark request
+// Ownership is proven by the email address typed by the requester OR by the
+// secret token from an email link. Links sent before tokens existed carry the
+// email address instead, so both must keep working.
+function findRequestRow(sheet, params) {
+  const requestId = String(params.requestId || '').trim().toUpperCase();
+  const email = String(params.email || '').trim().toLowerCase();
+  const token = String(params.token || '').trim();
+  if (!requestId || (!email && !token)) {
+    return { error: 'Please enter your Request ID and email address.' };
+  }
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (cell(row, COL.REQUEST_ID).toUpperCase() !== requestId) continue;
+    const rowToken = cell(row, COL.TOKEN);
+    const tokenMatches = token !== '' && rowToken !== '' && token === rowToken;
+    const emailMatches = email !== '' && email === cell(row, COL.EMAIL).toLowerCase();
+    if (tokenMatches || emailMatches) return { rowIndex: i + 1, row: row };
+  }
+  return { error: 'Request not found. Please check your Request ID and email address.' };
+}
+
+// ACTION: submit — a user requests approval for a wordmark
 function submitRequest(params) {
+  const fields = {
+    email: String(params.email || '').trim(),
+    icon: String(params.icon || '').trim(),
+    line1: String(params.line1 || '').trim(),
+    line2: String(params.line2 || '').trim(),
+    line3: String(params.line3 || '').trim(),
+    layout: String(params.layout || '1').trim()
+  };
+  if (!EMAIL_RE.test(fields.email)) {
+    return { success: false, error: 'Please enter a valid email address.' };
+  }
+  if (!fields.icon || !fields.line1) {
+    return { success: false, error: 'Please select an icon and enter at least line 1.' };
+  }
+
   const sheet = getSheet();
-  const requestId = generateRequestId();
-  const timestamp = new Date().toISOString();
+  fields.requestId = generateRequestId();
+  const token = generateToken();
+  sheet.appendRow([
+    new Date().toISOString(), fields.email, fields.icon,
+    fields.line1, fields.line2, fields.line3, fields.layout,
+    fields.requestId, 'Pending', '', token
+  ]);
 
-  const email = (params.email || '').trim();
-  const icon = (params.icon || '').trim();
-  const line1 = (params.line1 || '').trim();
-  const line2 = (params.line2 || '').trim();
-  const line3 = (params.line3 || '').trim();
-  const layout = (params.layout || '1').trim();
-
-  if (!email || !icon || !line1) {
-    return { success: false, error: 'Email, icon, and at least line 1 are required.' };
-  }
-
-  // Append row
-  sheet.appendRow([timestamp, email, icon, line1, line2, line3, layout, requestId, 'Pending', '']);
-
-  // Send notification email (with optional preview attachment)
+  // Emails must never fail the request — the row is already saved.
   try {
-    var subject = 'Wordmark request ' + requestId + ' from ' + email;
-    var body = [
-      'New wordmark request:',
-      '',
-      'Request ID: ' + requestId,
-      'Email: ' + email,
-      'Icon: ' + icon,
-      'Layout: ' + layout + ' line(s)',
-      'Line 1: ' + line1,
-      line2 ? 'Line 2: ' + line2 : '',
-      line3 ? 'Line 3: ' + line3 : '',
-      '',
-      'To approve, open the Google Sheet and change the Status column from "Pending" to "Approved".',
-      '',
-      'Open the sheet: https://docs.google.com/spreadsheets/d/1eEb70cPxF8dYkomCcBR6TZXy0Q7jTnDM-LxWPbAspxE/edit',
-    ].filter(Boolean).join('\n');
-
-    var emailOptions = {};
-    var previewImage = (params.previewImage || '').trim();
-    if (previewImage) {
-      var imageBytes = Utilities.base64Decode(previewImage);
-      var blob = Utilities.newBlob(imageBytes, 'image/png', 'wordmark-preview-' + requestId + '.png');
-      emailOptions.attachments = [blob];
-    }
-
-    MailApp.sendEmail(NOTIFY_EMAIL, subject, body, emailOptions);
-  } catch (mailErr) {
-    // Don't fail the request if email fails
-    Logger.log('Email notification failed: ' + mailErr.message);
+    notifyBduOfRequest(fields, String(params.previewImage || '').trim());
+  } catch (err) {
+    Logger.log('BDU notification failed for ' + fields.requestId + ': ' + err.message);
+  }
+  try {
+    confirmToRequester(fields, token);
+  } catch (err) {
+    Logger.log('Requester confirmation failed for ' + fields.requestId + ': ' + err.message);
   }
 
+  return { success: true, requestId: fields.requestId };
+}
+
+function notifyBduOfRequest(fields, previewImage) {
+  const body = ['New wordmark request from ' + fields.email + ':', '']
+    .concat(describeRequest(fields))
+    .concat([
+      'Layout: ' + fields.layout + ' line(s)',
+      '',
+      'To approve or reject it, open the sheet and change the Status column. The requester is emailed automatically.',
+      SHEET_URL,
+      '',
+      'Reply to this email to contact the requester directly.'
+    ])
+    .join('\n');
+
+  const options = { name: SENDER_NAME, replyTo: fields.email };
+  if (previewImage) {
+    options.attachments = [Utilities.newBlob(
+      Utilities.base64Decode(previewImage), 'image/png',
+      'wordmark-preview-' + fields.requestId + '.png'
+    )];
+  }
+  MailApp.sendEmail(NOTIFY_EMAIL,
+    'Wordmark request ' + fields.requestId + ' from ' + fields.email, body, options);
+}
+
+function confirmToRequester(fields, token) {
+  const body = ['Thank you — we’ve received your wordmark request.', '']
+    .concat(describeRequest(fields))
+    .concat([
+      '',
+      'The OCHA Brand and Design Unit will review it and get back to you as soon as possible. You’ll receive another email once it’s been reviewed.',
+      '',
+      'Check the status of your request anytime:',
+      requestLink(fields.requestId, token),
+      '',
+      'If it’s urgent, contact ' + NOTIFY_EMAIL + '.',
+      '',
+      'OCHA Brand and Design Unit'
+    ])
+    .join('\n');
+
+  MailApp.sendEmail(fields.email,
+    'We’ve received your wordmark request ' + fields.requestId, body,
+    { name: SENDER_NAME, replyTo: NOTIFY_EMAIL });
+}
+
+// ACTION: check — a user checks whether their request is approved
+function checkStatus(params) {
+  const found = findRequestRow(getSheet(), params);
+  if (found.error) return { success: false, error: found.error };
+
+  const row = found.row;
+  const status = cell(row, COL.STATUS);
   return {
     success: true,
-    requestId: requestId,
-    message: 'Request submitted. OCHA Brand and Design Unit will review your request and get back to you as soon as possible.'
+    status: status,
+    canDownload: status === 'Approved' || status === 'Downloaded',
+    email: cell(row, COL.EMAIL),
+    icon: cell(row, COL.ICON),
+    line1: cell(row, COL.LINE1),
+    line2: cell(row, COL.LINE2),
+    line3: cell(row, COL.LINE3),
+    layout: cell(row, COL.LAYOUT) || '1'
   };
 }
 
-// ACTION: check — user checks if their request is approved
-function checkStatus(params) {
-  const requestId = (params.requestId || '').trim().toUpperCase();
-  const email = (params.email || '').trim().toLowerCase();
-
-  if (!requestId || !email) {
-    return { success: false, error: 'Request ID and email are required.' };
-  }
-
-  const sheet = getSheet();
-  const data = sheet.getDataRange().getValues();
-
-  // Find the row (skip header)
-  for (let i = 1; i < data.length; i++) {
-    const rowId = (data[i][7] || '').toString().trim().toUpperCase();
-    const rowEmail = (data[i][1] || '').toString().trim().toLowerCase();
-
-    if (rowId === requestId && rowEmail === email) {
-      const status = (data[i][8] || '').toString().trim();
-      return {
-        success: true,
-        status: status,
-        canDownload: status === 'Approved' || status === 'Downloaded',
-        icon: (data[i][2] || '').toString().trim(),
-        line1: (data[i][3] || '').toString().trim(),
-        line2: (data[i][4] || '').toString().trim(),
-        line3: (data[i][5] || '').toString().trim(),
-        layout: (data[i][6] || '1').toString().trim()
-      };
-    }
-  }
-
-  return { success: false, error: 'Request not found. Check your Request ID and email.' };
-}
-
-// ACTION: download — logs the download timestamp (unlimited downloads once approved)
+// ACTION: download — logs the download time (unlimited downloads once approved)
 function markDownloaded(params) {
-  const requestId = (params.requestId || '').trim().toUpperCase();
-  const email = (params.email || '').trim().toLowerCase();
-
-  if (!requestId || !email) {
-    return { success: false, error: 'Request ID and email are required.' };
-  }
-
   const sheet = getSheet();
-  const data = sheet.getDataRange().getValues();
+  const found = findRequestRow(sheet, params);
+  if (found.error) return { success: false, error: found.error };
 
-  for (let i = 1; i < data.length; i++) {
-    const rowId = (data[i][7] || '').toString().trim().toUpperCase();
-    const rowEmail = (data[i][1] || '').toString().trim().toLowerCase();
-
-    if (rowId === requestId && rowEmail === email) {
-      const status = (data[i][8] || '').toString().trim();
-
-      if (status !== 'Approved') {
-        return { success: false, error: 'This request is not yet approved.' };
-      }
-
-      // Log download timestamp (keep status as Approved for unlimited downloads)
-      sheet.getRange(i + 1, 10).setValue(new Date().toISOString()); // Column J (Downloaded At)
-
-      return { success: true, canDownload: true };
-    }
+  const status = cell(found.row, COL.STATUS);
+  if (status !== 'Approved' && status !== 'Downloaded') {
+    return { success: false, error: 'This request isn’t approved yet.' };
   }
-
-  return { success: false, error: 'Request not found.' };
+  sheet.getRange(found.rowIndex, COL.DOWNLOADED_AT).setValue(new Date().toISOString());
+  return { success: true, canDownload: true };
 }
 
 // ============================================================
-// AUTO-EMAIL on approval — installable onEdit trigger
+// Decision emails — installable onEdit trigger
 // ============================================================
-// When the Status column (I) changes to "Approved" or "Rejected",
-// this sends an email to the requester automatically.
+// When the Status column (I) changes to "Approved" or "Rejected", the
+// requester is emailed automatically, with BDU in copy.
 //
-// SETUP (run once): call createEditTrigger() from the editor
-// (Run > select createEditTrigger > Run). This installs the
-// trigger so it fires on every sheet edit.
+// SETUP (once): run createEditTrigger() from the editor, or add the trigger
+// by hand in Triggers → Add Trigger (function onStatusChange · From
+// spreadsheet · On edit). The trigger runs as the account that created it.
 // ============================================================
 
 function createEditTrigger() {
-  // Remove any existing triggers to avoid duplicates
-  var triggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < triggers.length; i++) {
-    if (triggers[i].getHandlerFunction() === 'onStatusChange') {
-      ScriptApp.deleteTrigger(triggers[i]);
-    }
-  }
-  // Create installable onEdit trigger for the approval sheet
-  ScriptApp.newTrigger('onStatusChange')
-    .forSpreadsheet(SHEET_ID)
-    .onEdit()
-    .create();
+  ScriptApp.getProjectTriggers()
+    .filter(function (t) { return t.getHandlerFunction() === 'onStatusChange'; })
+    .forEach(function (t) { ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('onStatusChange').forSpreadsheet(SHEET_ID).onEdit().create();
   Logger.log('Edit trigger installed for sheet ' + SHEET_ID);
 }
 
 function onStatusChange(e) {
-  try {
-    var range = e.range;
-    var sheet = range.getSheet();
+  if (!e || !e.range) return;
+  const range = e.range;
+  const sheet = range.getSheet();
+  if (sheet.getSheetId() !== getSheet().getSheetId()) return;
 
-    // Only act on the Status column (column I = 9)
-    if (range.getColumn() !== 9) return;
+  const firstCol = range.getColumn();
+  const lastCol = firstCol + range.getNumColumns() - 1;
+  if (COL.STATUS < firstCol || COL.STATUS > lastCol) return;
 
-    // Only act on data rows (skip header)
-    var row = range.getRow();
-    if (row < 2) return;
-
-    var newStatus = (range.getValue() || '').toString().trim();
-
-    // Only send email for Approved or Rejected
-    if (newStatus !== 'Approved' && newStatus !== 'Rejected') return;
-
-    // Get the row data
-    var rowData = sheet.getRange(row, 1, 1, 10).getValues()[0];
-    var email = (rowData[1] || '').toString().trim();    // Column B: Email
-    var icon = (rowData[2] || '').toString().trim();      // Column C: Icon
-    var line1 = (rowData[3] || '').toString().trim();     // Column D: Line 1
-    var line2 = (rowData[4] || '').toString().trim();     // Column E: Line 2
-    var line3 = (rowData[5] || '').toString().trim();     // Column F: Line 3
-    var requestId = (rowData[7] || '').toString().trim(); // Column H: Request ID
-
-    if (!email) return;
-
-    var generatorUrl = 'https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/';
-
-    if (newStatus === 'Approved') {
-      // Direct deep link — pre-fills request ID + email and auto-checks status
-      var downloadLink = generatorUrl + '?requestId=' + encodeURIComponent(requestId) + '&email=' + encodeURIComponent(email);
-
-      var subject = 'Wordmark request ' + requestId + ' approved';
-      var body = [
-        'Your wordmark request has been approved by the OCHA Brand and Design Unit.',
-        '',
-        'Request ID: ' + requestId,
-        'Icon: ' + icon,
-        'Line 1: ' + line1,
-        line2 ? 'Line 2: ' + line2 : '',
-        line3 ? 'Line 3: ' + line3 : '',
-        '',
-        'Download your wordmark here:',
-        downloadLink,
-        '',
-        '(The link opens the generator with your request pre-loaded. Click "Download Wordmark" to get the SVG + PNG package.)',
-        '',
-        'If you have any questions, contact ochavisual@un.org.',
-        '',
-        'OCHA Brand and Design Unit'
-      ].filter(Boolean).join('\n');
-
-      MailApp.sendEmail(email, subject, body, { cc: NOTIFY_EMAIL, name: 'OCHA Visual' });
-    } else if (newStatus === 'Rejected') {
-      var subject = 'Wordmark request ' + requestId + ' — changes needed';
-      var body = [
-        'Your wordmark request needs changes before it can be approved.',
-        '',
-        'Request ID: ' + requestId,
-        'Icon: ' + icon,
-        'Line 1: ' + line1,
-        line2 ? 'Line 2: ' + line2 : '',
-        line3 ? 'Line 3: ' + line3 : '',
-        '',
-        'Please contact ochavisual@un.org for details on what needs to be adjusted.',
-        '',
-        'OCHA Brand and Design Unit'
-      ].filter(Boolean).join('\n');
-
-      MailApp.sendEmail(email, subject, body, { cc: NOTIFY_EMAIL, name: 'OCHA Visual' });
+  // A paste can change several statuses at once — handle every row in the range.
+  const firstRow = Math.max(range.getRow(), 2);
+  const lastRow = range.getRow() + range.getNumRows() - 1;
+  for (let r = firstRow; r <= lastRow; r++) {
+    try {
+      notifyRequesterOfDecision(sheet, r);
+    } catch (err) {
+      Logger.log('Decision email failed for row ' + r + ': ' + err.message);
     }
-
-    Logger.log('Notification sent to ' + email + ' for ' + requestId + ' (' + newStatus + ')');
-  } catch (err) {
-    Logger.log('onStatusChange error: ' + err.message);
   }
+}
+
+function notifyRequesterOfDecision(sheet, rowIndex) {
+  const row = sheet.getRange(rowIndex, 1, 1, NUM_COLS).getValues()[0];
+  const status = cell(row, COL.STATUS);
+  if (status !== 'Approved' && status !== 'Rejected') return;
+
+  const fields = {
+    email: cell(row, COL.EMAIL),
+    requestId: cell(row, COL.REQUEST_ID),
+    icon: cell(row, COL.ICON),
+    line1: cell(row, COL.LINE1),
+    line2: cell(row, COL.LINE2),
+    line3: cell(row, COL.LINE3)
+  };
+  if (!EMAIL_RE.test(fields.email) || !fields.requestId) {
+    Logger.log('Row ' + rowIndex + ' has no valid email or Request ID — no email sent.');
+    return;
+  }
+
+  let subject;
+  let lines;
+  if (status === 'Approved') {
+    let token = cell(row, COL.TOKEN);
+    if (!token) {
+      // Requests submitted before tokens existed get one when approved.
+      token = generateToken();
+      sheet.getRange(rowIndex, COL.TOKEN).setValue(token);
+    }
+    subject = 'Your wordmark request ' + fields.requestId + ' has been approved';
+    lines = ['Good news — the OCHA Brand and Design Unit has approved your wordmark request.', '']
+      .concat(describeRequest(fields))
+      .concat([
+        '',
+        'Download your wordmark (SVG + PNG):',
+        requestLink(fields.requestId, token),
+        '',
+        'The link opens the Wordmark Generator with your request loaded — click “Download wordmark” to get your files. You can use the same link to download them again anytime.',
+        '',
+        'If you have any questions, contact ' + NOTIFY_EMAIL + '.',
+        '',
+        'OCHA Brand and Design Unit'
+      ]);
+  } else {
+    subject = 'Your wordmark request ' + fields.requestId + ' needs changes';
+    lines = ['Your wordmark request needs some changes before it can be approved.', '']
+      .concat(describeRequest(fields))
+      .concat([
+        '',
+        'Please contact ' + NOTIFY_EMAIL + ' to discuss what needs adjusting.',
+        '',
+        'OCHA Brand and Design Unit'
+      ]);
+  }
+
+  MailApp.sendEmail(fields.email, subject, lines.join('\n'),
+    { cc: NOTIFY_EMAIL, name: SENDER_NAME, replyTo: NOTIFY_EMAIL });
+  Logger.log('Decision email sent to ' + fields.email + ' for ' + fields.requestId + ' (' + status + ')');
 }
