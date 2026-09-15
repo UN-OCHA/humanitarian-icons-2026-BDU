@@ -6,7 +6,7 @@
 
 The official OCHA Humanitarian Icons — a set of single-colour SVG icons in OCHA blue (`#009edb`) used across OCHA products, publications, and digital platforms. Maintained by the OCHA Brand and Design Unit (BDU). Licensed CC BY 4.0.
 
-**389 icons** across **19 families**. **91** are approved for use in wordmarks.
+**389 icons** across **19 families**. **105** are approved for use in wordmarks.
 
 ## Where it lives
 
@@ -60,13 +60,13 @@ Legend: **✎** = approved for wordmarks.
 
 ### Activities strategy (35)
 
-- `Advocacy.svg` — Advocacy
+- `Advocacy.svg` — Advocacy ✎
 - `Agile.svg` — Agile
 - `Analysis.svg` — Analysis
 - `Assessment.svg` — Assessment
 - `Cash-transfer.svg` — Cash transfer
 - `Civil-military-coordination.svg` — Civil military coordination
-- `Community-engagement.svg` — Community engagement
+- `Community-engagement.svg` — Community engagement ✎
 - `Coordinated-assessment.svg` — Coordinated assessment
 - `Deployment.svg` — Deployment
 - `Financing.svg` — Financing
@@ -81,7 +81,7 @@ Legend: **✎** = approved for wordmarks.
 - `Meeting.svg` — Meeting
 - `Monitoring.svg` — Monitoring
 - `Needs-assessment.svg` — Needs assessment
-- `Partnership.svg` — Partnership
+- `Partnership.svg` — Partnership ✎
 - `Policy.svg` — Policy
 - `Preparedness.svg` — Preparedness
 - `Public-information.svg` — Public information
@@ -94,7 +94,7 @@ Legend: **✎** = approved for wordmarks.
 - `Sexual-and-reproductive-health.svg` — Sexual and reproductive health
 - `Staff-management.svg` — Staff management
 - `Top-ranking.svg` — Top ranking
-- `Training.svg` — Training
+- `Training.svg` — Training ✎
 
 ### Camp (6)
 
@@ -250,7 +250,7 @@ Legend: **✎** = approved for wordmarks.
 
 - `Bacteria.svg` — Bacteria
 - `COVID-19.svg` — COVID-19
-- `Case-management.svg` — Case management
+- `Case-management.svg` — Case management ✎
 - `Doctor.svg` — Doctor
 - `Handwashing.svg` — Handwashing
 - `Health-worker.svg` — Health worker
@@ -319,11 +319,11 @@ Legend: **✎** = approved for wordmarks.
 
 - `Affected-population.svg` — Affected population
 - `Child-combatant.svg` — Child combatant
-- `Children.svg` — Children
+- `Children.svg` — Children ✎
 - `Dead.svg` — Dead
 - `Drowned.svg` — Drowned
 - `Elderly.svg` — Elderly
-- `Gender.svg` — Gender
+- `Gender.svg` — Gender ✎
 - `Indigenous-people.svg` — Indigenous people
 - `Infant.svg` — Infant
 - `Injured.svg` — Injured
@@ -384,13 +384,13 @@ Legend: **✎** = approved for wordmarks.
 - `Dangerous-area.svg` — Dangerous area
 - `Forced-entry.svg` — Forced entry
 - `Forced-recruitment.svg` — Forced recruitment
-- `Gender-based-violence.svg` — Gender based violence
-- `Harassment-intimidation.svg` — Harassment intimidation
+- `Gender-based-violence.svg` — Gender based violence ✎
+- `Harassment-intimidation.svg` — Harassment intimidation ✎
 - `House-burned.svg` — House burned
 - `Mine.svg` — Mine
 - `Murder.svg` — Murder
 - `Robbery.svg` — Robbery
-- `Sexual-violence.svg` — Sexual violence
+- `Sexual-violence.svg` — Sexual violence ✎
 
 ### Socioeconomic and development (10)
 
@@ -413,7 +413,7 @@ Legend: **✎** = approved for wordmarks.
 - `Fax.svg` — Fax
 - `Internet.svg` — Internet
 - `Laptop.svg` — Laptop
-- `Mobile-phone.svg` — Mobile phone
+- `Mobile-phone.svg` — Mobile phone ✎
 - `Monitor.svg` — Monitor
 - `Radio.svg` — Radio
 - `Remote-support.svg` — Remote support
@@ -450,8 +450,8 @@ Legend: **✎** = approved for wordmarks.
 - `Filter.svg` — Filter
 - `Folder.svg` — Folder
 - `Go.svg` — Go
-- `Group.svg` — Group
-- `Help.svg` — Help
+- `Group.svg` — Group ✎
+- `Help.svg` — Help ✎
 - `Hidden.svg` — Hidden
 - `Link.svg` — Link
 - `Menu.svg` — Menu
@@ -470,7 +470,7 @@ Legend: **✎** = approved for wordmarks.
 - `Return.svg` — Return
 - `Save.svg` — Save
 - `Search.svg` — Search
-- `Secured.svg` — Secured
+- `Secured.svg` — Secured ✎
 - `Security.svg` — Security
 - `See.svg` — See
 - `Selected.svg` — Selected
