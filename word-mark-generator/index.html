@@ -655,6 +655,80 @@
         font-weight: 400;
       }
 
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .colour-picker {
+        border: 0;
+        margin: 1rem 0 0;
+        padding: 0;
+        min-width: 0;
+      }
+
+      .colour-picker__legend {
+        padding: 0;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: var(--cd-blue--dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .colour-picker__current {
+        margin-inline-start: 0.5rem;
+        font-weight: 400;
+        color: var(--cd-grey--mid);
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .colour-picker__swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .colour-swatch {
+        position: relative;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .colour-swatch input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+      }
+
+      .colour-swatch__dot {
+        display: block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--swatch);
+        outline: 1px solid #bfbfbf;
+      }
+
+      .colour-swatch input:checked + .colour-swatch__dot {
+        outline: 3px solid var(--cd-black);
+        outline-offset: 2px;
+      }
+
+      .colour-swatch input:focus-visible + .colour-swatch__dot {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: 2px;
+      }
+
       /* An author display rule must never win over the hidden attribute */
       [hidden] {
         display: none !important;
@@ -813,6 +887,10 @@
           <div class="icon-selector" id="iconSelector">
             <div class="loading">Loading icons...</div>
           </div>
+          <fieldset class="colour-picker">
+            <legend class="colour-picker__legend">Icon colour <span class="colour-picker__current" id="colourName">UN Blue</span></legend>
+            <div class="colour-picker__swatches" id="colourSwatches"><!-- built by renderColourPicker() --></div>
+          </fieldset>
         </div>
 
         <div class="control-group">
@@ -889,7 +967,21 @@
     <script src="vendor/opentype/opentype.min.js"></script>
     <script>
       // ── Configuration ─────────────────────────────────
-      const UN_BLUE = "#009edb";
+      // Main OCHA colours (no shades) — the only colours offered for the icon.
+      // Text is always black. Keep this list identical to ICON_COLOURS in google-apps-script.js.
+      const ICON_COLOURS = [
+        { name: "UN Blue", hex: "#009EDB" },
+        { name: "Green", hex: "#72BF44" },
+        { name: "Yellow", hex: "#FFC800" },
+        { name: "Orange", hex: "#F58220" },
+        { name: "Red", hex: "#ED1847" },
+        { name: "Purple", hex: "#A05FB4" },
+        { name: "Slate grey", hex: "#AEA29A" },
+        { name: "Neutral grey", hex: "#999999" },
+        { name: "Black", hex: "#000000" },
+      ];
+      const DEFAULT_ICON_COLOUR = ICON_COLOURS[0].hex;
+      const UN_BLUE = DEFAULT_ICON_COLOUR;
       const SVG_NS = "http://www.w3.org/2000/svg";
       const PNG_TARGET_WIDTH = 1200;
       const MAX_CHARS = 16;
@@ -902,6 +994,7 @@
       let icons = [];
       let selectedIcon = null;
       let lineCount = 1;
+      let selectedIconColour = DEFAULT_ICON_COLOUR;
       let previewReady = false;
       let previewRenderId = 0;
       // Set from the token in an approval-email link. It proves ownership of the
@@ -978,6 +1071,52 @@
 
       function clearMessage(containerId) {
         document.getElementById(containerId).innerHTML = "";
+      }
+
+      // ── Icon colour ───────────────────────────────────
+      function findIconColour(hex) {
+        const wanted = String(hex || "").trim().toUpperCase();
+        return ICON_COLOURS.find((colour) => colour.hex === wanted) || null;
+      }
+
+      function renderColourPicker() {
+        const swatches = ICON_COLOURS.map((colour) => {
+          const label = document.createElement("label");
+          label.className = "colour-swatch";
+          label.title = colour.name;
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = "iconColour";
+          input.value = colour.hex;
+          input.checked = colour.hex === selectedIconColour;
+          input.addEventListener("change", () => {
+            setIconColour(colour.hex);
+            updatePreview();
+          });
+
+          const dot = document.createElement("span");
+          dot.className = "colour-swatch__dot";
+          dot.style.setProperty("--swatch", colour.hex);
+          dot.setAttribute("aria-hidden", "true");
+
+          const name = document.createElement("span");
+          name.className = "sr-only";
+          name.textContent = colour.name;
+
+          label.append(input, dot, name);
+          return label;
+        });
+        document.getElementById("colourSwatches").replaceChildren(...swatches);
+      }
+
+      function setIconColour(hex) {
+        const colour = findIconColour(hex) || ICON_COLOURS[0];
+        selectedIconColour = colour.hex;
+        document.querySelectorAll('input[name="iconColour"]').forEach((input) => {
+          input.checked = input.value === colour.hex;
+        });
+        document.getElementById("colourName").textContent = colour.name;
       }
 
       // ── Icons ─────────────────────────────────────────
@@ -1212,7 +1351,7 @@
 
       // ── Preview ───────────────────────────────────────
       function currentConfig() {
-        return { icon: selectedIcon, lines: getFilledLines() };
+        return { icon: selectedIcon, lines: getFilledLines(), iconColour: selectedIconColour };
       }
 
       async function updatePreview() {
@@ -1231,7 +1370,8 @@
           setReady(false);
         };
 
-        const { icon, lines } = currentConfig();
+        const config = currentConfig();
+        const { icon, lines } = config;
         if (!icon || !lines.length) {
           warning.hidden = true;
           showPlaceholder("Select an icon and enter text to see the preview");
@@ -1261,7 +1401,7 @@
         warning.hidden = true;
 
         try {
-          const svg = await generateWordmark({ icon, lines });
+          const svg = await generateWordmark(config);
           if (renderId !== previewRenderId) return; // a newer edit already started a render
           // Scale multi-line wordmarks up so they don't look tiny on screen.
           const scale = lines.length === 1 ? 1 : lines.length === 2 ? 1.6 : 2;
@@ -1279,7 +1419,7 @@
 
       // ── Wordmark geometry ─────────────────────────────
       async function generateWordmark(config = currentConfig()) {
-        const { icon, lines } = config;
+        const { icon, lines, iconColour = DEFAULT_ICON_COLOUR, textColour = "#000000" } = config;
         if (!icon || !lines.length) {
           throw new Error("An icon and at least one line of text are required");
         }
@@ -1389,7 +1529,7 @@
         iconGroup.setAttribute("transform", `translate(${iconX}, ${iconY}) scale(${iconScale})`);
         iconShapes.forEach((shape) => {
           const clone = shape.cloneNode(true);
-          clone.setAttribute("fill", UN_BLUE);
+          clone.setAttribute("fill", iconColour);
           clone.removeAttribute("class");
           iconGroup.appendChild(clone);
         });
@@ -1397,7 +1537,7 @@
 
         // Each line becomes an outlined path (see the note at fontReady).
         const textGroup = document.createElementNS(SVG_NS, "g");
-        textGroup.setAttribute("fill", "#000000");
+        textGroup.setAttribute("fill", textColour);
         lines.forEach((line, index) => {
           const baseline = textStartY + topPadding + index * lineHeight;
           const outline = font.getPath(line, textX, baseline, fontSize, { kerning: true });
@@ -1520,17 +1660,26 @@
         }
       }
 
-      // Final package (SVG + transparent PNG in a zip), built from the approved config
+      // Final package, built from the approved config: the approved colour plus
+      // all-black and all-white versions, each as SVG and transparent PNG.
       async function downloadFinalPackage(config) {
-        const svg = await generateWordmark(config);
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const pngBlob = await canvasToBlob(await renderSvgToCanvas(svg));
-        const baseName = `${getDownloadFilename(config.lines)}-wordmark`;
-        const zipBlob = createZip([
-          { name: `${baseName}.svg`, data: new TextEncoder().encode(svgData) },
-          { name: `${baseName}.png`, data: new Uint8Array(await pngBlob.arrayBuffer()) },
-        ]);
-        triggerDownload(zipBlob, `${baseName}.zip`);
+        const base = getDownloadFilename(config.lines);
+        const colour = findIconColour(config.iconColour) || ICON_COLOURS[0];
+        const variants = [
+          { suffix: `wordmark-${sanitizeFilename(colour.name)}`, iconColour: colour.hex, textColour: "#000000" },
+          { suffix: "wordmark-black", iconColour: "#000000", textColour: "#000000" },
+          { suffix: "wordmark-white", iconColour: "#FFFFFF", textColour: "#FFFFFF" },
+        ].filter((variant, index, all) => all.findIndex((other) => other.suffix === variant.suffix) === index);
+
+        const files = [];
+        for (const variant of variants) {
+          const svg = await generateWordmark({ ...config, iconColour: variant.iconColour, textColour: variant.textColour });
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const pngBlob = await canvasToBlob(await renderSvgToCanvas(svg));
+          files.push({ name: `${base}-${variant.suffix}.svg`, data: new TextEncoder().encode(svgData) });
+          files.push({ name: `${base}-${variant.suffix}.png`, data: new Uint8Array(await pngBlob.arrayBuffer()) });
+        }
+        triggerDownload(createZip(files), `${base}-wordmark.zip`);
       }
 
       // Minimal ZIP file creator (store-only, no compression — keeps it simple)
@@ -1695,6 +1844,7 @@
             line2: config.lines[1] || "",
             line3: config.lines[2] || "",
             layout: String(config.lines.length),
+            iconColour: config.iconColour,
             previewImage: previewBase64,
           });
 
@@ -1817,9 +1967,10 @@
         const icon = icons.find(
           (candidate) => normalizeIconName(candidate.name) === wanted || normalizeIconName(candidate.key) === wanted
         );
+        setIconColour(data.iconColour || DEFAULT_ICON_COLOUR);
         setSelectedIcon(icon || null, { reveal: true });
         await updatePreview();
-        return icon ? { icon, lines } : null;
+        return icon ? { icon, lines, iconColour: selectedIconColour } : null;
       }
 
       async function approvedDownload() {
@@ -1836,7 +1987,7 @@
             await downloadFinalPackage(approvedConfig);
             showMessage(
               "downloadMessage",
-              "Download started. The zip contains your wordmark as SVG and PNG. You can download it again anytime with the link in your approval email.",
+              "Download started. The zip contains your wordmark in the approved colour, all black and all white, each as SVG and PNG. You can download it again anytime with the link in your approval email.",
               "info"
             );
           } else {
@@ -1895,6 +2046,7 @@
       }
 
       // ── Wiring ────────────────────────────────────────
+      renderColourPicker();
       setLineCount(1);
 
       document.getElementById("downloadPreviewPNG").addEventListener("click", downloadPreviewPNG);

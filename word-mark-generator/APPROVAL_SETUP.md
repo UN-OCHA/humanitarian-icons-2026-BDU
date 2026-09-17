@@ -13,7 +13,7 @@ The OCHA Wordmark Generator uses a Google Sheet + Google Apps Script backend to 
 5. **BDU** opens the Google Sheet and changes the status from “Pending” to “Approved” (or “Rejected”).
 6. **User** automatically receives an email from “OCHA Visual” (unochavisual@gmail.com) with a direct download link; BDU is in copy at ochavisual@un.org.
 7. **User** clicks the link → the generator opens with the request loaded, verifies it, and scrolls to the download button.
-8. **User** downloads the SVG + PNG package (unlimited downloads once approved).
+8. **User** downloads the package: the approved colour plus all-black and all-white versions, each as SVG + PNG (unlimited downloads once approved).
 
 ---
 
@@ -42,11 +42,11 @@ The `token` is a secret stored per request in column K, so email links contain n
 
 #### Column headers (row 1)
 
-| A | B | C | D | E | F | G | H | I | J | K |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Timestamp | Email | Icon | Line 1 | Line 2 | Line 3 | Layout | Request ID | Status | Downloaded At | Token |
+| A | B | C | D | E | F | G | H | I | J | K | L |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Timestamp | Email | Icon | Line 1 | Line 2 | Line 3 | Layout | Request ID | Status | Downloaded At | Token | Icon Colour |
 
-Column K (**Token**) is created automatically by the script on first use. Don’t edit or share tokens — anyone with a token link can download that request’s approved wordmark.
+Columns K (**Token**) and L (**Icon Colour**, stored as a hex code) are created automatically by the script on first use. Don’t edit or share tokens — anyone with a token link can download that request’s approved wordmark.
 
 #### Status dropdown (column I)
 
@@ -90,7 +90,8 @@ The trigger runs as unochavisual@gmail.com whichever account edits the sheet —
 - Icons: only those flagged `"wordmark": true` in `metadata.json`, loaded from `../svg/` on GitHub Pages. If `metadata.json` can’t be loaded the page shows an error — it never falls back to the full library.
 - **Text is converted to outlines** using the bundled typeface `fonts/Roboto-Bold.ttf` and `vendor/opentype/opentype.min.js`. This keeps the PNG, the SVG and the BDU preview email identical on every computer, including ones without Roboto installed. Don’t replace it with SVG `<text>`.
 - Characters Roboto doesn’t include (e.g. Arabic, Chinese) are flagged under the text fields and block the preview.
-- The final download is built from the icon and text **as approved**, even if the form is edited afterwards.
+- **Icon colour:** users pick one of the main OCHA colours — UN Blue, Green, Yellow, Orange, Red, Purple, Slate grey, Neutral grey — or black. Text is always black. The colour is saved with the request, shown to BDU in the preview and emails, and restored by the approval link. The palette is defined twice (`ICON_COLOURS` in `index.html` and in `google-apps-script.js`) — keep both identical.
+- The final download is built from the icon, colour and text **as approved**, even if the form is edited afterwards. The zip contains the approved colour version plus all-black and all-white versions, each as SVG and transparent PNG.
 
 ---
 
@@ -118,7 +119,7 @@ The trigger runs as unochavisual@gmail.com whichever account edits the sheet —
 
 - They click the link in their approval email (or enter their Request ID + email on the generator).
 - The generator verifies the request and shows the download button.
-- They download the SVG + PNG package (no watermark). The time is recorded in column J.
+- They download the package (no watermark): the approved colour, all black and all white, each as SVG + PNG. The time is recorded in column J.
 - Downloads are unlimited once approved.
 
 ---
@@ -146,7 +147,8 @@ The trigger runs as unochavisual@gmail.com whichever account edits the sheet —
 - The link in their approval email works indefinitely. Setting the status to “Approved” again re-sends the email.
 
 **Updating the Apps Script code**
-1. Edit `google-apps-script.js` in this folder, then paste it into the editor (Project URL above) and save.
+1. Edit `google-apps-script.js` in this folder, then from this folder run `clasp push --force` (clasp is logged in as cueto.javi@gmail.com, who has edit access; `.clasp.json` and `.claspignore` limit the push to the script and its manifest). Don’t paste into the editor — clipboard pastes have garbled characters and picked up the wrong clipboard before.
+   Reload the editor afterwards; an editor tab left open with old code can auto-save it back.
 2. The trigger uses the latest saved code immediately.
 3. For the Web App, **as unochavisual@gmail.com**: Deploy → Manage deployments → Edit (pencil) → Version: New version → Deploy. The URL stays the same.
 
@@ -156,7 +158,7 @@ The trigger runs as unochavisual@gmail.com whichever account edits the sheet —
 
 If the system ever needs to be rebuilt (new account, new sheet, etc.):
 
-1. Create a Google Sheet with the column headers listed above (K is created automatically).
+1. Create a Google Sheet with the column headers listed above (K and L are created automatically).
 2. Add data validation on column I (Status) with: Pending, Approved, Rejected.
 3. Create a new project at https://script.google.com with the account that should send the emails.
 4. Paste the contents of `google-apps-script.js`.

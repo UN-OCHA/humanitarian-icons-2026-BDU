@@ -7,7 +7,7 @@
 //
 // Sheet columns (row 1 headers):
 //   A Timestamp | B Email | C Icon | D Line 1 | E Line 2 | F Line 3
-//   G Layout | H Request ID | I Status | J Downloaded At | K Token
+//   G Layout | H Request ID | I Status | J Downloaded At | K Token | L Icon Colour
 //
 // STATUS values: Pending | Approved | Rejected
 //
@@ -28,21 +28,32 @@ const NOTIFY_EMAIL = 'ochavisual@un.org';
 const SENDER_NAME = 'OCHA Visual';
 const GENERATOR_URL = 'https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/';
 
+// Main OCHA colours allowed for the icon (text is always black).
+// Keep identical to ICON_COLOURS in index.html.
+const ICON_COLOURS = {
+  '#009EDB': 'UN Blue', '#72BF44': 'Green', '#FFC800': 'Yellow', '#F58220': 'Orange',
+  '#ED1847': 'Red', '#A05FB4': 'Purple', '#AEA29A': 'Slate grey', '#999999': 'Neutral grey',
+  '#000000': 'Black'
+};
+const DEFAULT_ICON_COLOUR = '#009EDB';
+
 // 1-based column numbers — keep in sync with the header row above.
 const COL = {
   TIMESTAMP: 1, EMAIL: 2, ICON: 3, LINE1: 4, LINE2: 5, LINE3: 6,
-  LAYOUT: 7, REQUEST_ID: 8, STATUS: 9, DOWNLOADED_AT: 10, TOKEN: 11
+  LAYOUT: 7, REQUEST_ID: 8, STATUS: 9, DOWNLOADED_AT: 10, TOKEN: 11, ICON_COLOUR: 12
 };
-const NUM_COLS = 11;
+const NUM_COLS = 12;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function getSheet() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
-  // Column K was added after launch — create its header on first use.
-  const tokenHeader = sheet.getRange(1, COL.TOKEN);
-  if (!String(tokenHeader.getValue()).trim()) tokenHeader.setValue('Token');
+  // Columns K and L were added after launch — create their headers on first use.
+  [[COL.TOKEN, 'Token'], [COL.ICON_COLOUR, 'Icon Colour']].forEach(function (header) {
+    const range = sheet.getRange(1, header[0]);
+    if (!String(range.getValue()).trim()) range.setValue(header[1]);
+  });
   return sheet;
 }
 
@@ -67,6 +78,12 @@ function cell(row, col) {
   return String(value == null ? '' : value).trim();
 }
 
+// Unknown or missing colours (e.g. requests made before colours existed) fall back to UN Blue.
+function normaliseIconColour(value) {
+  const hex = String(value || '').trim().toUpperCase();
+  return ICON_COLOURS[hex] ? hex : DEFAULT_ICON_COLOUR;
+}
+
 function requestLink(requestId, token) {
   return GENERATOR_URL + '?requestId=' + encodeURIComponent(requestId) +
     '&token=' + encodeURIComponent(token);
@@ -76,6 +93,7 @@ function describeRequest(fields) {
   return [
     'Request ID: ' + fields.requestId,
     'Icon: ' + fields.icon,
+    'Icon colour: ' + ICON_COLOURS[normaliseIconColour(fields.iconColour)] + ' (' + normaliseIconColour(fields.iconColour) + ')',
     'Line 1: ' + fields.line1,
     fields.line2 ? 'Line 2: ' + fields.line2 : '',
     fields.line3 ? 'Line 3: ' + fields.line3 : ''
@@ -144,7 +162,8 @@ function submitRequest(params) {
     line1: String(params.line1 || '').trim(),
     line2: String(params.line2 || '').trim(),
     line3: String(params.line3 || '').trim(),
-    layout: String(params.layout || '1').trim()
+    layout: String(params.layout || '1').trim(),
+    iconColour: normaliseIconColour(params.iconColour)
   };
   if (!EMAIL_RE.test(fields.email)) {
     return { success: false, error: 'Please enter a valid email address.' };
@@ -159,7 +178,7 @@ function submitRequest(params) {
   sheet.appendRow([
     new Date().toISOString(), fields.email, fields.icon,
     fields.line1, fields.line2, fields.line3, fields.layout,
-    fields.requestId, 'Pending', '', token
+    fields.requestId, 'Pending', '', token, fields.iconColour
   ]);
 
   // Emails must never fail the request — the row is already saved.
@@ -238,7 +257,8 @@ function checkStatus(params) {
     line1: cell(row, COL.LINE1),
     line2: cell(row, COL.LINE2),
     line3: cell(row, COL.LINE3),
-    layout: cell(row, COL.LAYOUT) || '1'
+    layout: cell(row, COL.LAYOUT) || '1',
+    iconColour: normaliseIconColour(cell(row, COL.ICON_COLOUR))
   };
 }
 
@@ -308,7 +328,8 @@ function notifyRequesterOfDecision(sheet, rowIndex) {
     icon: cell(row, COL.ICON),
     line1: cell(row, COL.LINE1),
     line2: cell(row, COL.LINE2),
-    line3: cell(row, COL.LINE3)
+    line3: cell(row, COL.LINE3),
+    iconColour: cell(row, COL.ICON_COLOUR)
   };
   if (!EMAIL_RE.test(fields.email) || !fields.requestId) {
     Logger.log('Row ' + rowIndex + ' has no valid email or Request ID — no email sent.');

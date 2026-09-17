@@ -1,0 +1,4 @@
+# Push ONLY the Apps Script source and its manifest — never the page, fonts or vendor files.
+**/**
+!google-apps-script.js
+!appsscript.json
