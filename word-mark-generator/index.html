@@ -307,6 +307,7 @@
 
       .icon-placeholder {
         display: block;
+        color: var(--icon-colour, #009edb);
         width: 56px;
         height: 56px;
         margin: 0 auto 0.5rem;
@@ -1113,6 +1114,7 @@
       function setIconColour(hex) {
         const colour = findIconColour(hex) || ICON_COLOURS[0];
         selectedIconColour = colour.hex;
+        document.getElementById("iconSelector").style.setProperty("--icon-colour", colour.hex);
         document.querySelectorAll('input[name="iconColour"]').forEach((input) => {
           input.checked = input.value === colour.hex;
         });
@@ -1160,9 +1162,12 @@
         cleaned = cleaned.replace(/<style[\s\S]*?<\/style>/gi, "");
         cleaned = cleaned.replace(/<title>[\s\S]*?<\/title>/gi, "");
         cleaned = cleaned.replace(/\s+class="[^"]*"/g, "");
+        // Paint every shape with currentColor so the grid follows the picked icon
+        // colour (set as --icon-colour on the icon list). fill="none" is kept.
+        cleaned = cleaned.replace(/\sfill="(?!none")[^"]*"/gi, "");
         ["path", "circle", "rect", "polygon", "ellipse", "polyline"].forEach((tag) => {
           const noFill = new RegExp("<" + tag + "(?![^>]*\\bfill\\s*=)", "g");
-          cleaned = cleaned.replace(noFill, "<" + tag + ' fill="#009edb"');
+          cleaned = cleaned.replace(noFill, "<" + tag + ' fill="currentColor"');
         });
         cleaned = cleaned.replace(/\s+style="[^"]*"/g, "");
         return cleaned.replace(/<svg\b/i, '<svg aria-hidden="true" focusable="false"');
