@@ -1,6 +1,6 @@
 # OCHA Humanitarian Icons 2026
 
-The official set of **389 humanitarian icons** used across OCHA products, publications, and digital platforms. All icons are single-color SVGs in OCHA blue (`#009edb`), designed to work at any size from 16px to print resolution.
+The official set of **389 humanitarian icons** used across OCHA products, publications, and digital platforms. All icons are single-colour SVGs in OCHA blue (`#009edb`), designed to work at any size from 16px to print resolution.
 
 Maintained by the **OCHA Brand and Design Unit (BDU)**.
 
