@@ -57,6 +57,15 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
 - The built-in test browser draws only a few frames a second while its pane is hidden, so check moves with
   paused animations (`getAnimations()`, `currentTime`), not by timing.
 
+### Wordmark geometry (26 Nov 2026)
+
+- Line spacing 1.2 (was 1.3), Javier’s choice after a side-by-side comparison. The rest of the formula is
+  kept for now. Reviewed and left open: uneven empty space at the file edges (icon right-aligned in a fixed
+  48 px box), wide icons coming out shorter (all fitted to the same square), hand-tuned −3/+2 px icon
+  offsets for 2 and 3 lines, cap height assumed 0.70 (font file: 0.711).
+- Approved wordmarks are drawn again at download time, so any geometry change also changes how already
+  approved ones download. A versioned formula would need a version or date field from the Apps Script backend.
+
 ### Brand-site examples (26 Nov 2026)
 
 - `word-mark-generator/examples/` is the source of the “Examples of wordmarks” image on the brand-site page
