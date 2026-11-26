@@ -48,6 +48,13 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
   and Safari.
 - The DataViz web tool on the portal has the same sandbox problem; briefed to its session.
 
+### Brand-site examples (26 Nov 2026)
+
+- `word-mark-generator/examples/` is the source of the “Examples of wordmarks” image on the brand-site page
+  (Frontify asset 12198607, replaced in place). Rebuild: edit `build-examples.html`, run
+  `bash word-mark-generator/examples/export-examples.sh`, then replace the asset in Frontify.
+- “Simland” is a made-up country (Javier’s choice), so no example reads as a real office’s wordmark.
+
 ### Open
 
 - No automated tests yet (`tests/` folder).
