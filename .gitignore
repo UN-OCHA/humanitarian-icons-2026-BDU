@@ -8,3 +8,7 @@ __pycache__/
 
 # Environment
 .env
+
+# Claude Code: local preview settings and throwaway test files
+.claude/launch.json
+.claude/scratch/

@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OCHA Wordmark Generator</title>
     <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <script>
+      // Embed mode: inside an iframe (e.g. the Embed block on brand.unocha.org)
+      // or with ?embed=1. Set before the first paint so the full page chrome
+      // never flashes. Opened directly (and from approval email links) the page
+      // keeps its full layout. A cross-origin parent can make window.top throw.
+      (function () {
+        var framed = false;
+        try { framed = window.self !== window.top; } catch (e) { framed = true; }
+        var forced = new URLSearchParams(window.location.search).get("embed") === "1";
+        if (framed || forced) document.documentElement.classList.add("is-embed");
+        if (framed) document.documentElement.classList.add("is-framed");
+      })();
+    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
       rel="stylesheet"
@@ -31,6 +44,8 @@
         --cd-green--light: #e8f5d6;
         --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
         --cd-max-width: 1220px;
+        /* Font Awesome Classic Regular chevron-down, used as a CSS mask */
+        --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'%3E%3Cpath d='M303.5 473C312.9 482.4 328.1 482.4 337.4 473L537.4 273C546.8 263.6 546.8 248.4 537.4 239.1C528 229.8 512.8 229.7 503.5 239.1L320.5 422.1L137.5 239.1C128.1 229.7 112.9 229.7 103.6 239.1C94.3 248.5 94.2 263.7 103.6 273L303.6 473z'/%3E%3C/svg%3E");
       }
 
       * {
@@ -196,16 +211,67 @@
         text-decoration: none;
       }
 
-      .controls {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
+      /* ── Workspace: settings | preview + approval steps ── */
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .workspace__controls {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        min-width: 0;
+      }
+
+      /* Phones: the side column dissolves so the preview can move to the top
+         and stay pinned there (sticky works across the whole flex column). */
+      .workspace__side {
+        display: contents;
+      }
+
+      .workspace .preview-section {
+        order: -1;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 0;
+      }
+
+      @media (min-width: 768px) {
+        .workspace {
+          display: grid;
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+          align-items: start;
+          gap: 2rem;
+        }
+
+        .workspace__side {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          position: sticky;
+          top: 1rem;
+          min-width: 0;
+        }
+
+        .workspace .preview-section {
+          position: static;
+          order: 0;
+        }
       }
 
       .control-group {
         display: flex;
         flex-direction: column;
+        min-width: 0;
       }
 
       label {
@@ -213,6 +279,17 @@
         margin-bottom: 0.5rem;
         color: var(--cd-blue--dark);
         font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .step-title {
+        display: block;
+        margin: 0 0 0.75rem;
+        font-weight: 700;
+        color: var(--cd-blue--dark);
+        font-size: 0.875rem;
+        line-height: 1.4;
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -246,9 +323,10 @@
         position: relative; /* offsetParent: reveal an icon without scrolling the page */
         border: 1px solid var(--cd-grey--light);
         border-radius: 0;
-        padding: 1rem;
-        max-height: 450px;
+        padding: 0.75rem;
+        height: 22rem; /* about four rows; the list scrolls on its own */
         overflow-y: auto;
+        overscroll-behavior: contain;
         background: var(--cd-white);
         scrollbar-width: thin;
         scrollbar-color: var(--cd-ocha-blue) var(--cd-grey--light);
@@ -268,8 +346,8 @@
 
       .icon-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+        gap: 0.5rem;
       }
 
       .icon-item {
@@ -278,7 +356,7 @@
         min-width: 0;
         border: 2px solid var(--cd-grey--light);
         border-radius: 0;
-        padding: 0.75rem;
+        padding: 0.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
         text-align: center;
@@ -308,9 +386,9 @@
       .icon-placeholder {
         display: block;
         color: var(--icon-colour, #009edb);
-        width: 56px;
-        height: 56px;
-        margin: 0 auto 0.5rem;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 0.375rem;
         background: var(--cd-grey--light);
       }
 
@@ -366,8 +444,12 @@
 
       .line-row-header {
         display: flex;
-        justify-content: space-between;
         align-items: baseline;
+        gap: 0.75rem;
+      }
+
+      .line-row-header .char-count {
+        margin-left: auto; /* counter and Remove sit together on the right */
       }
 
       .line-label {
@@ -393,7 +475,7 @@
       }
 
       .line-row input[type="text"] {
-        padding: 0.75rem 1rem;
+        padding: 0.625rem 1rem;
         border: 1px solid var(--cd-grey--light);
         border-radius: 0;
         font-size: 1rem;
@@ -450,27 +532,19 @@
       }
 
       .preview-section {
-        margin: 2rem 0;
-        padding: 2rem;
+        padding: 1rem;
         background: var(--cd-grey--light);
         border-radius: 0;
-        text-align: center;
         border: 1px solid var(--cd-grey--light);
       }
 
-      .preview-section h2 {
-        color: var(--cd-blue--dark);
-        margin-bottom: 1.5rem;
-        font-size: 1.5rem;
-        font-weight: 700;
-      }
-
       #preview {
-        min-height: 120px;
+        min-height: 140px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 2rem;
+        text-align: center;
+        padding: 1.5rem;
         background: var(--cd-white);
         border-radius: 0;
         box-shadow: none;
@@ -481,7 +555,7 @@
         display: flex;
         gap: 1rem;
         justify-content: center;
-        margin-top: 2rem;
+        margin-top: 1rem;
       }
 
       button {
@@ -546,21 +620,77 @@
         background: var(--cd-blue-grey);
       }
 
-      /* Approval workflow sections */
-      .approval-section {
-        margin-top: 2rem;
-        padding: 1.5rem 2rem;
+      /* Approval steps 3 and 4: collapsible panels */
+      .step-panel {
         background: var(--cd-grey--light);
         border: 1px solid var(--cd-grey--light);
       }
 
-      .approval-section h3 {
-        color: var(--cd-blue--dark);
-        font-size: 1rem;
-        font-weight: 700;
+      .step-panel__summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.25rem 0.75rem;
+        padding: 0.875rem 2.75rem 0.875rem 1rem;
+        position: relative;
+        cursor: pointer;
+        list-style: none;
+      }
+
+      .step-panel__summary::-webkit-details-marker {
+        display: none;
+      }
+
+      /* Chevron (Font Awesome Classic Regular, chevron-down) */
+      .step-panel__summary::after {
+        content: "";
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        width: 1rem;
+        height: 1rem;
+        margin-top: -0.5rem;
+        background: var(--cd-blue--dark);
+        -webkit-mask: var(--chevron-down) center / contain no-repeat;
+        mask: var(--chevron-down) center / contain no-repeat;
+        transition: transform 0.2s ease;
+      }
+
+      .step-panel[open] > .step-panel__summary::after {
+        transform: rotate(180deg);
+      }
+
+      .step-panel__summary:hover .step-title {
+        color: var(--cd-ocha-blue);
+      }
+
+      .step-panel__summary:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: -3px;
+      }
+
+      .step-panel__summary .step-title {
+        margin: 0;
+      }
+
+      .step-panel__hint {
+        font-size: 0.8125rem;
+        color: var(--cd-grey--mid);
+      }
+
+      .step-panel__body {
+        padding: 0 1rem 1rem;
+      }
+
+      .step-panel__intro {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--cd-grey--mid);
         margin-bottom: 1rem;
+      }
+
+      .input--uppercase {
         text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
 
       .approval-row {
@@ -573,8 +703,8 @@
       .approval-field {
         display: flex;
         flex-direction: column;
-        flex: 1;
-        min-width: 200px;
+        flex: 1 1 12rem;
+        min-width: 0;
       }
 
       .approval-field label {
@@ -632,12 +762,6 @@
         font-size: 0.75rem;
         color: var(--cd-grey--mid);
         font-style: italic;
-      }
-
-      .step-divider {
-        margin: 2rem 0 0;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--cd-grey--light);
       }
 
       .loading {
@@ -800,14 +924,9 @@
         100% { width: 100%; }
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 767.98px) {
         .container {
           padding: 1.5rem;
-        }
-
-        .controls {
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
         }
 
         h1 {
@@ -818,7 +937,8 @@
           flex-direction: column;
         }
 
-        button {
+        .buttons button,
+        .approval-row button {
           width: 100%;
         }
 
@@ -855,17 +975,176 @@
         }
 
         .icon-selector {
-          max-height: 300px;
+          height: 18rem;
         }
+
+        /* Pinned preview: keep it short so the settings stay in view */
+        .workspace .preview-section {
+          padding: 0.5rem;
+          box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.2);
+        }
+
+        .workspace .preview-section .step-title {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          white-space: nowrap;
+        }
+
+        #preview {
+          min-height: 96px;
+          padding: 0.75rem;
+        }
+
+        #preview svg {
+          max-height: 120px;
+        }
+
+        .buttons--preview {
+          margin-top: 0.5rem;
+        }
+
+        .buttons--preview button {
+          padding: 0.5rem 1rem;
+        }
+
+        .workspace .watermark-note {
+          display: none;
+        }
+      }
+
+      /* ── Embed mode (iframe on brand.unocha.org, or ?embed=1) ── */
+      .embed-bar,
+      .embed-footer {
+        display: none;
+      }
+
+      .is-embed body {
+        min-height: 0;
+        padding: 0;
+        border-top: 0;
+      }
+
+      .is-embed .container {
+        max-width: none;
+        padding: 1rem;
+      }
+
+      .is-embed .page-header,
+      .is-embed .cd-footer {
+        display: none;
+      }
+
+      .is-embed .embed-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem 1.5rem;
+        margin-bottom: 1rem;
+        padding: 0.625rem 0.875rem;
+        background: #e3edf6;
+        border-left: 4px solid var(--cd-ocha-blue);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--cd-grey--dark);
+      }
+
+      .embed-bar__note {
+        flex: 1 1 20rem;
+        margin: 0;
+      }
+
+      .link-button,
+      .embed-bar__newtab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--cd-ocha-blue);
+        font: inherit;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: normal;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .link-button svg,
+      .embed-bar__newtab svg {
+        width: 0.875em;
+        height: 0.875em;
+        flex: none;
+      }
+
+      .link-button[aria-expanded="true"] .link-button__chevron {
+        transform: rotate(180deg);
+      }
+
+      .link-button:hover,
+      .embed-bar__newtab:hover {
+        color: var(--cd-blue--dark);
+      }
+
+      .link-button:focus-visible,
+      .embed-bar__newtab:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: 2px;
+      }
+
+      .is-embed .guidelines {
+        margin-bottom: 1rem;
+      }
+
+      /* Keeps the whole tool within the fixed-height Frontify embed */
+      .is-embed .icon-selector {
+        height: 20rem;
+      }
+
+      .is-embed .guidelines__title {
+        display: none;
+      }
+
+      .is-embed .embed-footer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.5rem 0 0;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--cd-grey--light);
+        font-size: 0.75rem;
+        color: var(--cd-grey--mid);
+      }
+
+      .embed-footer__logo {
+        width: auto;
+        height: 1.25rem;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>OCHA Wordmark Generator</h1>
-      <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
+      <header class="page-header">
+        <h1>OCHA Wordmark Generator</h1>
+        <p class="subtitle">Create branded wordmarks using Humanitarian Icons</p>
+      </header>
 
-      <div class="guidelines">
+      <!-- Embed mode only (inside an iframe or ?embed=1): one-line note instead of the header and full guidelines -->
+      <div class="embed-bar">
+        <p class="embed-bar__note">
+          Wordmarks are not logos and need approval from the OCHA Brand and Design Unit.
+          <button type="button" class="link-button" id="guidelinesToggle" aria-expanded="false" aria-controls="guidelines">Read the guidelines<svg class="link-button__chevron" viewBox="0 0 640 640" aria-hidden="true" focusable="false"><path fill="currentColor" d="M303.5 473C312.9 482.4 328.1 482.4 337.4 473L537.4 273C546.8 263.6 546.8 248.4 537.4 239.1C528 229.8 512.8 229.7 503.5 239.1L320.5 422.1L137.5 239.1C128.1 229.7 112.9 229.7 103.6 239.1C94.3 248.5 94.2 263.7 103.6 273L303.6 473z"/></svg></button>
+        </p>
+        <a class="embed-bar__newtab" id="openNewTab" href="./" target="_blank" rel="noopener">Open in a new tab<svg viewBox="0 0 640 640" aria-hidden="true" focusable="false"><path fill="currentColor" d="M352 88C352 101.3 362.7 112 376 112L494.1 112L263.1 343C253.7 352.4 253.7 367.6 263.1 376.9C272.5 386.2 287.7 386.3 297 376.9L528 145.9L528 264C528 277.3 538.7 288 552 288C565.3 288 576 277.3 576 264L576 88C576 74.7 565.3 64 552 64L376 64C362.7 64 352 74.7 352 88zM144 160C99.8 160 64 195.8 64 240L64 496C64 540.2 99.8 576 144 576L400 576C444.2 576 480 540.2 480 496L480 408C480 394.7 469.3 384 456 384C442.7 384 432 394.7 432 408L432 496C432 513.7 417.7 528 400 528L144 528C126.3 528 112 513.7 112 496L112 240C112 222.3 126.3 208 144 208L232 208C245.3 208 256 197.3 256 184C256 170.7 245.3 160 232 160L144 160z"/></svg></a>
+      </div>
+
+      <div class="guidelines" id="guidelines">
         <strong class="guidelines__title">Important guidelines</strong>
         <p>These are wordmarks, not logos. A wordmark is a text-based identifier that may include an icon — it is not a replacement for the OCHA logo.</p>
         <ul>
@@ -879,90 +1158,104 @@
         <p>For guidance on branding and visual identity, visit <a href="https://brand.unocha.org/" target="_blank" rel="noopener">brand.unocha.org</a> or contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.</p>
       </div>
 
-      <div class="controls">
-        <div class="control-group">
-          <label>1. Select Icon</label>
-          <div class="search-box">
-            <input type="text" id="iconSearch" placeholder="Search icons..." />
+      <!-- Two columns from 768px: settings left, preview and approval steps right.
+           Below 768px one column, with the preview pinned at the top. -->
+      <div class="workspace">
+        <div class="workspace__controls">
+          <div class="control-group">
+            <label class="step-title" for="iconSearch">1. Select icon</label>
+            <div class="search-box">
+              <input type="text" id="iconSearch" placeholder="Search icons…" />
+            </div>
+            <div class="icon-selector" id="iconSelector">
+              <div class="loading">Loading icons…</div>
+            </div>
+            <fieldset class="colour-picker">
+              <legend class="colour-picker__legend">Icon colour <span class="colour-picker__current" id="colourName">UN Blue</span></legend>
+              <div class="colour-picker__swatches" id="colourSwatches"><!-- built by renderColourPicker() --></div>
+            </fieldset>
           </div>
-          <div class="icon-selector" id="iconSelector">
-            <div class="loading">Loading icons...</div>
+
+          <div class="control-group">
+            <h2 class="step-title">2. Enter text</h2>
+            <div class="text-inputs-container" id="textInputs">
+              <!-- Lines are built dynamically by setLineCount() -->
+            </div>
+            <p class="text-warning" id="textWarning" role="status" hidden></p>
           </div>
-          <fieldset class="colour-picker">
-            <legend class="colour-picker__legend">Icon colour <span class="colour-picker__current" id="colourName">UN Blue</span></legend>
-            <div class="colour-picker__swatches" id="colourSwatches"><!-- built by renderColourPicker() --></div>
-          </fieldset>
         </div>
 
-        <div class="control-group">
-          <label>2. Enter Text</label>
-          <div class="text-inputs-container" id="textInputs">
-            <!-- Lines are built dynamically by setLineCount() -->
+        <div class="workspace__side">
+          <section class="preview-section" aria-labelledby="previewTitle">
+            <h2 class="step-title" id="previewTitle">Preview</h2>
+            <div id="preview">
+              <p class="preview-placeholder">Select an icon and enter text to see the preview</p>
+            </div>
+            <div class="buttons buttons--preview">
+              <button class="btn-png" id="downloadPreviewPNG" disabled>Download preview PNG</button>
+            </div>
+            <p class="watermark-note" id="watermarkNote" hidden>Preview files include a DRAFT watermark. Request approval to download the final version.</p>
+            <div id="previewMessage" aria-live="polite"></div>
+          </section>
+
+          <!-- Steps 3 and 4 as an accordion: opening one closes the other (details[name]).
+               Step 4 opens by itself when the page comes from an approval email link. -->
+          <div class="steps">
+            <details class="step-panel" name="approvalSteps" id="requestSection" open>
+              <summary class="step-panel__summary"><span class="step-title">3. Request approval</span></summary>
+              <div class="step-panel__body">
+                <p class="step-panel__intro">
+                  Wordmarks must be approved by the OCHA Brand and Design Unit before use.
+                  Submit your request: you’ll see your Request ID on screen and receive it by email.
+                </p>
+                <div class="approval-row">
+                  <div class="approval-field">
+                    <label for="requestEmail">Your email</label>
+                    <input type="email" id="requestEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
+                  </div>
+                  <button class="btn-request" id="submitRequest" disabled>Request approval</button>
+                </div>
+                <div class="progress" id="submitLoader" hidden>
+                  <div class="progress__track"><div class="progress__bar"></div></div>
+                  <p class="progress__label">Submitting your request…</p>
+                </div>
+                <div id="requestMessage" aria-live="polite"></div>
+              </div>
+            </details>
+
+            <details class="step-panel" name="approvalSteps" id="downloadSection">
+              <summary class="step-panel__summary"><span class="step-title">4. I have a Request ID</span><span class="step-panel__hint">Download an approved wordmark</span></summary>
+              <div class="step-panel__body">
+                <p class="step-panel__intro">
+                  Use the link in your approval email, or enter your Request ID and email address below.
+                </p>
+                <div class="approval-row">
+                  <div class="approval-field">
+                    <label for="downloadEmail">Your email</label>
+                    <input type="email" id="downloadEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
+                  </div>
+                  <div class="approval-field">
+                    <label for="downloadCode">Request ID</label>
+                    <input type="text" id="downloadCode" class="input--uppercase" placeholder="e.g. WM-A3K7P2" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+                  </div>
+                  <button class="btn-check" id="checkStatus">Check status</button>
+                </div>
+                <div class="progress" id="deepLinkLoader" hidden>
+                  <div class="progress__track"><div class="progress__bar"></div></div>
+                  <p class="progress__label">Verifying your request…</p>
+                </div>
+                <div id="downloadMessage" aria-live="polite"></div>
+                <div class="buttons" id="approvedButtons" hidden>
+                  <button class="btn-svg" id="downloadPackage">Download wordmark (SVG + PNG)</button>
+                </div>
+              </div>
+            </details>
           </div>
-          <p class="text-warning" id="textWarning" role="status" hidden></p>
         </div>
       </div>
 
-      <div class="preview-section">
-        <h2>Preview</h2>
-        <div id="preview">
-          <p class="preview-placeholder">Select an icon and enter text to see the preview</p>
-        </div>
-      </div>
-
-      <div class="buttons">
-        <button class="btn-png" id="downloadPreviewPNG" disabled>Download Preview PNG</button>
-      </div>
-      <p class="watermark-note" id="watermarkNote" hidden>Preview files include a DRAFT watermark. Request approval below to download the final version.</p>
-      <div id="previewMessage" aria-live="polite"></div>
-
-      <!-- Step 3: Request Approval -->
-      <div class="approval-section" id="requestSection">
-        <h3>3. Request Approval</h3>
-        <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
-          Wordmarks must be approved by the OCHA Brand and Design Unit before use.
-          Submit your request: you’ll see your Request ID on screen and receive it by email.
-        </p>
-        <div class="approval-row">
-          <div class="approval-field">
-            <label for="requestEmail">Your email</label>
-            <input type="email" id="requestEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
-          </div>
-          <button class="btn-request" id="submitRequest" disabled>Request Approval</button>
-        </div>
-        <div class="progress" id="submitLoader" hidden>
-          <div class="progress__track"><div class="progress__bar"></div></div>
-          <p class="progress__label">Submitting your request…</p>
-        </div>
-        <div id="requestMessage" aria-live="polite"></div>
-      </div>
-
-      <!-- Step 4: Download Approved Wordmark -->
-      <div class="approval-section step-divider" id="downloadSection">
-        <h3>4. Download Approved Wordmark</h3>
-        <p style="font-size: 0.85rem; color: var(--cd-grey--mid); margin-bottom: 1rem;">
-          Use the link in your approval email, or enter your Request ID and email address below.
-        </p>
-        <div class="approval-row">
-          <div class="approval-field">
-            <label for="downloadEmail">Your email</label>
-            <input type="email" id="downloadEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
-          </div>
-          <div class="approval-field">
-            <label for="downloadCode">Request ID</label>
-            <input type="text" id="downloadCode" placeholder="e.g., WM-A3K7P2" style="text-transform: uppercase;" autocomplete="off" autocapitalize="characters" spellcheck="false" />
-          </div>
-          <button class="btn-check" id="checkStatus">Check Status</button>
-        </div>
-        <div class="progress" id="deepLinkLoader" hidden>
-          <div class="progress__track"><div class="progress__bar"></div></div>
-          <p class="progress__label">Verifying your request…</p>
-        </div>
-        <div id="downloadMessage" aria-live="polite"></div>
-        <div class="buttons" id="approvedButtons" hidden>
-          <button class="btn-svg" id="downloadPackage">Download Wordmark (SVG + PNG)</button>
-        </div>
-      </div>
+      <!-- Embed mode only: replaces the full footer -->
+      <p class="embed-footer">Service provided by <img src="../assets/OCHA_logo_horizontal_blue.svg" alt="OCHA" class="embed-footer__logo" /></p>
     </div>
 
     <script src="vendor/opentype/opentype.min.js"></script>
@@ -1170,6 +1463,9 @@
           cleaned = cleaned.replace(noFill, "<" + tag + ' fill="currentColor"');
         });
         cleaned = cleaned.replace(/\s+style="[^"]*"/g, "");
+        // Every icon file uses the same layer ids (Layer_1, Icons…): drop them so the
+        // grid doesn't repeat ids on the page. No icon references an id (no url(#…)).
+        cleaned = cleaned.replace(/\s+id="[^"]*"/g, "");
         return cleaned.replace(/<svg\b/i, '<svg aria-hidden="true" focusable="false"');
       }
 
@@ -1859,7 +2155,7 @@
               `Request submitted. Your Request ID is <strong>${escapeHtml(result.requestId)}</strong> — we’ve also emailed it to you.<br><br>` +
                 "The OCHA Brand and Design Unit will review your request and get back to you as soon as possible. " +
                 'If it’s urgent, contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.<br><br>' +
-                "Once it’s approved, you’ll receive an email with a direct download link. You can also check its status in step 4 below.",
+                "Once it’s approved, you’ll receive an email with a direct download link. You can also check its status under “4. I have a Request ID”.",
               "success"
             );
             document.getElementById("downloadCode").value = result.requestId;
@@ -2033,7 +2329,9 @@
         history.replaceState(null, "", window.location.pathname + window.location.hash);
 
         const loader = document.getElementById("deepLinkLoader");
-        scrollToElement(document.getElementById("downloadSection"), "start");
+        const section = document.getElementById("downloadSection");
+        section.open = true; // closes step 3 (same accordion group)
+        scrollToElement(section, "start");
         loader.hidden = false;
 
         let approved = false;
@@ -2050,7 +2348,43 @@
         scrollToElement(target, "center");
       }
 
+      // ── Embed mode ────────────────────────────────────
+      // The <head> script adds .is-embed inside an iframe or with ?embed=1.
+      function setUpEmbedMode() {
+        const root = document.documentElement;
+        if (!root.classList.contains("is-embed")) return;
+
+        // Open the plain tool address: no ?embed=1, no approval-link details.
+        document.getElementById("openNewTab").href = window.location.origin + window.location.pathname;
+
+        // Full guidelines stay one click away behind the one-line note.
+        const guidelines = document.getElementById("guidelines");
+        const toggle = document.getElementById("guidelinesToggle");
+        guidelines.hidden = true;
+        toggle.addEventListener("click", () => {
+          const expand = guidelines.hidden;
+          guidelines.hidden = !expand;
+          toggle.setAttribute("aria-expanded", String(expand));
+        });
+
+        // Tell the embedding page how tall the tool is, so an embed that
+        // supports it can drop its own scroll bar. The Frontify Embed block on
+        // brand.unocha.org ignores this (tested 26 Nov 2026): there the block
+        // has a fixed height set in the Frontify editor.
+        if (!root.classList.contains("is-framed")) return;
+        let lastHeight = 0;
+        const postHeight = () => {
+          const height = Math.ceil(document.body.getBoundingClientRect().height);
+          if (height === lastHeight) return;
+          lastHeight = height;
+          window.parent.postMessage({ type: "ocha-wordmark-generator:height", height }, "*");
+        };
+        new ResizeObserver(postHeight).observe(document.body);
+        window.addEventListener("load", postHeight);
+      }
+
       // ── Wiring ────────────────────────────────────────
+      setUpEmbedMode();
       renderColourPicker();
       setLineCount(1);
 
