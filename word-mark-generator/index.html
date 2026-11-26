@@ -2579,15 +2579,35 @@
       // ── Tabs ──────────────────────────────────────────
       const TABS = { create: "tabCreate", request: "tabRequest" };
 
+      const tabPanelOf = (tab) => document.getElementById(tab.getAttribute("aria-controls"));
+
       function showTab(name, { focus = false } = {}) {
+        // The Download tab is much shorter than Create. Without this, switching
+        // to it while scrolled down shrinks the page under the reader and the
+        // browser jumps up to the new end of the page. The new panel keeps at
+        // least the height of the one it replaces, so nothing moves.
+        const visible = Object.values(TABS)
+          .map((tabId) => tabPanelOf(document.getElementById(tabId)))
+          .find((panel) => !panel.hidden);
+        const keepHeight = visible ? visible.offsetHeight : 0;
+
         Object.entries(TABS).forEach(([key, tabId]) => {
           const tab = document.getElementById(tabId);
+          const panel = tabPanelOf(tab);
           const selected = key === name;
           tab.setAttribute("aria-selected", String(selected));
           tab.tabIndex = selected ? 0 : -1;
-          document.getElementById(tab.getAttribute("aria-controls")).hidden = !selected;
+          panel.hidden = !selected;
+          panel.style.minHeight = "";
           if (selected && focus) tab.focus();
         });
+
+        // Only pad a panel that is shorter than the one it replaced, so the
+        // padding never lingers on the longer Create tab.
+        const shown = tabPanelOf(document.getElementById(TABS[name]));
+        if (shown !== visible && shown.offsetHeight < keepHeight) {
+          shown.style.minHeight = `${keepHeight}px`;
+        }
       }
 
       function setUpTabs() {
