@@ -44,6 +44,13 @@
         --cd-green--light: #e8f5d6;
         --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
         --cd-max-width: 1220px;
+
+        /* Motion: OCHA web-motion system (ocha-bdu-web-motion skill). Same names and
+           values as the future App Kit tokens, so this moves there unchanged. */
+        --dur-leave: 180ms;
+        --dur-enter: 320ms;
+        --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+        --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
       }
 
       * {
@@ -331,8 +338,46 @@
         margin-bottom: 1rem;
       }
 
+      /* Step 1: the icon grid closes (leave: fast, eases in) and opens (enter: slower,
+         soft landing) by its height, so the steps below glide instead of jumping. */
+      .icon-browser.is-closing,
+      .icon-browser.is-opening {
+        overflow: hidden;
+        will-change: height;
+      }
+
+      .icon-browser.is-closing {
+        opacity: 0;
+        transition:
+          height var(--dur-leave) var(--ease-in),
+          opacity var(--dur-leave) var(--ease-in);
+      }
+
+      .icon-browser.is-opening {
+        transition: height var(--dur-enter) var(--ease-enter);
+        animation: fade-in var(--dur-enter) var(--ease-enter) backwards;
+      }
+
+      .icon-chosen.is-arriving {
+        animation: fade-in var(--dur-enter) var(--ease-enter) backwards;
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .icon-browser.is-closing,
+        .icon-browser.is-opening,
+        .icon-chosen.is-arriving {
+          transition: none;
+          animation: none;
+        }
+      }
+
       /* Step 1: the chosen icon, shown when the grid is closed */
       .icon-chosen {
+        scroll-margin: 1rem;
         display: flex;
         flex-wrap: wrap; /* very narrow screens: the button drops to its own line */
         align-items: center;
@@ -1632,33 +1677,92 @@
 
       // Step 1 closes into one row once an icon is picked, so steps 2 and 3 move
       // up. The grid can only be closed when an icon is selected.
-      function setIconBrowserOpen(open) {
+      const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let finishIconBrowserMove = null; // ends a running open/close move at once
+
+      // With `animate`, the grid's height closes or opens smoothly (OCHA web-motion
+      // leave/enter timings), so the steps below glide instead of jumping. Without
+      // it (restoring an approved request) or with reduced motion: instant.
+      function setIconBrowserOpen(open, { animate = false } = {}) {
         const isOpen = open || !selectedIcon;
-        document.getElementById("iconBrowser").hidden = !isOpen;
-        document.getElementById("iconChosen").hidden = !selectedIcon;
+        const browser = document.getElementById("iconBrowser");
+        const chosen = document.getElementById("iconChosen");
+        if (finishIconBrowserMove) finishIconBrowserMove();
+
+        const wasOpen = !browser.hidden;
+        const chosenArrives = chosen.hidden && Boolean(selectedIcon);
+        chosen.hidden = !selectedIcon;
         const toggle = document.getElementById("changeIcon");
         toggle.setAttribute("aria-expanded", String(isOpen));
         toggle.textContent = isOpen ? "Done" : "Change icon";
-        if (isOpen && selectedIcon && selectedIcon.element) {
+
+        const revealSelected = () => {
+          if (!isOpen || !selectedIcon || !selectedIcon.element) return;
           // Scroll only the icon list — scrollIntoView() would also move the page.
           const selector = document.getElementById("iconSelector");
           const item = selectedIcon.element;
           selector.scrollTop = item.offsetTop - selector.clientHeight / 2 + item.offsetHeight / 2;
+        };
+
+        if (!animate || wasOpen === isOpen || prefersReducedMotion()) {
+          browser.hidden = !isOpen;
+          revealSelected();
+          if (animate) keepIconStepInView();
+          return;
         }
+
+        browser.hidden = false;
+        const fullHeight = browser.offsetHeight;
+        revealSelected();
+        const motionClass = isOpen ? "is-opening" : "is-closing";
+        browser.style.height = `${isOpen ? 0 : fullHeight}px`;
+        browser.classList.add(motionClass);
+        browser.offsetHeight; // paint the start height before moving
+        browser.style.height = `${isOpen ? fullHeight : 0}px`;
+        if (chosenArrives) chosen.classList.add("is-arriving");
+
+        // Finish on transitionend, or by timer if the browser drops the event.
+        const finish = () => {
+          clearTimeout(fallback);
+          browser.removeEventListener("transitionend", onEnd);
+          browser.classList.remove(motionClass);
+          chosen.classList.remove("is-arriving");
+          browser.style.height = "";
+          browser.hidden = !isOpen;
+          finishIconBrowserMove = null;
+          keepIconStepInView();
+        };
+        const onEnd = (event) => {
+          if (event.target === browser && event.propertyName === "height") finish();
+        };
+        const fallback = setTimeout(finish, isOpen ? 700 : 450);
+        browser.addEventListener("transitionend", onEnd);
+        finishIconBrowserMove = finish;
+      }
+
+      // After step 1 changes height, keep the chosen-icon row in view, so nobody is
+      // left looking at a different part of the page.
+      function keepIconStepInView() {
+        const chosen = document.getElementById("iconChosen");
+        const target = chosen.hidden ? document.getElementById("stepIcon") : chosen;
+        const box = target.getBoundingClientRect();
+        if (box.top >= 0 && box.bottom <= window.innerHeight) return;
+        target.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" });
       }
 
       function selectIcon(icon) {
         setSelectedIcon(icon);
-        setIconBrowserOpen(false);
-        // Keep keyboard focus in step 1 now that the grid button is gone.
-        document.getElementById("changeIcon").focus();
+        setIconBrowserOpen(false, { animate: true });
+        // Keep keyboard focus in step 1 now that the grid button is gone. The page
+        // scroll is handled by keepIconStepInView(), not by focus().
+        document.getElementById("changeIcon").focus({ preventScroll: true });
         return updatePreview();
       }
 
       function toggleIconBrowser() {
         const open = document.getElementById("iconBrowser").hidden;
-        setIconBrowserOpen(open);
-        if (open && selectedIcon && selectedIcon.element) selectedIcon.element.focus();
+        setIconBrowserOpen(open, { animate: true });
+        if (open && selectedIcon && selectedIcon.element) selectedIcon.element.focus({ preventScroll: true });
       }
 
       // ── Text lines ────────────────────────────────────
