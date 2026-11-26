@@ -2010,7 +2010,8 @@
 
         // Icon vertical center:
         // 1-line: centered with text
-        // 2-line: midpoint between line 1 top and line 2 baseline
+        // 2-line: centered on the text block, line 1 top to line 2 baseline
+        //         (was moved up 3 px until 26 Nov 2026; Javier chose plain centering)
         // 3-line: wide icons (WIDE_ICON_RATIO) sit with lines 1 and 2, which gives
         //         their short shape two edges to align to; all other icons are
         //         centered on the whole text block, which is about their height.
@@ -2020,7 +2021,7 @@
         } else if (numLines === 2) {
           const line1Top = textStartY - capHeight;
           const line2Bottom = textStartY + lineHeight;
-          iconCenterY = (line1Top + line2Bottom) / 2 - 3;
+          iconCenterY = (line1Top + line2Bottom) / 2;
         } else if (bbox.width / bbox.height >= WIDE_ICON_RATIO) {
           const line1Top = textStartY - capHeight;
           const line2Bottom = textStartY + lineHeight;

@@ -65,9 +65,11 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
   the old position, aligned with lines 1–2; all others are centred on the whole text block. Chosen by eye
   from comparisons; 1 and 2 lines unchanged. To review later: the per-icon nudges of Buddhist temple (−3),
   Humanitarian access (+3) and Logistics (+2) were set for the old position.
+- 2 lines (Javier, 26 Nov 2026): every icon centred on the two lines (the old 3 px upward nudge removed),
+  after a comparison with a wide-icon rule. 1 line unchanged.
 - The rest of the formula is kept for now. Reviewed and left open: uneven empty space at the file edges (icon right-aligned in a fixed
-  48 px box), wide icons coming out shorter (all fitted to the same square), hand-tuned −3/+2 px icon
-  offsets for 2 and 3 lines, cap height assumed 0.70 (font file: 0.711).
+  48 px box), wide icons coming out shorter (all fitted to the same square), hand-tuned icon offsets (now
+  resolved: see below), cap height assumed 0.70 (font file: 0.711).
 - Approved wordmarks are drawn again at download time, so any geometry change also changes how already
   approved ones download. A versioned formula would need a version or date field from the Apps Script backend.
 
