@@ -1376,10 +1376,12 @@
       const MAX_CHARS = 16;
       // Text size by number of lines (also read by examples/build-examples.html).
       const WORDMARK_FONT_SIZES = { 1: 30, 2: 18, 3: 14 };
-      // Icons at least this much wider than tall count as wide (8 of the 105 on
-      // 26 Nov 2026, e.g. Fishery, UN vehicle, Group). Chosen by eye with Javier
-      // from side-by-side comparisons; only used for 3-line wordmarks.
-      const WIDE_ICON_RATIO = 1.3;
+      // Icons at least this much wider than tall count as wide: 8 of the 105 on
+      // 26 Nov 2026 (Fishery 2.18, UN vehicle, Mobile clinic, Water trucking,
+      // Group, Advocacy, Livestock 1.35, Children 1.297). Chosen by eye with Javier
+      // from side-by-side comparisons; the next icon, Locust infestation (1.26),
+      // must stay below it. Only used for 3-line wordmarks.
+      const WIDE_ICON_RATIO = 1.28;
       const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
       // Google Apps Script Web App owned by unochavisual@gmail.com — see APPROVAL_SETUP.md

@@ -60,7 +60,8 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
 ### Wordmark geometry (26 Nov 2026)
 
 - Line spacing 1.2 (was 1.3), Javier’s choice after a side-by-side comparison.
-- 3 lines only (Javier, 26 Nov 2026): icons at least 1.3× wider than tall (`WIDE_ICON_RATIO`, 8 icons) keep
+- 3 lines only (Javier, 26 Nov 2026): icons at least 1.28× wider than tall (`WIDE_ICON_RATIO`, 8 icons; Children
+  is 1.297, so the cut-off can’t be 1.3) keep
   the old position, aligned with lines 1–2; all others are centred on the whole text block. Chosen by eye
   from comparisons; 1 and 2 lines unchanged. To review later: the per-icon nudges of Buddhist temple (−3),
   Humanitarian access (+3) and Logistics (+2) were set for the old position.
