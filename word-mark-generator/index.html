@@ -814,14 +814,14 @@
 
       .colour-picker {
         border: 0;
-        margin: 0.75rem 0 0;
+        margin: 1rem 0 0;
         padding: 0;
         min-width: 0;
       }
 
       .colour-picker__legend {
         padding: 0;
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.5rem;
         font-weight: 700;
         font-size: 0.75rem;
         color: var(--cd-blue--dark);
@@ -842,6 +842,7 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem;
+        padding: 4px; /* room for the selection ring, so it lines up with the label */
       }
 
       /* Closed: only UN Blue, plus the chosen colour if it is another one */
@@ -850,8 +851,9 @@
       }
 
       .colour-picker .link-button {
-        margin-inline-start: 0.25rem;
+        margin-inline-start: 0.5rem;
         font-size: 0.8125rem;
+        line-height: 1;
       }
 
       .link-button[aria-expanded="true"] .link-button__chevron {
@@ -860,7 +862,9 @@
 
       .colour-swatch {
         position: relative;
+        display: block;
         margin: 0;
+        line-height: 0; /* no text line box: the square sits centred in the row */
         cursor: pointer;
       }
 
@@ -873,10 +877,9 @@
 
       .colour-swatch__dot {
         display: block;
-        /* 20px + 2px ring + 2px gap = 28px: never bigger than the step badges */
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
+        /* 16px square; with the 2px ring and 2px gap it stays smaller than the step badges */
+        width: 16px;
+        height: 16px;
         background: var(--swatch);
         outline: 1px solid #bfbfbf;
       }
