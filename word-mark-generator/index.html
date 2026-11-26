@@ -1928,6 +1928,81 @@
         setTimeout(() => URL.revokeObjectURL(url), 30000);
       }
 
+      // ── Downloads inside an iframe ────────────────────
+      // Frontify's Embed block (brand.unocha.org) sandboxes its iframe without
+      // `allow-downloads`, so browsers silently block every download started in
+      // it (confirmed 26 Nov 2026). It does allow pop-ups that escape the
+      // sandbox. So inside an iframe, a download click opens download.html in a
+      // new tab first (it must happen during the click, or pop-up blockers stop
+      // it), the file is built here, and it is posted to that tab as a Blob,
+      // which then downloads it as a normal tab. Nothing goes in the address.
+      // Opened directly, files download on the spot as before.
+      // Keep the message names identical to download.html.
+      const DOWNLOAD_MESSAGES = {
+        ready: "ocha-wordmark-download:ready",
+        file: "ocha-wordmark-download:file",
+      };
+
+      class DownloadTabBlockedError extends Error {}
+
+      // Call synchronously at the start of a click handler, before any await.
+      // Returns { deliver(blob, filename), cancel() }.
+      function openDownloadDelivery() {
+        if (!document.documentElement.classList.contains("is-framed")) {
+          return { deliver: (blob, filename) => triggerDownload(blob, filename), cancel: () => {} };
+        }
+
+        const tab = window.open("download.html", "_blank");
+        if (!tab) throw new DownloadTabBlockedError("The download tab was blocked");
+
+        // Ready when the tab says so; fails if the tab is closed first or never
+        // answers, so the button can't stay on “Preparing…” forever.
+        let onMessage;
+        let watch;
+        const tabReady = new Promise((resolve, reject) => {
+          onMessage = (event) => {
+            if (event.source !== tab || event.origin !== window.location.origin) return;
+            if ((event.data || {}).type === DOWNLOAD_MESSAGES.ready) resolve();
+          };
+          window.addEventListener("message", onMessage);
+          const giveUpAt = Date.now() + 60000;
+          watch = setInterval(() => {
+            if (tab.closed) reject(new Error("The download tab was closed"));
+            else if (Date.now() > giveUpAt) reject(new Error("The download tab didn’t open"));
+          }, 500);
+        });
+        tabReady.catch(() => {}); // handled in deliver()
+        const stopListening = () => {
+          window.removeEventListener("message", onMessage);
+          clearInterval(watch);
+        };
+
+        return {
+          async deliver(blob, filename) {
+            try {
+              await tabReady;
+            } finally {
+              stopListening();
+            }
+            tab.postMessage({ type: DOWNLOAD_MESSAGES.file, blob, filename }, window.location.origin);
+          },
+          cancel() {
+            stopListening();
+            if (!tab.closed) tab.close();
+          },
+        };
+      }
+
+      function showDownloadTabBlocked(containerId) {
+        const href = escapeHtml(window.location.origin + window.location.pathname);
+        showMessage(
+          containerId,
+          "Your browser blocked the download tab. " +
+            `<a href="${href}" target="_blank" rel="noopener">Open the Wordmark Generator in a new tab</a> to download.`,
+          "error"
+        );
+      }
+
       function sanitizeFilename(text) {
         return text
           .replace(/[^a-z0-9]/gi, "-")
@@ -1943,16 +2018,25 @@
 
       // Preview PNG (with watermark only — no SVG, to prevent editing)
       async function downloadPreviewPNG() {
+        clearMessage("previewMessage");
+        let delivery;
+        try {
+          delivery = openDownloadDelivery();
+        } catch (err) {
+          showDownloadTabBlocked("previewMessage");
+          return;
+        }
+
         const button = document.getElementById("downloadPreviewPNG");
         const done = setBusy(button, "Preparing…");
-        clearMessage("previewMessage");
         try {
           const config = currentConfig();
           const svg = await generateWordmark(config);
           addWatermark(svg);
           const canvas = await renderSvgToCanvas(svg, "#ffffff");
-          triggerDownload(await canvasToBlob(canvas), `${getDownloadFilename(config.lines)}-DRAFT-wordmark.png`);
+          await delivery.deliver(await canvasToBlob(canvas), `${getDownloadFilename(config.lines)}-DRAFT-wordmark.png`);
         } catch (err) {
+          delivery.cancel();
           console.error("Preview download failed:", err);
           showMessage("previewMessage", "The preview couldn’t be downloaded. Please try again.", "error");
         } finally {
@@ -1963,7 +2047,7 @@
 
       // Final package, built from the approved config: the approved colour plus
       // all-black and all-white versions, each as SVG and transparent PNG.
-      async function downloadFinalPackage(config) {
+      async function downloadFinalPackage(config, delivery) {
         const base = getDownloadFilename(config.lines);
         const colour = findIconColour(config.iconColour) || ICON_COLOURS[0];
         const variants = [
@@ -1980,7 +2064,7 @@
           files.push({ name: `${base}-${variant.suffix}.svg`, data: new TextEncoder().encode(svgData) });
           files.push({ name: `${base}-${variant.suffix}.png`, data: new Uint8Array(await pngBlob.arrayBuffer()) });
         }
-        triggerDownload(createZip(files), `${base}-wordmark.zip`);
+        await delivery.deliver(createZip(files), `${base}-wordmark.zip`);
       }
 
       // Minimal ZIP file creator (store-only, no compression — keeps it simple)
@@ -2280,15 +2364,28 @@
           return;
         }
 
+        let delivery;
+        try {
+          delivery = openDownloadDelivery();
+        } catch (err) {
+          showDownloadTabBlocked("downloadMessage");
+          return;
+        }
+
         const button = document.getElementById("downloadPackage");
         const done = setBusy(button, "Preparing…");
+        let delivered = false;
         try {
           const result = await callApprovalAPI({ action: "download", ...getOwnershipParams() });
           if (result.success && result.canDownload) {
-            await downloadFinalPackage(approvedConfig);
+            await downloadFinalPackage(approvedConfig, delivery);
+            delivered = true;
+            const where = document.documentElement.classList.contains("is-framed")
+              ? "Your download opened in a new tab."
+              : "Download started.";
             showMessage(
               "downloadMessage",
-              "Download started. The zip contains your wordmark in the approved colour, all black and all white, each as SVG and PNG. You can download it again anytime with the link in your approval email.",
+              `${where} The zip contains your wordmark in the approved colour, all black and all white, each as SVG and PNG. You can download it again anytime with the link in your approval email.`,
               "info"
             );
           } else {
@@ -2299,6 +2396,7 @@
           console.error("Download error:", err);
           showMessage("downloadMessage", `The approval service couldn’t be reached (${escapeHtml(err.message)}).`, "error");
         } finally {
+          if (!delivered) delivery.cancel();
           done();
         }
       }

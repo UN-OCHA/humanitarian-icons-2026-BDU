@@ -640,6 +640,12 @@ The same page also runs inside the Embed block on the brand portal (OCHA essenti
 
 Opened directly, and from the links in approval emails, the page keeps its full layout. Both modes share the same two-column layout from 768 px: settings on the left, preview and the approval steps on the right (the preview stays in view while you scroll). On phones there is one column with the preview pinned at the top. Steps 3 (request approval) and 4 (I have a Request ID) are collapsible panels; step 4 opens by itself when the page comes from an approval email link.
 
+**Downloads in the embed:** Frontify’s Embed block doesn’t allow downloads (its iframe sandbox leaves out `allow-downloads`), but it does allow new tabs. So inside the embed, the download buttons open [`word-mark-generator/download.html`](word-mark-generator/download.html) in a new tab, build the file in the embed and hand it to that tab, which downloads it as a normal page. Nothing goes in the address. If a pop-up blocker stops the tab, the tool says so and links to the tool in a new tab. Opened directly, files download on the spot as before.
+
+| File | Purpose |
+|---|---|
+| `word-mark-generator/download.html` | Download tab used only by the embedded tool |
+
 **Embed height:** Frontify’s Embed block has a fixed height (set in the Frontify editor; the API can’t change it) and ignores height messages from the page. Keep it at **1,000 px**: at the portal’s 798 px content width the tool takes about 810–920 px, so only a long message after a request scrolls inside the frame. The page still posts its height to the parent (`{ type: "ocha-wordmark-generator:height", height }`) for embeds that can use it.
 
 **To test embed mode locally:** serve the repo root (`python3 -m http.server 8765`) and open `http://localhost:8765/word-mark-generator/?embed=1`, or put the page in an `<iframe>` 798 px wide. Check 320, 375, 414 and 768 px widths and desktop, standalone and embedded, plus an approval link (`?requestId=WM-XXXXXX&token=…`).

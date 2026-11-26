@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Download – OCHA Wordmark Generator</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <!--
+      Download hand-over for the embedded Wordmark Generator.
+
+      Frontify's Embed block on brand.unocha.org sandboxes its iframe without
+      `allow-downloads`, so browsers silently block every download started inside
+      it. It does allow pop-ups that escape the sandbox. So, inside an iframe,
+      index.html opens this page in a new tab on the download click, builds the
+      file, and posts it here as a Blob (browser to browser, nothing in the URL).
+      This page then starts the download as a normal top-level tab.
+
+      Protocol (same origin only, and only from the window that opened this tab):
+        this tab → opener: { type: "ocha-wordmark-download:ready" }
+        opener → this tab: { type: "ocha-wordmark-download:file", blob, filename }
+      Keep the message names identical to DOWNLOAD_MESSAGES in index.html.
+    -->
+    <style>
+      :root {
+        --cd-ocha-blue: #1f69b3;
+        --cd-blue--dark: #144372;
+        --cd-grey--mid: #595959;
+        --cd-grey--dark: #4a4a4a;
+        --cd-white: #fff;
+        --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--cd-font--roboto);
+        color: var(--cd-grey--dark);
+        background: var(--cd-white);
+        min-height: 100vh;
+        border-top: 12px solid #009edb;
+        display: grid;
+        place-items: center;
+        padding: 2.5rem 1.5rem;
+      }
+
+      main {
+        width: 100%;
+        max-width: 30rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .logo {
+        width: 149px;
+        height: 37px;
+        margin-bottom: 1rem;
+      }
+
+      h1 {
+        color: var(--cd-ocha-blue);
+        font-size: 1.5rem;
+        line-height: 1.3;
+        font-weight: 700;
+      }
+
+      p {
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+
+      .note {
+        font-size: 0.875rem;
+        color: var(--cd-grey--mid);
+      }
+
+      a {
+        color: var(--cd-ocha-blue);
+        font-weight: 500;
+      }
+
+      button {
+        align-self: flex-start;
+        padding: 0.75rem 2rem;
+        font-family: var(--cd-font--roboto);
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--cd-white);
+        background: var(--cd-ocha-blue);
+        border: 2px solid var(--cd-ocha-blue);
+        border-radius: 0;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--cd-blue--dark);
+        border-color: var(--cd-blue--dark);
+      }
+
+      button:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: 2px;
+      }
+
+      /* An author display rule must never win over the hidden attribute */
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="../assets/OCHA_logo_horizontal_blue.svg" alt="OCHA" class="logo" />
+
+      <div id="statePreparing" role="status">
+        <h1>Preparing your download…</h1>
+      </div>
+
+      <div id="stateReady" hidden>
+        <h1>Your download is ready</h1>
+        <p>It should start by itself. If it doesn’t, click <strong>Download</strong>.</p>
+      </div>
+      <button type="button" id="downloadAgain" hidden>Download</button>
+      <p class="note" id="closeNote" hidden>You can close this tab and go back to the Wordmark Generator.</p>
+
+      <div id="stateIdle" hidden>
+        <h1>Nothing to download</h1>
+        <p>This page delivers files from the OCHA Wordmark Generator. To make a wordmark, open the <a href="./">Wordmark Generator</a>.</p>
+      </div>
+    </main>
+
+    <script>
+      const DOWNLOAD_MESSAGES = {
+        ready: "ocha-wordmark-download:ready",
+        file: "ocha-wordmark-download:file",
+      };
+      // The file normally arrives within seconds. After this, assume the tab
+      // was opened some other way (a bookmark, a reload) and say so.
+      const WAIT_FOR_FILE_MS = 60000;
+
+      const show = (id) => {
+        ["statePreparing", "stateReady", "stateIdle"].forEach((state) => {
+          document.getElementById(state).hidden = state !== id;
+        });
+        const ready = id === "stateReady";
+        document.getElementById("downloadAgain").hidden = !ready;
+        document.getElementById("closeNote").hidden = !ready;
+      };
+
+      let fileUrl = null;
+      let fileName = "";
+
+      function startDownload() {
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+
+      const opener = window.opener;
+      if (!opener) {
+        show("stateIdle");
+      } else {
+        const timeout = setTimeout(() => {
+          if (!fileUrl) show("stateIdle");
+        }, WAIT_FOR_FILE_MS);
+
+        window.addEventListener("message", (event) => {
+          // Accept files only from the Wordmark Generator that opened this tab.
+          if (event.source !== opener || event.origin !== window.location.origin) return;
+          const data = event.data || {};
+          if (data.type !== DOWNLOAD_MESSAGES.file || !(data.blob instanceof Blob)) return;
+          if (fileUrl) return; // one file per tab
+
+          clearTimeout(timeout);
+          fileUrl = URL.createObjectURL(data.blob);
+          fileName = String(data.filename || "wordmark");
+          show("stateReady");
+          document.getElementById("downloadAgain").focus();
+          startDownload();
+        });
+
+        document.getElementById("downloadAgain").addEventListener("click", startDownload);
+        window.addEventListener("pagehide", () => {
+          if (fileUrl) URL.revokeObjectURL(fileUrl);
+        });
+
+        opener.postMessage({ type: DOWNLOAD_MESSAGES.ready }, window.location.origin);
+      }
+    </script>
+  </body>
+</html>

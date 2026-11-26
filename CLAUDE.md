@@ -26,10 +26,23 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
 - Test: serve the repo root, open `word-mark-generator/?embed=1` or the page in an iframe 798 px wide, at
   320/375/414/768 px and desktop, plus an approval link `?requestId=…&token=…`.
 
+### Downloads inside the embed (26 Nov 2026)
+
+- Frontify’s iframe sandbox: `allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox
+  allow-presentation allow-forms`. No `allow-downloads`: every download inside the embed is blocked
+  (Javier confirmed on the portal). Pop-ups are allowed and escape the sandbox.
+- Fix: inside an iframe (`is-framed`), `openDownloadDelivery()` opens `download.html` in a new tab during the
+  click, the file is built in the embed and posted to the tab as a Blob after the tab says it’s ready; the tab
+  downloads it and offers a Download button if the browser holds the automatic start back. Messages are
+  `ocha-wordmark-download:ready` / `:file`, same origin only, from the opener only. Nothing in the URL, so the
+  approval token never leaves the page. Pop-up blocked → message with a link to the tool in a new tab.
+  Tab closed or silent for 60 s → the embed stops waiting.
+- Opened directly: unchanged, `triggerDownload()` on the spot.
+- The built-in test browser opens pop-ups in the same tab, so the hand-over was tested in two halves
+  (embed side with a stand-in tab, `download.html` with a stand-in opener). Real check: on the portal in Chrome
+  and Safari.
+- The DataViz web tool on the portal has the same sandbox problem; briefed to its session.
+
 ### Open
 
-- **Downloads inside the brand-portal embed.** Frontify’s iframe sandbox doesn’t include `allow-downloads`,
-  so browsers very likely block “Download preview PNG” and the approved download there (not confirmed: the
-  test browser doesn’t save files). Request approval works. Final downloads from approval email links open the
-  page directly and are unaffected. The DataViz web tool on the portal has the same sandbox.
 - No automated tests yet (`tests/` folder).
