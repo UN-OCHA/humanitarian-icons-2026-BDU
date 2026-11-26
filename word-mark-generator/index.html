@@ -804,16 +804,16 @@
 
       .colour-picker {
         border: 0;
-        margin: 1rem 0 0;
+        margin: 0.75rem 0 0;
         padding: 0;
         min-width: 0;
       }
 
       .colour-picker__legend {
         padding: 0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.375rem;
         font-weight: 700;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         color: var(--cd-blue--dark);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -830,7 +830,22 @@
       .colour-picker__swatches {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Closed: only UN Blue, plus the chosen colour if it is another one */
+      .colour-picker.is-collapsed .colour-swatch--extra:not(:has(input:checked)) {
+        display: none;
+      }
+
+      .colour-picker .link-button {
+        margin-inline-start: 0.25rem;
+        font-size: 0.8125rem;
+      }
+
+      .link-button[aria-expanded="true"] .link-button__chevron {
+        transform: rotate(180deg);
       }
 
       .colour-swatch {
@@ -848,8 +863,8 @@
 
       .colour-swatch__dot {
         display: block;
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         background: var(--swatch);
         outline: 1px solid #bfbfbf;
@@ -1084,10 +1099,6 @@
         flex: none;
       }
 
-      .link-button[aria-expanded="true"] .link-button__chevron {
-        transform: rotate(180deg);
-      }
-
       .link-button:hover,
       .embed-bar__newtab:hover {
         color: var(--cd-blue--dark);
@@ -1189,7 +1200,7 @@
               </div>
             </div>
 
-            <fieldset class="colour-picker">
+            <fieldset class="colour-picker is-collapsed" id="colourPicker">
               <legend class="colour-picker__legend">Icon colour <span class="colour-picker__current" id="colourName">UN Blue</span></legend>
               <div class="colour-picker__swatches" id="colourSwatches"><!-- built by renderColourPicker() --></div>
             </fieldset>
@@ -1399,9 +1410,10 @@
       }
 
       function renderColourPicker() {
-        const swatches = ICON_COLOURS.map((colour) => {
+        const swatches = ICON_COLOURS.map((colour, index) => {
           const label = document.createElement("label");
-          label.className = "colour-swatch";
+          // UN Blue first and always visible; the others sit behind “More colours”.
+          label.className = index === 0 ? "colour-swatch" : "colour-swatch colour-swatch--extra";
           label.title = colour.name;
 
           const input = document.createElement("input");
@@ -1426,7 +1438,27 @@
           label.append(input, dot, name);
           return label;
         });
-        document.getElementById("colourSwatches").replaceChildren(...swatches);
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "link-button";
+        toggle.id = "moreColours";
+        toggle.setAttribute("aria-controls", "colourSwatches");
+        toggle.addEventListener("click", () => {
+          setColoursExpanded(document.getElementById("colourPicker").classList.contains("is-collapsed"));
+        });
+
+        document.getElementById("colourSwatches").replaceChildren(...swatches, toggle);
+        setColoursExpanded(selectedIconColour !== DEFAULT_ICON_COLOUR);
+      }
+
+      function setColoursExpanded(expanded) {
+        document.getElementById("colourPicker").classList.toggle("is-collapsed", !expanded);
+        const toggle = document.getElementById("moreColours");
+        toggle.setAttribute("aria-expanded", String(expanded));
+        toggle.innerHTML =
+          (expanded ? "Fewer colours" : "More colours") +
+          '<svg class="link-button__chevron" viewBox="0 0 640 640" aria-hidden="true" focusable="false"><path fill="currentColor" d="M303.5 473C312.9 482.4 328.1 482.4 337.4 473L537.4 273C546.8 263.6 546.8 248.4 537.4 239.1C528 229.8 512.8 229.7 503.5 239.1L320.5 422.1L137.5 239.1C128.1 229.7 112.9 229.7 103.6 239.1C94.3 248.5 94.2 263.7 103.6 273L303.6 473z"/></svg>';
       }
 
       function setIconColour(hex) {
@@ -1437,6 +1469,8 @@
           input.checked = input.value === colour.hex;
         });
         document.getElementById("colourName").textContent = colour.name;
+        // A colour other than UN Blue (e.g. restored from an approved request) must stay visible.
+        if (colour.hex !== DEFAULT_ICON_COLOUR) setColoursExpanded(true);
       }
 
       // ── Icons ─────────────────────────────────────────
