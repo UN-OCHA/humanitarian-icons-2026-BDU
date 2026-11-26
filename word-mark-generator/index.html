@@ -265,6 +265,16 @@
         min-width: 0;
       }
 
+      /* Separator between steps 1 and 2 */
+      .workspace__main {
+        gap: 1.5rem;
+      }
+
+      .workspace__main > .step + .step {
+        padding-top: 1.5rem;
+        border-top: 1px solid #d9d9d9;
+      }
+
       @media (min-width: 768px) {
         .workspace {
           display: grid;
@@ -863,20 +873,21 @@
 
       .colour-swatch__dot {
         display: block;
-        width: 24px;
-        height: 24px;
+        /* 20px + 2px ring + 2px gap = 28px: never bigger than the step badges */
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         background: var(--swatch);
         outline: 1px solid #bfbfbf;
       }
 
       .colour-swatch input:checked + .colour-swatch__dot {
-        outline: 3px solid var(--cd-black);
+        outline: 2px solid var(--cd-black);
         outline-offset: 2px;
       }
 
       .colour-swatch input:focus-visible + .colour-swatch__dot {
-        outline: 3px solid var(--cd-ocha-blue);
+        outline: 2px solid var(--cd-ocha-blue);
         outline-offset: 2px;
       }
 
@@ -1315,6 +1326,8 @@
       const SVG_NS = "http://www.w3.org/2000/svg";
       const PNG_TARGET_WIDTH = 1200;
       const MAX_CHARS = 16;
+      // Text size by number of lines (also read by examples/build-examples.html).
+      const WORDMARK_FONT_SIZES = { 1: 30, 2: 18, 3: 14 };
       const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
       // Google Apps Script Web App owned by unochavisual@gmail.com — see APPROVAL_SETUP.md
@@ -1826,8 +1839,7 @@
         const [font, iconSVGText] = await Promise.all([fontReady, getIconSvgText(icon.url)]);
         const numLines = lines.length;
 
-        // Font sizes: 1-line = 30px, 2-line = 18px, 3-line = 14px
-        const fontSize = numLines === 1 ? 30 : numLines === 2 ? 18 : 14;
+        const fontSize = WORDMARK_FONT_SIZES[numLines];
         const lineHeight = fontSize * 1.3;
         const spacing = 12;
         const iconBoxSize = 48; // Icon is always 48×48, never cropped

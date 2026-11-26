@@ -651,6 +651,7 @@ Opened directly, and from the links in approval emails, the page keeps its full 
 | File | Purpose |
 |---|---|
 | `word-mark-generator/download.html` | Download tab used only by the embedded tool |
+| `word-mark-generator/examples/` | The example strip above the tool on the brand site (`wordmark-examples.png`, editable `.svg`), drawn by the generator itself. Rebuild with `bash word-mark-generator/examples/export-examples.sh` after editing `build-examples.html`. “Simland” is a made-up country, so no example reads as a real office’s wordmark. |
 
 **Embed height:** Frontify’s Embed block has a fixed height (set in the Frontify editor; the API can’t change it) and ignores height messages from the page. Keep it at **1,000 px**: at the portal’s 798 px content width the tool takes about 810–920 px, so only a long message after a request scrolls inside the frame. The page still posts its height to the parent (`{ type: "ocha-wordmark-generator:height", height }`) for embeds that can use it.
 

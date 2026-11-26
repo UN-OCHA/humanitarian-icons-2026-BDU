@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Wordmark examples for brand.unocha.org</title>
+    <!--
+      Draws the example strip shown above the Wordmark Generator on brand.unocha.org
+      (OCHA essentials › OCHA Wordmark Generator), using the generator itself, so the
+      examples always match what the tool produces (outlined Roboto Bold, real icons).
+
+      How to rebuild: bash word-mark-generator/examples/export-examples.sh
+      (serves the repo, then exports wordmark-examples.png and .svg with headless Chrome).
+      Simland is a made-up country, chosen so no example reads as a real office's wordmark.
+    -->
+    <style>
+      html, body { margin: 0; background: transparent; overflow: hidden; }
+      #gen { position: absolute; left: -10000px; width: 800px; height: 600px; border: 0; }
+    </style>
+  </head>
+  <body>
+    <iframe id="gen" src="../" title="Wordmark Generator (hidden, used to draw the examples)"></iframe>
+    <script>
+      const CANVAS = { width: 1600, height: 270 };
+      // Every example is scaled so its text is this tall (px), whatever its number of
+      // lines: the generator uses a smaller font for more lines (WORDMARK_FONT_SIZES).
+      const TEXT_SIZE = 28;
+      const LEFT = 16;
+      const GAP = 150;
+      const EXAMPLES = [
+        { icon: "Coordination", lines: ["Humanitarian", "Country Team", "Simland"] },
+        { icon: "Humanitarian access", lines: ["Access", "Working", "Group"] },
+        { icon: "Multi-cluster sector", lines: ["Inter-Cluster", "Coordination Group"] },
+      ];
+      const SVG_NS = "http://www.w3.org/2000/svg";
+
+      document.getElementById("gen").addEventListener("load", async (event) => {
+        const gen = event.target.contentWindow;
+        await gen.eval("Promise.all([iconsReady, fontReady])");
+        const icons = gen.eval("icons");
+        const generateWordmark = gen.eval("generateWordmark");
+        const fontSizes = gen.eval("WORDMARK_FONT_SIZES");
+
+        const root = document.createElementNS(SVG_NS, "svg");
+        root.setAttribute("xmlns", SVG_NS);
+        root.setAttribute("width", CANVAS.width);
+        root.setAttribute("height", CANVAS.height);
+        root.setAttribute("viewBox", `0 0 ${CANVAS.width} ${CANVAS.height}`);
+
+        let x = LEFT;
+        for (const example of EXAMPLES) {
+          const icon = icons.find((candidate) => candidate.name === example.icon);
+          if (!icon) throw new Error(`Icon not available for wordmarks: ${example.icon}`);
+          const svg = await generateWordmark({ icon, lines: example.lines, iconColour: "#009EDB" });
+          const scale = TEXT_SIZE / fontSizes[example.lines.length];
+          const width = parseFloat(svg.getAttribute("width")) * scale;
+          const height = parseFloat(svg.getAttribute("height")) * scale;
+          const placed = document.importNode(svg, true);
+          placed.removeAttribute("style");
+          placed.setAttribute("x", x.toFixed(2));
+          placed.setAttribute("y", ((CANVAS.height - height) / 2).toFixed(2));
+          placed.setAttribute("width", width.toFixed(2));
+          placed.setAttribute("height", height.toFixed(2));
+          root.appendChild(placed);
+          x += width + GAP;
+        }
+        document.getElementById("gen").remove();
+        document.body.appendChild(root);
+      });
+    </script>
+  </body>
+</html>
