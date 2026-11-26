@@ -638,7 +638,12 @@ The same page also runs inside the Embed block on the brand portal (OCHA essenti
 - no blue top bar, title or footer; a one-line note (“Wordmarks are not logos…”) with **Read the guidelines** to show the full rules, and **Open in a new tab** at the top right;
 - a slim “Service provided by OCHA” line at the bottom.
 
-Opened directly, and from the links in approval emails, the page keeps its full layout. Both modes share the same two-column layout from 768 px: settings on the left, preview and the approval steps on the right (the preview stays in view while you scroll). On phones there is one column with the preview pinned at the top. Steps 3 (request approval) and 4 (I have a Request ID) are collapsible panels; step 4 opens by itself when the page comes from an approval email link.
+Opened directly, and from the links in approval emails, the page keeps its full layout. Both modes share the same structure:
+
+- Two tabs: **Create a wordmark** (open by default) and **Download approved wordmark** (opens by itself from an approval email link).
+- Create a wordmark, two columns from 768 px: **1 Choose an icon** and **2 Enter your text** on the left, **3 Preview and request approval** on the right, staying in view while you scroll. One column on phones.
+- Once an icon is picked, step 1 closes into one row (the icon, its name, **Change icon**); the colour choice stays visible.
+- Download approved wordmark: Request ID and email on the left, the approved wordmark and its download button on the right.
 
 **Downloads in the embed:** Frontify’s Embed block doesn’t allow downloads (its iframe sandbox leaves out `allow-downloads`), but it does allow new tabs. So inside the embed, the download buttons open [`word-mark-generator/download.html`](word-mark-generator/download.html) in a new tab, build the file in the embed and hand it to that tab, which downloads it as a normal page. Nothing goes in the address. If a pop-up blocker stops the tab, the tool says so and links to the tool in a new tab. Opened directly, files download on the spot as before.
 

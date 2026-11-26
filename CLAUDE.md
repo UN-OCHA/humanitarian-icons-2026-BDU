@@ -17,8 +17,13 @@ How-to for people is in `README.md`. This file keeps decisions, sources and open
 - One page, two modes: a `<head>` script adds `is-embed` to `<html>` inside an iframe or with `?embed=1`
   (`is-framed` too when really in an iframe). Embed mode hides the page header, full guidelines and footer,
   and shows a one-line note, **Read the guidelines**, **Open in a new tab** and a slim “Service provided by OCHA”.
-- Layout for both modes: two columns from 768 px (settings | sticky preview + steps 3 and 4 as an accordion,
-  `details[name]`); one column below, preview pinned at the top. Icon grid has a fixed height with its own scroll.
+- Layout for both modes (Javier, 26 Nov 2026): two tabs, “Create a wordmark” (steps 1–3) and “Download
+  approved wordmark” (Request ID; opened by approval email links). Step 4 was dropped as a step: it is a
+  separate visit, and numbering it after 3 confused the order. Create tab: two columns from 768 px (1 icon +
+  2 text | 3 preview and request approval, sticky), one column below (no pinned preview: it broke the 1-2-3
+  order). Step 1 closes into one row once an icon is picked (`setIconBrowserOpen`), colour stays visible.
+  Tab name chosen over “Download” (clashes with the draft download) and “Download with Request ID” (most
+  people come from the email link and never type an ID).
 - Frontify’s Embed block ignores height messages (8 common formats tested 26 Nov 2026) and the API can’t set
   embed heights: the block’s height is set by hand in the Frontify editor. Recommended: 1,000 px
   (tool is about 810–920 px at the portal’s 798 px width). The page still posts

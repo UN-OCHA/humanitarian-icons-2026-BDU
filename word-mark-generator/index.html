@@ -44,8 +44,6 @@
         --cd-green--light: #e8f5d6;
         --cd-font--roboto: 'Roboto', helvetica, arial, sans-serif;
         --cd-max-width: 1220px;
-        /* Font Awesome Classic Regular chevron-down, used as a CSS mask */
-        --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'%3E%3Cpath d='M303.5 473C312.9 482.4 328.1 482.4 337.4 473L537.4 273C546.8 263.6 546.8 248.4 537.4 239.1C528 229.8 512.8 229.7 503.5 239.1L320.5 422.1L137.5 239.1C128.1 229.7 112.9 229.7 103.6 239.1C94.3 248.5 94.2 263.7 103.6 273L303.6 473z'/%3E%3C/svg%3E");
       }
 
       * {
@@ -211,37 +209,59 @@
         text-decoration: none;
       }
 
-      /* ── Workspace: settings | preview + approval steps ── */
+      /* ── Tabs: Create a wordmark | Download approved wordmark ── */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #d9d9d9;
+      }
+
+      .tab {
+        margin-bottom: -1px;
+        padding: 0.75rem 0.25rem;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        background: none;
+        color: var(--cd-grey--dark);
+        font-size: 1rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      .tab:hover {
+        color: var(--cd-ocha-blue);
+      }
+
+      .tab[aria-selected="true"] {
+        color: var(--cd-ocha-blue);
+        font-weight: 700;
+        border-bottom-color: var(--cd-ocha-blue);
+      }
+
+      .tab:focus-visible {
+        outline: 3px solid var(--cd-ocha-blue);
+        outline-offset: -3px;
+      }
+
+      /* ── Workspace: main column | side column (sticky from 768px) ── */
       .workspace {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 2rem;
       }
 
-      .workspace__controls {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        min-width: 0;
+      .workspace[hidden] {
+        display: none;
       }
 
-      /* Phones: the side column dissolves so the preview can move to the top
-         and stay pinned there (sticky works across the whole flex column). */
+      .workspace__main,
       .workspace__side {
-        display: contents;
-      }
-
-      .workspace .preview-section {
-        order: -1;
-        position: sticky;
-        top: 0;
-        z-index: 2;
-      }
-
-      .steps {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 2rem;
         min-width: 0;
       }
 
@@ -250,28 +270,98 @@
           display: grid;
           grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
           align-items: start;
-          gap: 2rem;
         }
 
         .workspace__side {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
           position: sticky;
           top: 1rem;
-          min-width: 0;
-        }
-
-        .workspace .preview-section {
-          position: static;
-          order: 0;
         }
       }
 
-      .control-group {
+      /* ── Steps ── */
+      .step {
         display: flex;
         flex-direction: column;
         min-width: 0;
+      }
+
+      .step--card {
+        padding: 1rem;
+        background: var(--cd-grey--light);
+      }
+
+      .step-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        margin: 0 0 1rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--cd-blue--dark);
+      }
+
+      .step-badge {
+        flex: none;
+        display: inline-grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 50%;
+        background: var(--cd-ocha-blue);
+        color: var(--cd-white);
+        font-size: 0.875rem;
+        font-weight: 700;
+      }
+
+      .step-intro {
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--cd-grey--mid);
+        margin-bottom: 1rem;
+      }
+
+      /* Step 1: the chosen icon, shown when the grid is closed */
+      .icon-chosen {
+        display: flex;
+        flex-wrap: wrap; /* very narrow screens: the button drops to its own line */
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border: 1px solid var(--cd-grey--light);
+      }
+
+      .icon-chosen .icon-chosen__art {
+        flex: none;
+        margin: 0;
+      }
+
+      .icon-chosen__name {
+        flex: 1 1 8rem;
+        min-width: 0;
+        overflow-wrap: break-word;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--cd-grey--dark);
+      }
+
+      .btn-secondary {
+        flex: none;
+        padding: 0.5rem 1rem;
+        background: var(--cd-white);
+        color: var(--cd-ocha-blue);
+        border-color: var(--cd-ocha-blue);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background: var(--cd-blue-grey);
+      }
+
+      /* Step 3: preview first, then the approval request under a divider */
+      .request-approval {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #d9d9d9;
       }
 
       label {
@@ -279,17 +369,6 @@
         margin-bottom: 0.5rem;
         color: var(--cd-blue--dark);
         font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .step-title {
-        display: block;
-        margin: 0 0 0.75rem;
-        font-weight: 700;
-        color: var(--cd-blue--dark);
-        font-size: 0.875rem;
-        line-height: 1.4;
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -531,14 +610,7 @@
         color: var(--cd-red);
       }
 
-      .preview-section {
-        padding: 1rem;
-        background: var(--cd-grey--light);
-        border-radius: 0;
-        border: 1px solid var(--cd-grey--light);
-      }
-
-      #preview {
+      .preview-box {
         min-height: 140px;
         display: flex;
         align-items: center;
@@ -556,6 +628,10 @@
         gap: 1rem;
         justify-content: center;
         margin-top: 1rem;
+      }
+
+      .buttons--start {
+        justify-content: flex-start;
       }
 
       button {
@@ -581,6 +657,10 @@
         background: var(--cd-ocha-blue);
         color: var(--cd-white);
         border-color: var(--cd-ocha-blue);
+      }
+
+      #approvedButtons .btn-svg {
+        padding-inline: 1.25rem;
       }
 
       .btn-svg:hover:not(:disabled) {
@@ -618,75 +698,6 @@
 
       .btn-check:hover:not(:disabled) {
         background: var(--cd-blue-grey);
-      }
-
-      /* Approval steps 3 and 4: collapsible panels */
-      .step-panel {
-        background: var(--cd-grey--light);
-        border: 1px solid var(--cd-grey--light);
-      }
-
-      .step-panel__summary {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 0.25rem 0.75rem;
-        padding: 0.875rem 2.75rem 0.875rem 1rem;
-        position: relative;
-        cursor: pointer;
-        list-style: none;
-      }
-
-      .step-panel__summary::-webkit-details-marker {
-        display: none;
-      }
-
-      /* Chevron (Font Awesome Classic Regular, chevron-down) */
-      .step-panel__summary::after {
-        content: "";
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        width: 1rem;
-        height: 1rem;
-        margin-top: -0.5rem;
-        background: var(--cd-blue--dark);
-        -webkit-mask: var(--chevron-down) center / contain no-repeat;
-        mask: var(--chevron-down) center / contain no-repeat;
-        transition: transform 0.2s ease;
-      }
-
-      .step-panel[open] > .step-panel__summary::after {
-        transform: rotate(180deg);
-      }
-
-      .step-panel__summary:hover .step-title {
-        color: var(--cd-ocha-blue);
-      }
-
-      .step-panel__summary:focus-visible {
-        outline: 3px solid var(--cd-ocha-blue);
-        outline-offset: -3px;
-      }
-
-      .step-panel__summary .step-title {
-        margin: 0;
-      }
-
-      .step-panel__hint {
-        font-size: 0.8125rem;
-        color: var(--cd-grey--mid);
-      }
-
-      .step-panel__body {
-        padding: 0 1rem 1rem;
-      }
-
-      .step-panel__intro {
-        font-size: 0.85rem;
-        line-height: 1.5;
-        color: var(--cd-grey--mid);
-        margin-bottom: 1rem;
       }
 
       .input--uppercase {
@@ -978,40 +989,30 @@
           height: 18rem;
         }
 
-        /* Pinned preview: keep it short so the settings stay in view */
-        .workspace .preview-section {
-          padding: 0.5rem;
-          box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.2);
+        /* Two equal tabs that never wrap onto two rows */
+        .tabs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
         }
 
-        .workspace .preview-section .step-title {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          overflow: hidden;
-          clip: rect(0 0 0 0);
-          white-space: nowrap;
+        .tab {
+          padding-inline: 0.5rem;
+          font-size: 0.9375rem;
         }
 
-        #preview {
-          min-height: 96px;
-          padding: 0.75rem;
+        .icon-chosen {
+          gap: 0.75rem;
         }
 
-        #preview svg {
-          max-height: 120px;
+        .icon-chosen .icon-chosen__art {
+          width: 40px;
+          height: 40px;
         }
 
-        .buttons--preview {
-          margin-top: 0.5rem;
-        }
-
-        .buttons--preview button {
-          padding: 0.5rem 1rem;
-        }
-
-        .workspace .watermark-note {
-          display: none;
+        .icon-chosen .btn-secondary {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.75rem;
         }
       }
 
@@ -1158,26 +1159,44 @@
         <p>For guidance on branding and visual identity, visit <a href="https://brand.unocha.org/" target="_blank" rel="noopener">brand.unocha.org</a> or contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.</p>
       </div>
 
-      <!-- Two columns from 768px: settings left, preview and approval steps right.
-           Below 768px one column, with the preview pinned at the top. -->
-      <div class="workspace">
-        <div class="workspace__controls">
-          <div class="control-group">
-            <label class="step-title" for="iconSearch">1. Select icon</label>
-            <div class="search-box">
-              <input type="text" id="iconSearch" placeholder="Search icons…" />
+      <!-- Two tabs for the two visits: making a wordmark (steps 1–3), and coming
+           back later to download the approved one. Approval email links open the second tab. -->
+      <div class="tabs" role="tablist" aria-label="Wordmark Generator">
+        <button type="button" class="tab" role="tab" id="tabCreate" aria-controls="panelCreate" aria-selected="true">Create a wordmark</button>
+        <button type="button" class="tab" role="tab" id="tabRequest" aria-controls="panelRequest" aria-selected="false" tabindex="-1">Download approved wordmark</button>
+      </div>
+
+      <!-- Two columns from 768px: steps 1 and 2 left, step 3 (sticky) right. One column below. -->
+      <section class="tab-panel workspace" role="tabpanel" id="panelCreate" aria-labelledby="tabCreate">
+        <div class="workspace__main">
+          <div class="step" id="stepIcon">
+            <h2 class="step-heading"><span class="step-badge">1</span>Choose an icon</h2>
+
+            <!-- Once an icon is picked the grid closes into this row; “Change icon” opens it again -->
+            <div class="icon-chosen" id="iconChosen" hidden>
+              <span class="icon-placeholder icon-chosen__art" id="iconChosenArt" aria-hidden="true"></span>
+              <span class="icon-chosen__name" id="iconChosenName"></span>
+              <button type="button" class="btn-secondary" id="changeIcon" aria-expanded="false" aria-controls="iconBrowser">Change icon</button>
             </div>
-            <div class="icon-selector" id="iconSelector">
-              <div class="loading">Loading icons…</div>
+
+            <div class="icon-browser" id="iconBrowser">
+              <div class="search-box">
+                <label class="sr-only" for="iconSearch">Search icons</label>
+                <input type="text" id="iconSearch" placeholder="Search icons…" />
+              </div>
+              <div class="icon-selector" id="iconSelector">
+                <div class="loading">Loading icons…</div>
+              </div>
             </div>
+
             <fieldset class="colour-picker">
               <legend class="colour-picker__legend">Icon colour <span class="colour-picker__current" id="colourName">UN Blue</span></legend>
               <div class="colour-picker__swatches" id="colourSwatches"><!-- built by renderColourPicker() --></div>
             </fieldset>
           </div>
 
-          <div class="control-group">
-            <h2 class="step-title">2. Enter text</h2>
+          <div class="step">
+            <h2 class="step-heading"><span class="step-badge">2</span>Enter your text</h2>
             <div class="text-inputs-container" id="textInputs">
               <!-- Lines are built dynamically by setLineCount() -->
             </div>
@@ -1186,73 +1205,79 @@
         </div>
 
         <div class="workspace__side">
-          <section class="preview-section" aria-labelledby="previewTitle">
-            <h2 class="step-title" id="previewTitle">Preview</h2>
-            <div id="preview">
+          <section class="step step--card" aria-labelledby="stepPreviewTitle">
+            <h2 class="step-heading" id="stepPreviewTitle"><span class="step-badge">3</span>Preview and request approval</h2>
+            <div class="preview-box" id="preview">
               <p class="preview-placeholder">Select an icon and enter text to see the preview</p>
             </div>
-            <div class="buttons buttons--preview">
+            <div class="buttons">
               <button class="btn-png" id="downloadPreviewPNG" disabled>Download preview PNG</button>
             </div>
-            <p class="watermark-note" id="watermarkNote" hidden>Preview files include a DRAFT watermark. Request approval to download the final version.</p>
+            <p class="watermark-note" id="watermarkNote" hidden>Preview files include a DRAFT watermark. Request approval below to download the final version.</p>
             <div id="previewMessage" aria-live="polite"></div>
+
+            <div class="request-approval">
+              <p class="step-intro">
+                Wordmarks must be approved by the OCHA Brand and Design Unit before use.
+                Submit your request: you’ll see your Request ID on screen and receive it by email.
+              </p>
+              <div class="approval-row">
+                <div class="approval-field">
+                  <label for="requestEmail">Your email</label>
+                  <input type="email" id="requestEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
+                </div>
+                <button class="btn-request" id="submitRequest" disabled>Request approval</button>
+              </div>
+              <div class="progress" id="submitLoader" hidden>
+                <div class="progress__track"><div class="progress__bar"></div></div>
+                <p class="progress__label">Submitting your request…</p>
+              </div>
+              <div id="requestMessage" aria-live="polite"></div>
+            </div>
           </section>
+        </div>
+      </section>
 
-          <!-- Steps 3 and 4 as an accordion: opening one closes the other (details[name]).
-               Step 4 opens by itself when the page comes from an approval email link. -->
-          <div class="steps">
-            <details class="step-panel" name="approvalSteps" id="requestSection" open>
-              <summary class="step-panel__summary"><span class="step-title">3. Request approval</span></summary>
-              <div class="step-panel__body">
-                <p class="step-panel__intro">
-                  Wordmarks must be approved by the OCHA Brand and Design Unit before use.
-                  Submit your request: you’ll see your Request ID on screen and receive it by email.
-                </p>
-                <div class="approval-row">
-                  <div class="approval-field">
-                    <label for="requestEmail">Your email</label>
-                    <input type="email" id="requestEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
-                  </div>
-                  <button class="btn-request" id="submitRequest" disabled>Request approval</button>
-                </div>
-                <div class="progress" id="submitLoader" hidden>
-                  <div class="progress__track"><div class="progress__bar"></div></div>
-                  <p class="progress__label">Submitting your request…</p>
-                </div>
-                <div id="requestMessage" aria-live="polite"></div>
+      <section class="tab-panel workspace" role="tabpanel" id="panelRequest" aria-labelledby="tabRequest" hidden>
+        <div class="workspace__main">
+          <div class="step">
+            <h2 class="step-heading">Enter your Request ID</h2>
+            <p class="step-intro">
+              Use the link in your approval email, or enter your Request ID and email address below.
+            </p>
+            <div class="approval-row">
+              <div class="approval-field">
+                <label for="downloadEmail">Your email</label>
+                <input type="email" id="downloadEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
               </div>
-            </details>
-
-            <details class="step-panel" name="approvalSteps" id="downloadSection">
-              <summary class="step-panel__summary"><span class="step-title">4. I have a Request ID</span><span class="step-panel__hint">Download an approved wordmark</span></summary>
-              <div class="step-panel__body">
-                <p class="step-panel__intro">
-                  Use the link in your approval email, or enter your Request ID and email address below.
-                </p>
-                <div class="approval-row">
-                  <div class="approval-field">
-                    <label for="downloadEmail">Your email</label>
-                    <input type="email" id="downloadEmail" placeholder="your.name@un.org" autocomplete="email" inputmode="email" spellcheck="false" />
-                  </div>
-                  <div class="approval-field">
-                    <label for="downloadCode">Request ID</label>
-                    <input type="text" id="downloadCode" class="input--uppercase" placeholder="e.g. WM-A3K7P2" autocomplete="off" autocapitalize="characters" spellcheck="false" />
-                  </div>
-                  <button class="btn-check" id="checkStatus">Check status</button>
-                </div>
-                <div class="progress" id="deepLinkLoader" hidden>
-                  <div class="progress__track"><div class="progress__bar"></div></div>
-                  <p class="progress__label">Verifying your request…</p>
-                </div>
-                <div id="downloadMessage" aria-live="polite"></div>
-                <div class="buttons" id="approvedButtons" hidden>
-                  <button class="btn-svg" id="downloadPackage">Download wordmark (SVG + PNG)</button>
-                </div>
+              <div class="approval-field">
+                <label for="downloadCode">Request ID</label>
+                <input type="text" id="downloadCode" class="input--uppercase" placeholder="e.g. WM-A3K7P2" autocomplete="off" autocapitalize="characters" spellcheck="false" />
               </div>
-            </details>
+            </div>
+            <div class="buttons buttons--start">
+              <button class="btn-check" id="checkStatus">Check status</button>
+            </div>
+            <div class="progress" id="deepLinkLoader" hidden>
+              <div class="progress__track"><div class="progress__bar"></div></div>
+              <p class="progress__label">Verifying your request…</p>
+            </div>
+            <div id="downloadMessage" aria-live="polite"></div>
           </div>
         </div>
-      </div>
+
+        <div class="workspace__side">
+          <section class="step step--card" aria-labelledby="approvedTitle">
+            <h2 class="step-heading" id="approvedTitle">Your wordmark</h2>
+            <div class="preview-box" id="approvedPreview">
+              <p class="preview-placeholder">Your approved wordmark appears here once you check its status.</p>
+            </div>
+            <div class="buttons" id="approvedButtons" hidden>
+              <button class="btn-svg" id="downloadPackage">Download wordmark (SVG + PNG)</button>
+            </div>
+          </section>
+        </div>
+      </section>
 
       <!-- Embed mode only: replaces the full footer -->
       <p class="embed-footer">Service provided by <img src="../assets/OCHA_logo_horizontal_blue.svg" alt="OCHA" class="embed-footer__logo" /></p>
@@ -1407,7 +1432,7 @@
       function setIconColour(hex) {
         const colour = findIconColour(hex) || ICON_COLOURS[0];
         selectedIconColour = colour.hex;
-        document.getElementById("iconSelector").style.setProperty("--icon-colour", colour.hex);
+        document.getElementById("stepIcon").style.setProperty("--icon-colour", colour.hex);
         document.querySelectorAll('input[name="iconColour"]').forEach((input) => {
           input.checked = input.value === colour.hex;
         });
@@ -1530,7 +1555,9 @@
         if (empty) empty.hidden = visible > 0;
       }
 
-      function setSelectedIcon(icon, { reveal = false } = {}) {
+      // Selects an icon and shows it in the “chosen icon” row. The grid itself is
+      // opened and closed by setIconBrowserOpen().
+      function setSelectedIcon(icon) {
         selectedIcon = icon;
         icons.forEach((candidate) => {
           if (!candidate.element) return;
@@ -1538,16 +1565,50 @@
           candidate.element.classList.toggle("selected", isSelected);
           candidate.element.setAttribute("aria-pressed", String(isSelected));
         });
-        if (reveal && icon && icon.element) {
+
+        const art = document.getElementById("iconChosenArt");
+        document.getElementById("iconChosenName").textContent = icon ? icon.name : "";
+        art.replaceChildren();
+        art.classList.remove("is-loaded", "icon-placeholder--failed");
+        if (!icon) return;
+        getIconSvgText(icon.url)
+          .then((svgText) => {
+            if (selectedIcon !== icon) return; // a newer pick already replaced it
+            art.innerHTML = cleanIconSvg(svgText);
+            art.classList.add("is-loaded");
+          })
+          .catch(() => art.classList.add("icon-placeholder--failed"));
+      }
+
+      // Step 1 closes into one row once an icon is picked, so steps 2 and 3 move
+      // up. The grid can only be closed when an icon is selected.
+      function setIconBrowserOpen(open) {
+        const isOpen = open || !selectedIcon;
+        document.getElementById("iconBrowser").hidden = !isOpen;
+        document.getElementById("iconChosen").hidden = !selectedIcon;
+        const toggle = document.getElementById("changeIcon");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.textContent = isOpen ? "Done" : "Change icon";
+        if (isOpen && selectedIcon && selectedIcon.element) {
           // Scroll only the icon list — scrollIntoView() would also move the page.
           const selector = document.getElementById("iconSelector");
-          selector.scrollTop = icon.element.offsetTop - selector.clientHeight / 2 + icon.element.offsetHeight / 2;
+          const item = selectedIcon.element;
+          selector.scrollTop = item.offsetTop - selector.clientHeight / 2 + item.offsetHeight / 2;
         }
       }
 
       function selectIcon(icon) {
         setSelectedIcon(icon);
+        setIconBrowserOpen(false);
+        // Keep keyboard focus in step 1 now that the grid button is gone.
+        document.getElementById("changeIcon").focus();
         return updatePreview();
+      }
+
+      function toggleIconBrowser() {
+        const open = document.getElementById("iconBrowser").hidden;
+        setIconBrowserOpen(open);
+        if (open && selectedIcon && selectedIcon.element) selectedIcon.element.focus();
       }
 
       // ── Text lines ────────────────────────────────────
@@ -1655,6 +1716,15 @@
         return { icon: selectedIcon, lines: getFilledLines(), iconColour: selectedIconColour };
       }
 
+      // Scales multi-line wordmarks up so they don't look tiny on screen.
+      function sizeForScreen(svg, lineTotal) {
+        const scale = lineTotal === 1 ? 1 : lineTotal === 2 ? 1.6 : 2;
+        svg.style.width = `${parseFloat(svg.getAttribute("width")) * scale}px`;
+        svg.style.maxWidth = "100%";
+        svg.style.height = "auto";
+        return svg;
+      }
+
       async function updatePreview() {
         const renderId = ++previewRenderId;
         const preview = document.getElementById("preview");
@@ -1704,12 +1774,7 @@
         try {
           const svg = await generateWordmark(config);
           if (renderId !== previewRenderId) return; // a newer edit already started a render
-          // Scale multi-line wordmarks up so they don't look tiny on screen.
-          const scale = lines.length === 1 ? 1 : lines.length === 2 ? 1.6 : 2;
-          svg.style.width = `${parseFloat(svg.getAttribute("width")) * scale}px`;
-          svg.style.maxWidth = "100%";
-          svg.style.height = "auto";
-          preview.replaceChildren(svg);
+          preview.replaceChildren(sizeForScreen(svg, lines.length));
           setReady(true);
         } catch (err) {
           if (renderId !== previewRenderId) return;
@@ -2239,7 +2304,7 @@
               `Request submitted. Your Request ID is <strong>${escapeHtml(result.requestId)}</strong> — we’ve also emailed it to you.<br><br>` +
                 "The OCHA Brand and Design Unit will review your request and get back to you as soon as possible. " +
                 'If it’s urgent, contact <a href="mailto:ochavisual@un.org">ochavisual@un.org</a>.<br><br>' +
-                "Once it’s approved, you’ll receive an email with a direct download link. You can also check its status under “4. I have a Request ID”.",
+                "Once it’s approved, you’ll receive an email with a direct download link. You can also check its status in the “Download approved wordmark” tab.",
               "success"
             );
             document.getElementById("downloadCode").value = result.requestId;
@@ -2266,8 +2331,7 @@
       async function checkApprovalStatus() {
         const params = getOwnershipParams();
         const approvedButtons = document.getElementById("approvedButtons");
-        approvedButtons.hidden = true;
-        approvedConfig = null;
+        resetApprovedWordmark();
 
         if (!params.requestId) {
           showMessage("downloadMessage", "Please enter your Request ID.", "error");
@@ -2301,7 +2365,8 @@
               return false;
             }
             approvedConfig = restored;
-            showMessage("downloadMessage", "Your request is <strong>approved</strong>. Download your wordmark below.", "success");
+            await showApprovedWordmark(restored);
+            showMessage("downloadMessage", "Your request is <strong>approved</strong>. You can now download your wordmark.", "success");
             approvedButtons.hidden = false;
             return true;
           }
@@ -2331,6 +2396,25 @@
         }
       }
 
+      // The approved wordmark, shown next to its download button in the
+      // “Download approved wordmark” tab (without the DRAFT watermark, like the preview).
+      async function showApprovedWordmark(config) {
+        const box = document.getElementById("approvedPreview");
+        try {
+          box.replaceChildren(sizeForScreen(await generateWordmark(config), config.lines.length));
+        } catch (err) {
+          console.error("Approved wordmark preview failed:", err);
+          box.innerHTML = '<p class="preview-placeholder">The wordmark can’t be shown here, but you can still download it.</p>';
+        }
+      }
+
+      function resetApprovedWordmark() {
+        approvedConfig = null;
+        document.getElementById("approvedButtons").hidden = true;
+        document.getElementById("approvedPreview").innerHTML =
+          '<p class="preview-placeholder">Your approved wordmark appears here once you check its status.</p>';
+      }
+
       // Puts the approved icon and text back into the form. Returns the approved
       // config, or null if the icon is no longer available for wordmarks.
       async function restoreWordmarkConfig(data) {
@@ -2353,7 +2437,8 @@
           (candidate) => normalizeIconName(candidate.name) === wanted || normalizeIconName(candidate.key) === wanted
         );
         setIconColour(data.iconColour || DEFAULT_ICON_COLOUR);
-        setSelectedIcon(icon || null, { reveal: true });
+        setSelectedIcon(icon || null);
+        setIconBrowserOpen(false); // stays open by itself when the icon is missing
         await updatePreview();
         return icon ? { icon, lines, iconColour: selectedIconColour } : null;
       }
@@ -2427,9 +2512,8 @@
         history.replaceState(null, "", window.location.pathname + window.location.hash);
 
         const loader = document.getElementById("deepLinkLoader");
-        const section = document.getElementById("downloadSection");
-        section.open = true; // closes step 3 (same accordion group)
-        scrollToElement(section, "start");
+        showTab("request");
+        scrollToElement(document.querySelector(".tabs"), "start");
         loader.hidden = false;
 
         let approved = false;
@@ -2440,10 +2524,43 @@
           loader.hidden = true;
         }
 
-        // Scroll again once the result is on screen: the preview above grows
-        // while it renders and pushes this section down after the first scroll.
+        // Scroll again once the result is on screen (on phones the wordmark
+        // and its download button sit below the form).
         const target = document.getElementById(approved ? "approvedButtons" : "downloadMessage");
         scrollToElement(target, "center");
+      }
+
+      // ── Tabs ──────────────────────────────────────────
+      const TABS = { create: "tabCreate", request: "tabRequest" };
+
+      function showTab(name, { focus = false } = {}) {
+        Object.entries(TABS).forEach(([key, tabId]) => {
+          const tab = document.getElementById(tabId);
+          const selected = key === name;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+          document.getElementById(tab.getAttribute("aria-controls")).hidden = !selected;
+          if (selected && focus) tab.focus();
+        });
+      }
+
+      function setUpTabs() {
+        const names = Object.keys(TABS);
+        names.forEach((name, index) => {
+          const tab = document.getElementById(TABS[name]);
+          tab.addEventListener("click", () => showTab(name));
+          // Arrow keys move between tabs (WAI-ARIA tabs pattern).
+          tab.addEventListener("keydown", (event) => {
+            const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+            if (event.key === "Home" || event.key === "End") {
+              event.preventDefault();
+              showTab(names[event.key === "Home" ? 0 : names.length - 1], { focus: true });
+            } else if (step) {
+              event.preventDefault();
+              showTab(names[(index + step + names.length) % names.length], { focus: true });
+            }
+          });
+        });
       }
 
       // ── Embed mode ────────────────────────────────────
@@ -2483,6 +2600,7 @@
 
       // ── Wiring ────────────────────────────────────────
       setUpEmbedMode();
+      setUpTabs();
       renderColourPicker();
       setLineCount(1);
 
@@ -2491,6 +2609,7 @@
       document.getElementById("checkStatus").addEventListener("click", checkApprovalStatus);
       document.getElementById("downloadPackage").addEventListener("click", approvedDownload);
       document.getElementById("iconSearch").addEventListener("input", applySearch);
+      document.getElementById("changeIcon").addEventListener("click", toggleIconBrowser);
 
       document.getElementById("requestEmail").addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !document.getElementById("submitRequest").disabled) submitApprovalRequest();
@@ -2500,8 +2619,7 @@
         // Editing the details invalidates a previous check and any link token.
         input.addEventListener("input", () => {
           accessToken = null;
-          approvedConfig = null;
-          document.getElementById("approvedButtons").hidden = true;
+          resetApprovedWordmark();
         });
         input.addEventListener("keydown", (event) => {
           if (event.key === "Enter") checkApprovalStatus();
